@@ -1,0 +1,1 @@
+folder where ROOT.war of usergrid-rest will be copied for running unit and maven tests
