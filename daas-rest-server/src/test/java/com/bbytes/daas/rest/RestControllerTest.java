@@ -1,9 +1,12 @@
-package com.bbytes.daas.rest.usergrid;
+package com.bbytes.daas.rest;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Date;
 
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
@@ -22,13 +25,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.bbytes.daas.template.BaasException;
-import com.bbytes.daas.template.DealResourceTemplate;
-import com.bbytes.daas.template.StoreResourceTemplate;
-import com.bbytes.daas.template.usergrid.BaseUsergridClientTesting;
-import com.bbytes.endure.domain.Deal;
-import com.bbytes.endure.domain.Store;
-
 /**
  * Unit test for Endure Rest Services using Usergrid as the BAAS
  * 
@@ -39,7 +35,7 @@ import com.bbytes.endure.domain.Store;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(locations = "classpath:/spring/test-rest-servlet.xml")
-public class RestControllerTest extends BaseUsergridClientTesting {
+public class RestControllerTest extends DAASTesting {
 
 	@Autowired
 	protected WebApplicationContext wac;
@@ -55,17 +51,16 @@ public class RestControllerTest extends BaseUsergridClientTesting {
 	protected String appName;
 	protected String orgName;
 	protected String token;
-
-	private Store store;
+	protected Store store;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
-		startJettyTestServer(false, true, false);
+
 	}
 
 	@AfterClass
 	public static void afterClass() throws Exception {
-		stopJettyTestServer();
+
 	}
 
 	@Before
@@ -95,7 +90,7 @@ public class RestControllerTest extends BaseUsergridClientTesting {
 
 	@Test
 	public void testGetEntities() throws Exception {
-		String contextPath = "/" + orgName + "/" + appName + StoreResourceTemplate.ENDPOINT;
+		String contextPath = "/" + orgName + "/" + appName ;
 		this.mockMvc
 				.perform(
 						get(contextPath).session(session).header("Authorization", "Bearer " + token)
@@ -106,7 +101,7 @@ public class RestControllerTest extends BaseUsergridClientTesting {
 
 	@Test
 	public void testGetEntity() throws Exception {
-		String contextPath = "/" + orgName + "/" + appName + StoreResourceTemplate.ENDPOINT + "/" + store.getUuid();
+		String contextPath = "/" + orgName + "/" + appName + "StoreResourceTemplate.ENDPOINT" + "/" + store.getUuid();
 		this.mockMvc
 				.perform(
 						get(contextPath).session(session).header("Authorization", "Bearer " + token)
@@ -121,8 +116,8 @@ public class RestControllerTest extends BaseUsergridClientTesting {
 		Deal d = createBasicDeal(orgName, appName, DateTime.now().toDate(), DateTime.now().plusDays(1).toDate(), token);
 		addValidStoreToDeal(orgName, appName, d.getUuid(), s.getUuid(), token);
 
-		String contextPath = "/" + orgName + "/" + appName + DealResourceTemplate.ENDPOINT + "/" + d.getUuid()
-				+ DealResourceTemplate.DEAL_STORE_RELATION + StoreResourceTemplate.ENDPOINT;
+		String contextPath = "/" + orgName + "/" + appName + "DealResourceTemplate.ENDPOINT" + "/" + d.getUuid()
+				+ "DealResourceTemplate.DEAL_STORE_RELATION" + "StoreResourceTemplate.ENDPOINT";
 
 		this.mockMvc
 				.perform(
@@ -138,13 +133,61 @@ public class RestControllerTest extends BaseUsergridClientTesting {
 		Deal d = createBasicDeal(orgName, appName, DateTime.now().toDate(), DateTime.now().plusDays(1).toDate(), token);
 		addValidStoreToDeal(orgName, appName, d.getUuid(), s.getUuid(), token);
 
-		String contextPath = "/" + orgName + "/" + appName + StoreResourceTemplate.ENDPOINT + "/" + s.getUuid()
-				+ "/connecting" + DealResourceTemplate.DEAL_STORE_RELATION;
+		String contextPath = "/" + orgName + "/" + appName + "StoreResourceTemplate.ENDPOINT" + "/" + s.getUuid()
+				+ "/connecting" + "DealResourceTemplate.DEAL_STORE_RELATION";
 		this.mockMvc
 				.perform(
 						get(contextPath).session(session).header("Authorization", "Bearer " + token)
 								.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(jsonPath("$.[0].uuid").value(d.getUuid()));
+	}
+
+	/**
+	 * @param orgName2
+	 * @param appName2
+	 * @param uuid
+	 * @param uuid2
+	 * @param token2
+	 */
+	private void addValidStoreToDeal(String orgName2, String appName2, Object uuid, Object uuid2, String token2) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * @param orgName2
+	 * @param appName2
+	 * @param date
+	 * @param date2
+	 * @param token2
+	 * @return
+	 */
+	private Deal createBasicDeal(String orgName2, String appName2, Date date, Date date2, String token2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @param orgName2
+	 * @param appName2
+	 * @param token2
+	 * @return
+	 */
+	private Store createBasicStore(String orgName2, String appName2, String token2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @param orgName2
+	 * @param appName2
+	 * @param username2
+	 * @param password2
+	 * @return
+	 */
+	private String init(String orgName2, String appName2, String username2, String password2) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

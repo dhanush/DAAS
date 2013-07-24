@@ -116,11 +116,7 @@
 			<artifactId>jackson-mapper-lgpl</artifactId>
 		</dependency>
 		
-		
-		<dependency>
-			<groupId>com.bbytes</groupId>
-			<artifactId>daas-testing</artifactId>
-		</dependency>
+	
 		<dependency>
 			<groupId>com.bbytes</groupId>
 			<artifactId>daas-client</artifactId>

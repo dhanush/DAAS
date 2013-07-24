@@ -261,7 +261,6 @@
 	</build>
 
 	<modules>
-		<module>daas-testing</module>
 		<module>daas-client</module>
 		<module>daas-rest-server</module>
 	</modules>
