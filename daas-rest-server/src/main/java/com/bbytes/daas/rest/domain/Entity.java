@@ -1,8 +1,11 @@
 package com.bbytes.daas.rest.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
+import com.google.gson.Gson;
 
 /**
  * Base entity for holding information that is available across the entities
@@ -15,22 +18,19 @@ public class Entity implements Serializable {
 
 	private static final long serialVersionUID = -5534745615089076782L;
 
-	private String uuid;
+	protected String uuid;
 
-	private String name;
+	protected String name;
 
-	private String type;
+	protected String type;
+	
+	protected Date creationDate;
+	
+	protected Date modificationDate;
 
-	/**
-	 * The organization name used in user grid
-	 */
-	private String organization;
-
-	/**
-	 * The application name used in user grid
-	 */
-	private String applicationName;
-
+	public Entity(){
+		
+	}
 	/**
 	 * @return the uuid
 	 */
@@ -73,34 +73,34 @@ public class Entity implements Serializable {
 		this.type = type;
 	}
 
-	/**
-	 * @return the organization
-	 */
-	public String getOrganization() {
-		return organization;
+	public String toString() {
+		Gson gson = new Gson();
+		return gson.toJson(this);
 	}
-
 	/**
-	 * @param organization the organization to set
+	 * @return the creationDate
 	 */
-	public void setOrganization(String organization) {
-		this.organization = organization;
+	public Date getCreationDate() {
+		return creationDate;
 	}
-
 	/**
-	 * @return the applicationName
+	 * @param creationDate the creationDate to set
 	 */
-	public String getApplicationName() {
-		return applicationName;
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
 	}
-
 	/**
-	 * @param applicationName the applicationName to set
+	 * @return the modificationDate
 	 */
-	public void setApplicationName(String applicationName) {
-		this.applicationName = applicationName;
+	public Date getModificationDate() {
+		return modificationDate;
 	}
-
+	/**
+	 * @param modificationDate the modificationDate to set
+	 */
+	public void setModificationDate(Date modificationDate) {
+		this.modificationDate = modificationDate;
+	}
 	
 
 }

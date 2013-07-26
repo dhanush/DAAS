@@ -15,21 +15,18 @@
  */
 package com.bbytes.daas.rest.dao;
 
-import java.util.List;
-
-import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.domain.Application;
+import com.bbytes.daas.rest.domain.Organization;
 
 
 /**
- * Application DAO
+ * Organization DAO
  *
  * @author Thanneer
  *
  * @version 1.0.0
  */
 
-public interface ApplicationDao extends DaasDAO<Application>{
+public interface OrganizationDao extends DaasDAO<Organization>{
 
-	public List<Application> findForOrganization(String organizationName) throws BaasPersistentException;
+
 }

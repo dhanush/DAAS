@@ -3,8 +3,6 @@
  */
 package com.bbytes.daas.rest.domain;
 
-import java.io.Serializable;
-
 /**
  * Java represenation of User Grid's Organization JSON Object -
  * 
@@ -12,30 +10,17 @@ import java.io.Serializable;
  * @author Dhanush Gopinath
  * @version 1.0.0
  */
-public class Organization implements Serializable{
+public class Organization extends Entity {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5673848472822451100L;
 
-	
-	/**
-	 * UUID of the organization
-	 */
-	private String uuid;
-
-	
-	/**
-	 * The name of the organization.
-	 */
-	private String name;
-
-	
-	
 	public Organization() {
+		super();
+		type = Organization.class.getSimpleName();
 	}
-
 
 	/**
 	 * Overloaded constructor
@@ -44,24 +29,10 @@ public class Organization implements Serializable{
 	 * @param name
 	 */
 	public Organization(String uuid, String name) {
+		super();
+		type = Organization.class.getSimpleName();
 		this.uuid = uuid;
 		this.name = name;
-	}
-
-
-	/**
-	 * @return the uuid
-	 */
-	public String getUuid() {
-		return uuid;
-	}
-
-
-	/**
-	 * @param uuid the uuid to set
-	 */
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
 	}
 
 	/**
@@ -71,11 +42,12 @@ public class Organization implements Serializable{
 		return name;
 	}
 
-
 	/**
-	 * @param name the name to set
+	 * @param name
+	 *            the name to set
 	 */
 	public void setName(String name) {
 		this.name = name;
 	}
+
 }

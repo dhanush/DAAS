@@ -13,9 +13,11 @@
  */
 package com.bbytes.daas.rest.dao;
 
-import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
+import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.domain.Entity;
 import com.orientechnologies.orient.core.id.ORID;
 
 /**
@@ -25,19 +27,23 @@ import com.orientechnologies.orient.core.id.ORID;
  * 
  * @version
  */
-public interface DaasDAO<E extends Serializable> {
+public interface DaasDAO<E extends Entity> {
 
-	public void add(E entity);
+	public E save(E entity) throws BaasPersistentException;
 
-	public void update(E entity);
+	public E update(E entity) throws BaasPersistentException;
 
-	public void remove(E entity);
+	public void remove(E entity) throws BaasPersistentException;
 
-	public E find(ORID id);
+	public E find(ORID id) throws BaasPersistentException;
 	
-	public E find(String uuid);
+	public E find(String uuid) throws BaasPersistentException;
 
-	public List<E> list();
+	public List<E> list() throws BaasPersistentException;
 	
-	public long count();
+	public long count() throws BaasPersistentException;
+	
+	public boolean findAny(String property , String value) throws BaasPersistentException;
+	
+	public boolean findAny(Map<String,String> propertyToValue) throws BaasPersistentException;
 }

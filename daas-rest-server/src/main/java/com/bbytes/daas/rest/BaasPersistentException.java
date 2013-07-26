@@ -13,23 +13,33 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.
  */
-package com.bbytes.daas.rest.dao;
-
-import java.util.List;
-
-import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.domain.Application;
-
+package com.bbytes.daas.rest;
 
 /**
- * Application DAO
+ * Any exception related to Baas calls will be wrapped in this
  *
  * @author Thanneer
  *
  * @version 1.0.0
  */
+public class BaasPersistentException extends Exception {
 
-public interface ApplicationDao extends DaasDAO<Application>{
+	private static final long serialVersionUID = 6289917997937599218L;
 
-	public List<Application> findForOrganization(String organizationName) throws BaasPersistentException;
+	public BaasPersistentException() {
+		super();
+	}
+
+	public BaasPersistentException(String jsonResponse, String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public BaasPersistentException(String message) {
+		super(message);
+	}
+
+	public BaasPersistentException(Throwable cause) {
+		super(cause);
+	}
+
 }

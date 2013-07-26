@@ -17,7 +17,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +47,6 @@ public class SaveObjectToDBTest extends BaseDBTest {
 		long start = Calendar.getInstance().getTimeInMillis();
 		Organization org = new Organization();
 		org.setName("testorg2");
-		org.setUuid(UUID.randomUUID().toString());
 
 		orientDbTemplate.getObjectDatabase().save(org);
 
