@@ -1,18 +1,26 @@
 package com.bbytes.daas.rest.controller;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonProcessingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.bbytes.daas.rest.BaasException;
+import com.bbytes.daas.rest.domain.Entity;
 
 /**
  * Rest service for accessing generic entities from Endure BAAS. These API's will be called by the
@@ -112,6 +120,64 @@ public class EntityController {
 			@PathVariable String relation, @RequestHeader("Authorization") String accessToken,
 			HttpServletRequest request) throws BaasException {
 		return null;
+	}
+
+	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	String createEntity(@PathVariable String organizationName, @PathVariable String applicationName,
+			@PathVariable String entityType, @RequestHeader("Authorization") String accessToken,
+			@RequestBody String entityJson, HttpServletRequest request) throws BaasException {
+		// TODO: replace the actual impl
+		System.out.println(entityJson);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			JsonNode entity = mapper.readTree(entityJson);
+			// TODO : parse and create entity?
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "{'status': 'ok'}";
+	}
+
+	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}/{entityUuid}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	String updateEntity(@PathVariable String organizationName, @PathVariable String applicationName,
+			@PathVariable String entityType, @PathVariable String entityUuid,
+			@RequestHeader("Authorization") String accessToken, @RequestBody String entityJson,
+			HttpServletRequest request) throws BaasException {
+		return "{'status': 'ok'}";
+
+	}
+
+	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}/{entityUuid}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	String deleteEntity(@PathVariable String organizationName, @PathVariable String applicationName,
+			@PathVariable String entityType, @PathVariable String entityUuid,
+			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException {
+		return "{'status': 'ok'}";
+
+	}
+
+	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}/{relatedEntityId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	String addConnection(@PathVariable String organizationName, @PathVariable String applicationName,
+			@PathVariable String entityType, @PathVariable String entityId, @PathVariable String relation,
+			@PathVariable String relatedEntityType, @PathVariable String relatedEntityId,
+			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException {
+
+		return "";
+	}
+
+
+	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}/{relatedEntityId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	String deleteConnection(@PathVariable String organizationName, @PathVariable String applicationName,
+			@PathVariable String entityType, @PathVariable String entityId, @PathVariable String relation,
+			@PathVariable String relatedEntityType, @PathVariable String relatedEntityId,
+			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException {
+
+		return "";
 	}
 
 }

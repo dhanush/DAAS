@@ -15,12 +15,10 @@
 
 	<!-- Enables the Spring MVC @Controller programming model -->
 
-	<context:component-scan base-package="com.bbytes.endure.rest" />
+	<context:component-scan base-package="com.bbytes.daas.rest.controller" />
 	<mvc:annotation-driven />
 	
 	<util:properties id="props"
 		location="classpath:META-INF/test-rest-config.properties" />
-	<import resource="classpath*:spring/baas-rest-context.xml"/>
-	<bean id="baasClient" class="com.bbytes.endure.rest.baas.client.UsergridBaasClient" />
-
+	<import resource="classpath:/spring/rest-daas-server-context.xml"/>
 </beans>
