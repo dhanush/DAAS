@@ -13,20 +13,33 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.
  */
-package com.bbytes.daas.rest.dao;
-
-import com.bbytes.daas.rest.domain.Entity;
-
+package com.bbytes.daas.rest;
 
 /**
- * Entity DAO
+ * Any exception related to Baas calls will be wrapped in this
  *
  * @author Thanneer
  *
  * @version 1.0.0
  */
-public class EntityDao extends AbstractDao<Entity>{
+public class BaasEntityNotFoundException extends Exception {
 
-	
-	
+	private static final long serialVersionUID = 6289917997937599218L;
+
+	public BaasEntityNotFoundException() {
+		super();
+	}
+
+	public BaasEntityNotFoundException(String jsonResponse, String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public BaasEntityNotFoundException(String message) {
+		super(message);
+	}
+
+	public BaasEntityNotFoundException(Throwable cause) {
+		super(cause);
+	}
+
 }
