@@ -24,6 +24,7 @@ import org.apache.commons.collections.IteratorUtils;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.domain.Entity;
 import com.orientechnologies.orient.core.id.ORID;
@@ -70,15 +71,17 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public E find(ORID id) throws BaasPersistentException {
+	public E find(ORID id) throws BaasPersistentException, BaasEntityNotFoundException {
 		return (E) getObjectDataBase().load(id);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<E> list() throws BaasPersistentException {
+	public List<E> list() throws BaasPersistentException, BaasEntityNotFoundException {
 		OObjectIteratorClassInterface<E> listItr = getObjectDataBase().browseClass(this.entityType);
 		List<E> result = IteratorUtils.toList(listItr);
+		if (result == null || result.size() == 0)
+			throw new BaasEntityNotFoundException();
 		return result;
 	}
 
@@ -99,14 +102,16 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 * @see com.bbytes.daas.rest.dao.DaasDAO#find(java.lang.String)
 	 */
 	@Override
-	public E find(String uuid) throws BaasPersistentException {
+	public E find(String uuid) throws BaasPersistentException, BaasEntityNotFoundException {
 		List<E> result = orientDbTemplate.getObjectDatabase().query(
 				new OSQLSynchQuery<E>("select * from " + this.entityType.getSimpleName() + " where uuid = '" + uuid
 						+ "'"));
-		if (result != null && result.size() > 0)
-			return result.get(0);
 
-		return null;
+		if (result == null || result.size() == 0)
+			throw new BaasEntityNotFoundException();
+
+		return result.get(0);
+
 	}
 
 	/*

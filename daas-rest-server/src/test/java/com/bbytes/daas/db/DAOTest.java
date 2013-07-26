@@ -23,10 +23,10 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.AssertThrows;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.dao.ApplicationDao;
 import com.bbytes.daas.rest.dao.OrganizationDao;
@@ -79,7 +79,7 @@ public class DAOTest extends BaseDBTest {
 	}
 
 	@Test
-	public void testDaoQueryAll() throws BaasPersistentException {
+	public void testDaoQueryAll() throws BaasPersistentException, BaasEntityNotFoundException {
 		long start = Calendar.getInstance().getTimeInMillis();
 		int size = applicationDao.list().size();
 		System.out.println("application object size in DB " + size);
@@ -103,7 +103,7 @@ public class DAOTest extends BaseDBTest {
 	}
 
 	@Test
-	public void testDaoFindByID() throws BaasPersistentException {
+	public void testDaoFindByID() throws BaasPersistentException, BaasEntityNotFoundException {
 		LOG.debug("testDaoFindByID started...");
 		long start = Calendar.getInstance().getTimeInMillis();
 		Application app = applicationDao.find(uuid);
@@ -116,7 +116,7 @@ public class DAOTest extends BaseDBTest {
 	}
 
 	@Test
-	public void testDaoIsAvailable() throws BaasPersistentException {
+	public void testDaoIsAvailable() throws BaasPersistentException, BaasEntityNotFoundException {
 		LOG.debug("isAvailable test...");
 
 		Application app = applicationDao.find(uuid);

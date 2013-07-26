@@ -16,6 +16,7 @@ package com.bbytes.daas.rest.dao;
 import java.util.List;
 import java.util.Map;
 
+import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.domain.Entity;
 import com.orientechnologies.orient.core.id.ORID;
@@ -35,11 +36,11 @@ public interface DaasDAO<E extends Entity> {
 
 	public void remove(E entity) throws BaasPersistentException;
 
-	public E find(ORID id) throws BaasPersistentException;
+	public E find(ORID id) throws BaasPersistentException,BaasEntityNotFoundException;
 	
-	public E find(String uuid) throws BaasPersistentException;
+	public E find(String uuid) throws BaasPersistentException,BaasEntityNotFoundException;
 
-	public List<E> list() throws BaasPersistentException;
+	public List<E> list() throws BaasPersistentException,BaasEntityNotFoundException;
 	
 	public long count() throws BaasPersistentException;
 	

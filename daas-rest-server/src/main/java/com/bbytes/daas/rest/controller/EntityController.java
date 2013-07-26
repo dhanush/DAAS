@@ -40,7 +40,7 @@ public class EntityController {
 	 * @param applicationName
 	 * @param entityType
 	 * @param accessToken
-	 * @return
+	 * @returnmm
 	 * @throws BaasException
 	 */
 	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
