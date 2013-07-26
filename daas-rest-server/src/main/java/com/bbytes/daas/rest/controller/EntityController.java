@@ -10,11 +10,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.bbytes.daas.rest.BaasException;
-
 
 /**
  * Rest service for accessing generic entities from Endure BAAS. These API's will be called by the
@@ -27,50 +25,39 @@ import com.bbytes.daas.rest.BaasException;
 @Controller
 public class EntityController {
 
-	
-	
-
-
-	@RequestMapping(value = "/login", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-	public @ResponseBody
-	String login(@RequestParam("userName") String userName, @RequestParam("password") String password)
-			throws BaasException {
-		return null;
-	}
-
-	
-	
 	/**
-	 * Returns all the entities of type entityName
+	 * Returns all the entities of type entityType
 	 * 
 	 * @param organizationName
 	 * @param applicationName
-	 * @param entityName
+	 * @param entityType
 	 * @param accessToken
 	 * @return
 	 * @throws BaasException
 	 */
-	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE )
+	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	<T> List<T> getEntities(@PathVariable String entityName, @RequestHeader("Authorization") String accessToken,
+	<T> List<T> getEntities(@PathVariable String organizationName, @PathVariable String applicationName,
+			@PathVariable String entityType, @RequestHeader("Authorization") String accessToken,
 			HttpServletRequest request) throws BaasException {
 		return null;
 
 	}
 
 	/**
-	 * Returns a single entity of type entityName identified by the id
+	 * Returns a single entity of type entityType identified by the id
 	 * 
 	 * @param organizationName
 	 * @param applicationName
-	 * @param entityName
+	 * @param entityType
 	 * @param accessToken
 	 * @return
 	 * @throws BaasException
 	 */
-	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityName}/{entityId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}/{entityId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	<T> T getEntity(@PathVariable String entityName, @PathVariable String entityId,
+	<T> T getEntity(@PathVariable String organizationName, @PathVariable String applicationName,
+			@PathVariable String entityType, @PathVariable String entityId,
 			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException {
 		return null;
 	}
@@ -81,21 +68,22 @@ public class EntityController {
 	 * 
 	 * @param organizationName
 	 * @param applicationName
-	 * @param entityName
+	 * @param entityType
 	 *            - name of the primary entity of whose related entities are to be found
 	 * @param entityId
 	 *            - id of the primary entity
 	 * @param relation
 	 *            - relation defined b/w 2 entities
-	 * @param relatedEntityName
+	 * @param relatedEntityType
 	 *            - related entity that we want to return
 	 * @param accessToken
 	 * @return - List<T> - a list object consisting of objects of relatedEntityName
 	 * @throws BaasException
 	 */
-	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityName}/{entityId}/{relation}/{relatedEntityName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	<T> List<T> getRelatedEntities(@PathVariable String entityName, @RequestHeader("Authorization") String accessToken,
+	<T> List<T> getRelatedEntities(@PathVariable String organizationName, @PathVariable String applicationName,
+			@PathVariable String entityType, @RequestHeader("Authorization") String accessToken,
 			HttpServletRequest request) throws BaasException {
 		return null;
 	}
@@ -109,20 +97,21 @@ public class EntityController {
 	 * 
 	 * @param organizationName
 	 * @param applicationName
-	 * @param entityName
+	 * @param entityType
 	 * @param entityId
 	 * @param relation
-	 * @param relatedEntityName
+	 * @param relatedEntityType
 	 * @param accessToken
 	 * @return
 	 * @throws BaasException
 	 */
-	@RequestMapping(value = "/{organizationName}/{applicationName}/{relatedEntityName}/{relatedEntityId}/connecting/{relation}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{organizationName}/{applicationName}/{relatedEntityType}/{relatedEntityId}/connecting/{relation}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	<T> List<T> getConnectingEntities(@PathVariable String relatedEntityName,
-			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException {
+	<T> List<T> getConnectingEntities(@PathVariable String organizationName, @PathVariable String applicationName,
+			@PathVariable String relatedEntityType, @PathVariable String relatedEntityId,
+			@PathVariable String relation, @RequestHeader("Authorization") String accessToken,
+			HttpServletRequest request) throws BaasException {
 		return null;
 	}
-
 
 }

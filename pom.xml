@@ -19,6 +19,8 @@
 		<compiler.target.version>1.7</compiler.target.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jackson.version>1.9.12</jackson.version>
+		<orientdb.version>1.4.0</orientdb.version>
+
 	</properties>
 
 	<dependencyManagement>
@@ -177,6 +179,12 @@
 			</dependency>
 
 			<dependency>
+				<groupId>commons-collections</groupId>
+				<artifactId>commons-collections</artifactId>
+				<version>3.2.1</version>
+			</dependency>
+
+			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
 				<version>4.2.2</version>
@@ -216,8 +224,35 @@
 				<version>1.0</version>
 				<scope>provided</scope>
 			</dependency>
-			<!-- Endure dependencies -->
-			
+			<!-- orientdb dependencies -->
+
+			<dependency>
+				<groupId>com.orientechnologies</groupId>
+				<artifactId>orient-commons</artifactId>
+				<version>${orientdb.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.orientechnologies</groupId>
+				<artifactId>orientdb-core</artifactId>
+				<version>${orientdb.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.orientechnologies</groupId>
+				<artifactId>orientdb-object</artifactId>
+				<version>${orientdb.version}</version>
+			</dependency>
+
+			<!-- INCLUDE THIS IF YOU'RE CONNECTING TO THE SERVER THROUGH THE REMOTE 
+				ENGINE -->
+			<dependency>
+				<groupId>com.orientechnologies</groupId>
+				<artifactId>orientdb-client</artifactId>
+				<version>${orientdb.version}</version>
+			</dependency>
+			<!-- END REMOTE ENGINE DEPENDENCY -->
+
+
 			<dependency>
 				<groupId>com.bbytes</groupId>
 				<artifactId>daas-testing</artifactId>

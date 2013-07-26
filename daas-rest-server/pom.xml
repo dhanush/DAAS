@@ -11,7 +11,6 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
-	<groupId>com.bbytes</groupId>
 	<artifactId>daas-rest-server</artifactId>
 	<packaging>jar</packaging>
 	<url>http://maven.apache.org</url>
@@ -98,6 +97,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 		</dependency>
@@ -115,8 +119,31 @@
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-lgpl</artifactId>
 		</dependency>
-		
-	
+
+		<dependency>
+			<groupId>com.orientechnologies</groupId>
+			<artifactId>orient-commons</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.orientechnologies</groupId>
+			<artifactId>orientdb-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.orientechnologies</groupId>
+			<artifactId>orientdb-object</artifactId>
+		</dependency>
+
+
+		<!-- INCLUDE THIS IF YOU'RE CONNECTING TO THE SERVER THROUGH THE REMOTE 
+			ENGINE -->
+		<dependency>
+			<groupId>com.orientechnologies</groupId>
+			<artifactId>orientdb-client</artifactId>
+		</dependency>
+		<!-- END REMOTE ENGINE DEPENDENCY -->
+
 		<dependency>
 			<groupId>com.bbytes</groupId>
 			<artifactId>daas-client</artifactId>
@@ -149,7 +176,7 @@
 				</configuration>
 			</plugin>
 
-			
+
 		</plugins>
 	</build>
 </project>

@@ -12,8 +12,7 @@ import com.bbytes.daas.rest.BaasException;
 
 
 /**
- * Rest service for accessing generic entities from Endure BAAS. These API's will be called by the
- * Android/iOS SDK
+ * Management Rest service to create Apps and Organizations
  * 
  * @author Dhanush Gopinath
  * 
@@ -32,30 +31,30 @@ public class ManagementController {
 	}
 	
 	/**
-	 * Returns all the entities of type entityName
-	
+	 * Create org
+	 * @param organizationName
+	 * @return
+	 * @throws BaasException
 	 */
 	@RequestMapping(value = "/organizations", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE )
 	public @ResponseBody
 	<T> T createOrganization(@RequestParam("name") String organizationName) throws BaasException {
 		return null;
-
+//		TODO: return type should of class type organization 
 	}
 
 	/**
-	 * Returns a single entity of type entityName identified by the id
-	 * 
+	 * Create App inside org
 	 * @param organizationName
 	 * @param applicationName
-	 * @param entityName
-	 * @param accessToken
 	 * @return
 	 * @throws BaasException
 	 */
-	@RequestMapping(value = "/{organizationName}/application", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{organizationName}/application", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	<T> T getEntity(@PathVariable String organizationName , @RequestParam("name") String applicationName) throws BaasException {
+	<T> T createApplication(@PathVariable String organizationName , @RequestParam("name") String applicationName) throws BaasException {
 		return null;
+//		TODO: return type should of class type application  
 	}
 
 	
