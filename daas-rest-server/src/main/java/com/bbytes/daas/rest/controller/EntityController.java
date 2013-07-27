@@ -1,14 +1,11 @@
 package com.bbytes.daas.rest.controller;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -20,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.bbytes.daas.rest.BaasException;
-import com.bbytes.daas.rest.domain.Entity;
 
 /**
  * Rest service for accessing generic entities from Endure BAAS. These API's will be called by the
@@ -134,7 +130,6 @@ public class EntityController {
 			JsonNode entity = mapper.readTree(entityJson);
 			// TODO : parse and create entity?
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return "{'status': 'ok'}";

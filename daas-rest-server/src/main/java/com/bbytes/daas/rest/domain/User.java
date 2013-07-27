@@ -13,8 +13,6 @@
  */
 package com.bbytes.daas.rest.domain;
 
-import javax.persistence.Id;
-
 import com.google.gson.Gson;
 
 /**
@@ -24,9 +22,13 @@ import com.google.gson.Gson;
  * 
  * @version 1.0.0
  */
-public class User {
+public class User extends Entity {
 
-	@Id
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2911620978523067262L;
+
 	private String userName;
 
 	private String firstName;
@@ -42,6 +44,11 @@ public class User {
 	private String organizationName;
 
 	private Role role;
+
+	public User() {
+		super();
+		type = User.class.getSimpleName();
+	}
 
 	/**
 	 * @return the userName

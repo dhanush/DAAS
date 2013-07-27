@@ -52,7 +52,7 @@ public class OrientObjectDbPoolTransactionManager extends AbstractPlatformTransa
 	private String username;
 	private String password;
 	private int minConnections = 1;
-	private int maxConnections = 20;
+	private int maxConnections = 50;
 
 	private String domainClassPackage;
 

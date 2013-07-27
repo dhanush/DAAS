@@ -52,7 +52,7 @@ public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransac
 	private String username;
 	private String password;
 	private int minConnections = 1;
-	private int maxConnections = 20;
+	private int maxConnections = 50;
 
 	public void setDatabaseURL(String databaseURL) {
 		this.databaseURL = databaseURL;
