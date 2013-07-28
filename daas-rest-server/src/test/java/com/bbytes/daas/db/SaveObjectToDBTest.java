@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +26,8 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.db.orientDb.OrientDbTemplate;
+import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.dao.AccountDao;
 import com.bbytes.daas.rest.domain.Application;
 import com.bbytes.daas.rest.domain.Account;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -41,16 +44,25 @@ public class SaveObjectToDBTest extends BaseDBTest {
 
 	@Autowired
 	private OrientDbTemplate orientDbTemplate;
+	
+	@Autowired
+	private AccountDao accountDao;
+	
+	private String uuid = UUID.randomUUID().toString();
 
 	@Before
-	@Rollback(false)
+	@Rollback(true)
 	public void setUp() {
 
 		long start = Calendar.getInstance().getTimeInMillis();
 		Account org = new Account();
-		org.setName("testorg2");
+		org.setName(uuid);
 
-		orientDbTemplate.getObjectDatabase().save(org);
+		try {
+			accountDao.save(org);
+		} catch (BaasPersistentException e) {
+			e.printStackTrace();
+		}
 
 		for (int i = 0; i < 2000; i++) {
 			Application app = new Application();
@@ -66,7 +78,7 @@ public class SaveObjectToDBTest extends BaseDBTest {
 	}
 
 	@Test
-	@Rollback(false)
+	@Rollback(true)
 	public void getSavedObjects() {
 		
 		long start = Calendar.getInstance().getTimeInMillis();
@@ -76,7 +88,7 @@ public class SaveObjectToDBTest extends BaseDBTest {
 		assertTrue(result.size() > 0);
 
 		List<Application> appResult = orientDbTemplate.getObjectDatabase().query(
-				new OSQLSynchQuery<Application>("select * from Application where accountName ='testorg2' limit 10000 "));
+				new OSQLSynchQuery<Application>("select * from Application where accountName ='"+uuid+"' limit 10000 "));
 
 		System.out.println(appResult.size());
 		assertTrue(appResult.size() > 0);
