@@ -32,16 +32,16 @@ public class EntityController {
 	/**
 	 * Returns all the entities of type entityType
 	 * 
-	 * @param organizationName
+	 * @param accountName
 	 * @param applicationName
 	 * @param entityType
 	 * @param accessToken
 	 * @returnmm
 	 * @throws BaasException
 	 */
-	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	<T> List<T> getEntities(@PathVariable String organizationName, @PathVariable String applicationName,
+	<T> List<T> getEntities(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @RequestHeader("Authorization") String accessToken,
 			HttpServletRequest request) throws BaasException {
 		return null;
@@ -51,16 +51,16 @@ public class EntityController {
 	/**
 	 * Returns a single entity of type entityType identified by the id
 	 * 
-	 * @param organizationName
+	 * @param accountName
 	 * @param applicationName
 	 * @param entityType
 	 * @param accessToken
 	 * @return
 	 * @throws BaasException
 	 */
-	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}/{entityId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	<T> T getEntity(@PathVariable String organizationName, @PathVariable String applicationName,
+	<T> T getEntity(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityId,
 			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException {
 		return null;
@@ -70,7 +70,7 @@ public class EntityController {
 	 * Returns all the related objects B of the entity A identified by entityId defined by the
 	 * relation R. A->B by R then return B
 	 * 
-	 * @param organizationName
+	 * @param accountName
 	 * @param applicationName
 	 * @param entityType
 	 *            - name of the primary entity of whose related entities are to be found
@@ -84,9 +84,9 @@ public class EntityController {
 	 * @return - List<T> - a list object consisting of objects of relatedEntityName
 	 * @throws BaasException
 	 */
-	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	<T> List<T> getRelatedEntities(@PathVariable String organizationName, @PathVariable String applicationName,
+	<T> List<T> getRelatedEntities(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @RequestHeader("Authorization") String accessToken,
 			HttpServletRequest request) throws BaasException {
 		return null;
@@ -99,7 +99,7 @@ public class EntityController {
 	 * Returns the relating (connecting) objects A from the related Entity B defned by relation R.
 	 * A->B by R then return A
 	 * 
-	 * @param organizationName
+	 * @param accountName
 	 * @param applicationName
 	 * @param entityType
 	 * @param entityId
@@ -109,18 +109,18 @@ public class EntityController {
 	 * @return
 	 * @throws BaasException
 	 */
-	@RequestMapping(value = "/{organizationName}/{applicationName}/{relatedEntityType}/{relatedEntityId}/connecting/{relation}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{accountName}/{applicationName}/{relatedEntityType}/{relatedEntityId}/connecting/{relation}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	<T> List<T> getConnectingEntities(@PathVariable String organizationName, @PathVariable String applicationName,
+	<T> List<T> getConnectingEntities(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String relatedEntityType, @PathVariable String relatedEntityId,
 			@PathVariable String relation, @RequestHeader("Authorization") String accessToken,
 			HttpServletRequest request) throws BaasException {
 		return null;
 	}
 
-	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	String createEntity(@PathVariable String organizationName, @PathVariable String applicationName,
+	String createEntity(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @RequestHeader("Authorization") String accessToken,
 			@RequestBody String entityJson, HttpServletRequest request) throws BaasException {
 		// TODO: replace the actual impl
@@ -135,9 +135,9 @@ public class EntityController {
 		return "{'status': 'ok'}";
 	}
 
-	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}/{entityUuid}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityUuid}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	String updateEntity(@PathVariable String organizationName, @PathVariable String applicationName,
+	String updateEntity(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityUuid,
 			@RequestHeader("Authorization") String accessToken, @RequestBody String entityJson,
 			HttpServletRequest request) throws BaasException {
@@ -145,18 +145,18 @@ public class EntityController {
 
 	}
 
-	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}/{entityUuid}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityUuid}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	String deleteEntity(@PathVariable String organizationName, @PathVariable String applicationName,
+	String deleteEntity(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityUuid,
 			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException {
 		return "{'status': 'ok'}";
 
 	}
 
-	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}/{relatedEntityId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}/{relatedEntityId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	String addConnection(@PathVariable String organizationName, @PathVariable String applicationName,
+	String addConnection(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityId, @PathVariable String relation,
 			@PathVariable String relatedEntityType, @PathVariable String relatedEntityId,
 			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException {
@@ -165,9 +165,9 @@ public class EntityController {
 	}
 
 
-	@RequestMapping(value = "/{organizationName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}/{relatedEntityId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}/{relatedEntityId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	String deleteConnection(@PathVariable String organizationName, @PathVariable String applicationName,
+	String deleteConnection(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityId, @PathVariable String relation,
 			@PathVariable String relatedEntityType, @PathVariable String relatedEntityId,
 			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException {

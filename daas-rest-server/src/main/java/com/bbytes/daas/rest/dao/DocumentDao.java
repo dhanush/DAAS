@@ -39,7 +39,7 @@ public interface DocumentDao {
 
 	public static final String FIELD_MODIFICATION_DATE = "modificationDate";
 
-	public static final String FIELD_ORGANIZATION_NAME = "organizationName";
+	public static final String FIELD_ACCOUNT_NAME = "accountName";
 
 	public static final String FIELD_APPLICATION_NAME = "applicationName";
 	

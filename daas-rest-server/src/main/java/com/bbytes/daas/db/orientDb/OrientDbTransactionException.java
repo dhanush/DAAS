@@ -13,33 +13,29 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.
  */
-package com.bbytes.daas.rest;
+package com.bbytes.daas.db.orientDb;
 
-import com.bbytes.daas.rest.domain.AccountUser;
+import org.springframework.transaction.TransactionException;
 
 /**
- * 
+ * Any exception related to Baas calls will be wrapped in this
  *
  * @author Thanneer
  *
- * @version 
+ * @version 1.0.0
  */
-public class SessionStore {
+public class OrientDbTransactionException extends TransactionException {
 
-	private AccountUser sessionUser;
+	private static final long serialVersionUID = 6289917997937599218L;
 
-	/**
-	 * @return the sessionUser
-	 */
-	public AccountUser getSessionUser() {
-		return sessionUser;
+
+	public OrientDbTransactionException(String message, Throwable cause) {
+		super(message, cause);
 	}
 
-	/**
-	 * @param sessionUser the sessionUser to set
-	 */
-	public void setSessionUser(AccountUser sessionUser) {
-		this.sessionUser = sessionUser;
+	public OrientDbTransactionException(String message) {
+		super(message);
 	}
-	
+
+
 }

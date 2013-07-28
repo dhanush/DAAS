@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.bbytes.daas.rest.BaasException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.dao.ApplicationDao;
-import com.bbytes.daas.rest.dao.OrganizationDao;
+import com.bbytes.daas.rest.dao.AccountDao;
 import com.bbytes.daas.rest.domain.Application;
-import com.bbytes.daas.rest.domain.Organization;
+import com.bbytes.daas.rest.domain.Account;
 
 /**
- * Management Rest service to create Apps and Organizations
+ * Management Rest service to create Apps and Account
  * 
  * @author Thanneer
  * 
@@ -28,7 +28,7 @@ import com.bbytes.daas.rest.domain.Organization;
 public class ManagementController {
 
 	@Autowired
-	private OrganizationDao organizationDao;
+	private AccountDao accountDao;
 
 	@Autowired
 	private ApplicationDao applicationDao;
@@ -43,41 +43,41 @@ public class ManagementController {
 	/**
 	 * Create org
 	 * 
-	 * @param organizationName
+	 * @param accountName
 	 * @return
 	 * @throws BaasException
 	 * @throws BaasPersistentException
 	 */
-	@RequestMapping(value = "/organizations", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/accounts", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	Organization createOrganization(@RequestParam("name") String organizationName) throws BaasException,
+	Account createAccount(@RequestParam("name") String accountName) throws BaasException,
 			BaasPersistentException {
-		Organization organization = new Organization();
-		organization.setName(organizationName);
-		return organizationDao.save(organization);
+		Account account = new Account();
+		account.setName(accountName);
+		return accountDao.save(account);
 	}
 
 	/**
 	 * Create App inside org
 	 * 
-	 * @param organizationName
+	 * @param accountName
 	 * @param applicationName
 	 * @return
 	 * @throws BaasException
 	 * @throws BaasPersistentException 
 	 */
-	@RequestMapping(value = "/{organizationName}/application", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{accountName}/application", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	Application createApplication(@PathVariable String organizationName, @RequestParam("name") String applicationName)
+	Application createApplication(@PathVariable String accountName, @RequestParam("name") String applicationName)
 			throws BaasException, BaasPersistentException {
 		// check if org is available
-		if (!organizationDao.findAny("name", organizationName)) {
-			throw new BaasException("Given Organization '" + organizationName
-					+ "' is not available, create one before creating applications under that organization ");
+		if (!accountDao.findAny("name", accountName)) {
+			throw new BaasException("Given Account '" + accountName
+					+ "' is not available, create one before creating applications under that account ");
 		}
 
 		Application app = new Application();
-		app.setOrganizationName(organizationName);
+		app.setAccountName(accountName);
 		app.setName(applicationName);
 		return applicationDao.save(app);
 	}

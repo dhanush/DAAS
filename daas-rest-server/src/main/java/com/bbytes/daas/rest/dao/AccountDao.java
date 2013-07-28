@@ -15,18 +15,18 @@
  */
 package com.bbytes.daas.rest.dao;
 
-import com.bbytes.daas.rest.domain.Organization;
+import com.bbytes.daas.rest.domain.Account;
 
 
 /**
- * Organization DAO
+ * Account DAO
  *
  * @author Thanneer
  *
  * @version 1.0.0
  */
 
-public interface OrganizationDao extends DaasDAO<Organization>{
+public interface AccountDao extends DaasDAO<Account>{
 
 
 }

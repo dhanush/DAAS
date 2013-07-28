@@ -22,12 +22,14 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.SessionStore;
-import com.bbytes.daas.rest.domain.User;
+import com.bbytes.daas.rest.domain.AccountUser;
+import com.bbytes.daas.rest.domain.Entity;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -46,7 +48,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 	@Autowired
-	private UserDao userDao;
+	private AccountUserDao userDao;
 
 	@Autowired
 	private SessionStore sessionStore;
@@ -57,7 +59,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#create(java.lang.String)
 	 */
 	@Override
-	public ODocument create(String entityType, Map<String, Object> propertyMap, String orgName, String appName)
+	public ODocument create(String entityType, Map<String, Object> propertyMap, String accountName, String appName)
 			throws BaasPersistentException {
 
 		initEntityType(entityType);
@@ -72,7 +74,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		entityVertex.field(DocumentDao.FIELD_CREATION_DATE, new Date());
 		entityVertex.field(DocumentDao.ENTITY_TYPE, entityType);
 		entityVertex.field(DocumentDao.FIELD_MODIFICATION_DATE, new Date());
-		entityVertex.field(DocumentDao.FIELD_ORGANIZATION_NAME, orgName);
+		entityVertex.field(DocumentDao.FIELD_ACCOUNT_NAME, accountName);
 		entityVertex.field(DocumentDao.FIELD_APPLICATION_NAME, appName);
 		entityVertex.field(DocumentDao.FIELD_UUID, UUID.randomUUID().toString());
 
@@ -87,11 +89,11 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 		entityVertex.save();
 		createdEdge.save();
-		
+
 		// need to have another rest like /entity/connections
 		// in connections and out connections to be displayed
-//		System.out.println("out " + getGraphDataBase().getOutEdges(entityVertex.getIdentity()));
-//		System.out.println("in "+ getGraphDataBase().getInEdges(entityVertex.getIdentity()));
+		// System.out.println("out " + getGraphDataBase().getOutEdges(entityVertex.getIdentity()));
+		// System.out.println("in "+ getGraphDataBase().getInEdges(entityVertex.getIdentity()));
 		return entityVertex;
 	}
 
@@ -101,6 +103,8 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @param edgeType
 	 */
 	private void initEdgeType(String edgeType) {
+	
+		
 		OClass entityEdgeType = getGraphDataBase().getEdgeType(edgeType);
 		if (entityEdgeType == null) {
 			entityEdgeType = getGraphDataBase().createEdgeType(edgeType);
@@ -113,14 +117,17 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @param entityType
 	 */
 	private void initEntityType(String entityType) {
+		
+
 		OClass entityVertexType = getGraphDataBase().getVertexType(entityType);
 		if (entityVertexType == null) {
+			
 			entityVertexType = getGraphDataBase().createVertexType(entityType);
-			entityVertexType.createProperty(DocumentDao.FIELD_ORGANIZATION_NAME, OType.STRING);
+			entityVertexType.createProperty(DocumentDao.FIELD_ACCOUNT_NAME, OType.STRING);
 			entityVertexType.createProperty(DocumentDao.FIELD_APPLICATION_NAME, OType.STRING);
 			entityVertexType.createProperty(DocumentDao.FIELD_UUID, OType.STRING);
 			// create index - for app and org name
-			entityVertexType.createIndex(entityType, OClass.INDEX_TYPE.NOTUNIQUE, DocumentDao.FIELD_ORGANIZATION_NAME,
+			entityVertexType.createIndex(entityType, OClass.INDEX_TYPE.NOTUNIQUE, DocumentDao.FIELD_ACCOUNT_NAME,
 					DocumentDao.FIELD_APPLICATION_NAME);
 			// create index - uuid based
 			entityVertexType.createIndex(entityType + "." + DocumentDao.FIELD_UUID, OClass.INDEX_TYPE.UNIQUE,
@@ -132,13 +139,13 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	// to be replaced by current session user
 	@Deprecated
 	private ODocument getDummyCurrentUser() throws BaasPersistentException {
-		User user = new User();
+		AccountUser user = new AccountUser();
 		user.setEmail("test@test.com");
 		user = userDao.update(user);
 		return (ODocument) getObjectDataBase().getRecordByUserObject(user, false);
-
+		
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 

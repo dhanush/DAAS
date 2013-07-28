@@ -1,4 +1,3 @@
-
 package com.bbytes.daas.db.orientDb;
 
 /**
@@ -12,24 +11,9 @@ package com.bbytes.daas.db.orientDb;
 
 import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
 
-public class GraphDBTransactionHolder {
-
-	private ODatabaseRecord database;
-
-	public GraphDBTransactionHolder() {
-		super();
-	}
+public class GraphDBTransactionHolder extends ODatabaseHolder {
 
 	public GraphDBTransactionHolder(ODatabaseRecord database) {
-		super();
-		this.database = database;
-	}
-
-	public ODatabaseRecord getDatabase() {
-		return database;
-	}
-
-	public void setDatabase(ODatabaseRecord database) {
-		this.database = database;
+		super(database);
 	}
 }

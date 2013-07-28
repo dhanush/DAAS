@@ -10,7 +10,6 @@ package com.bbytes.daas.db.orientDb;
  */
 
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
-import com.orientechnologies.orient.core.exception.ODatabaseException;
 
 /**
  * 
@@ -26,14 +25,7 @@ public class OGraphDatabaseThreadLocal extends ThreadLocal<OGraphDatabase> {
 
 	@Override
 	public OGraphDatabase get() {
-		OGraphDatabase db = super.get();
-		if (db == null) {
-			throw new ODatabaseException(
-					"Database instance is not set in current thread. Possible reasons : 1. @Transactional missing at class level or method level  2.Assure to set it with: GraphDatabaseThreadLocal.INSTANCE.set(db);");
-		} else {
-			set(db);
-		}
-		return db;
+		return  super.get();
 	}
 
 	@Override

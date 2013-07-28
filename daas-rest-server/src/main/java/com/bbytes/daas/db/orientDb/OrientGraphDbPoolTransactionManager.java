@@ -13,23 +13,22 @@
  */
 package com.bbytes.daas.db.orientDb;
 
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionStatus;
+import org.springframework.transaction.support.ResourceTransactionManager;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.util.StringUtils;
 
-import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
-import com.orientechnologies.orient.core.db.graph.OGraphDatabasePool;
+import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
+import com.orientechnologies.orient.core.exception.OTransactionException;
+import com.orientechnologies.orient.object.db.OObjectDatabasePool;
 
 /**
  * 
@@ -40,132 +39,137 @@ import com.orientechnologies.orient.core.db.graph.OGraphDatabasePool;
  * @version
  */
 public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransactionManager implements
-		InitializingBean, DisposableBean {
+		ResourceTransactionManager, DisposableBean {
 
 	private static final Logger LOG = Logger.getLogger(OrientGraphDbPoolTransactionManager.class);
 
 	private static final long serialVersionUID = -1837116040878560582L;
 
-	private OGraphDatabasePool pool;
-	private String databaseURL;
-	private String databaseName;
-	private String username;
-	private String password;
-	private int minConnections = 1;
-	private int maxConnections = 50;
-
-	public void setDatabaseURL(String databaseURL) {
-		this.databaseURL = databaseURL;
-	}
-
-	/**
-	 * @param databaseName
-	 *            the databaseName to set
-	 */
-	public void setDatabaseName(String databaseName) {
-		this.databaseName = databaseName;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public void setMinConnections(int minConnections) {
-		this.minConnections = minConnections;
-	}
-
-	public void setMaxConnections(int maxConnections) {
-		this.maxConnections = maxConnections;
-	}
-
-	public void afterPropertiesSet() throws Exception {
-		if (!StringUtils.hasText(databaseURL)) {
-			throw new IllegalArgumentException("'databaseURL' is required");
-		}
-		if (minConnections > maxConnections) {
-			throw new IllegalArgumentException("minConnections > maxConnections");
-		}
-
-		pool = new OGraphDatabasePool(databaseURL + "/" + databaseName, username, password);
-		pool.setup(minConnections, maxConnections);
-
-		init();
-	}
-
-	/**
-	 * Check if Database is there if not create one in orientdb
-	 * 
-	 * @throws IOException
-	 * 
-	 */
-	private void init() throws IOException {
-		OServerAdmin serverAdmin = new OServerAdmin(databaseURL).connect(username, password);
-
-		if (!serverAdmin.listDatabases().keySet().contains(databaseName)) {
-			serverAdmin.createDatabase(databaseName, "graph", "local");
-		}
-
-	}
-
-	public void destroy() throws Exception {
-		this.pool.close();
-	}
+	@Autowired
+	private OrientDbTemplate orientDbTemplate;
 
 	@Override
 	protected Object doGetTransaction() throws TransactionException {
-		GraphDBTransactionHolder holder = (GraphDBTransactionHolder) TransactionSynchronizationManager
-				.getResource(ODatabaseDocument.class);
-		if (holder == null) {
-			// create and register new transaction
-			OGraphDatabase database = pool.acquire();
-			OGraphDatabaseThreadLocal.INSTANCE.set(database);
-			holder = new GraphDBTransactionHolder(database);
-			TransactionSynchronizationManager.bindResource(ODatabaseDocument.class, holder);
-		}
-
-		return holder;
+		GraphOrientTransactionObject txObject = new GraphOrientTransactionObject();
+		return txObject;
 	}
 
 	@Override
 	protected void doBegin(Object transactionObject, TransactionDefinition definition) throws TransactionException {
-		GraphDBTransactionHolder holder = (GraphDBTransactionHolder) transactionObject;
-		holder.getDatabase().getTransaction().begin();
+		LOG.debug("Came into doBegin");
+		GraphOrientTransactionObject txObject = (GraphOrientTransactionObject) transactionObject;
+		OGraphDatabase db = (OGraphDatabase) orientDbTemplate.getGraphDatabase();
+
+		try {
+			txObject.setODatabaseRecordHolder(new ODatabaseHolder(db));
+
+			// Sets TransactionActive = true in the Database Holder
+			txObject.setTransactionData(null);
+
+			// Bind the DatabaseHolder to the thread
+			if (!TransactionSynchronizationManager.hasResource(orientDbTemplate))
+				TransactionSynchronizationManager.bindResource(orientDbTemplate, txObject.getDatabaseHolder());
+
+			txObject.getDatabaseHolder().setSynchronizedWithTransaction(true);
+
+			txObject.getDatabaseHolder().getGraphDatabase().begin();
+		} catch (Exception e) {
+			closeDatabaseConnectionAfterFailedBegin(txObject);
+			throw new OrientDbTransactionException("Could open a Transaction with Graph: " + txObject, e);
+		}
+
+	}
+
+	protected void closeDatabaseConnectionAfterFailedBegin(OrientTransactionObject txObject) {
+		ODatabaseRecord db = txObject.getDatabaseHolder().getGraphDatabase();
+		try {
+			if (db.getTransaction().isActive()) {
+				db.rollback();
+			}
+		} catch (Throwable ex) {
+			logger.debug("Could not rollback OTransaction after failed transaction begin", ex);
+		} finally {
+			releaseDatabase(txObject.getDatabaseHolder());
+		}
 	}
 
 	@Override
 	protected void doCommit(DefaultTransactionStatus status) throws TransactionException {
-		GraphDBTransactionHolder holder = (GraphDBTransactionHolder) status.getTransaction();
-		try {
-			holder.getDatabase().getTransaction().commit();
-			releaseConnecton(holder);
-		} catch (Exception ex) {
-			throw new TransactionSystemException("Could not rollback OrientDB transaction", ex);
+		LOG.debug("Came into doCommit");
+
+		GraphOrientTransactionObject txObject = (GraphOrientTransactionObject) status.getTransaction();
+		if (status.isDebug()) {
+			logger.debug("Committing transaction on DB [" + txObject.getDatabaseHolder().getGraphDatabase() + "]");
 		}
+		try {
+			ODatabaseRecord db = txObject.getDatabaseHolder().getGraphDatabase();
+			db.commit();
+		} catch (OTransactionException ex) {
+			throw new TransactionSystemException("Could not commit OrientDB transaction", ex);
+		} catch (RuntimeException ex) {
+			throw ex;
+		}
+
 	}
 
 	@Override
 	protected void doRollback(DefaultTransactionStatus status) throws TransactionException {
-		GraphDBTransactionHolder holder = (GraphDBTransactionHolder) status.getTransaction();
+		LOG.debug("Came into doRollback");
+		GraphOrientTransactionObject txObject = (GraphOrientTransactionObject) status.getTransaction();
+		if (status.isDebug()) {
+			logger.debug("Rolling back OrientDB transaction on DB [" + txObject.getDatabaseHolder().getGraphDatabase()
+					+ "]");
+		}
 		try {
-			holder.getDatabase().getTransaction().rollback();
-			releaseConnecton(holder);
-		} catch (Exception ex) {
-			throw new TransactionSystemException("Could not rollback OrientDB transaction", ex);
+			ODatabaseRecord db = txObject.getDatabaseHolder().getGraphDatabase();
+			db.rollback();
+		} catch (OTransactionException ex) {
+			throw new TransactionSystemException("Could not commit OrientDB transaction", ex);
+		} catch (RuntimeException ex) {
+			throw ex;
 		}
 	}
 
-	protected void releaseConnecton(GraphDBTransactionHolder holder) {
-		holder.getDatabase().close();
-		try {
-			TransactionSynchronizationManager.unbindResource(ODatabaseDocument.class);
-		} catch (IllegalStateException e) {
-			LOG.info("Previous Transaction unbound the resource ODatabaseDocument from current thread local");
-		}
 
+
+	@Override
+	protected void doCleanupAfterCompletion(Object transaction) {
+		OrientTransactionObject txObject = (OrientTransactionObject) transaction;
+
+		// Remove the DatabaseHolder from the thread.
+		if (TransactionSynchronizationManager.hasResource(orientDbTemplate))
+			TransactionSynchronizationManager.unbindResource(orientDbTemplate);
+		
+		txObject.getDatabaseHolder().clear();
+
+		releaseDatabase(txObject.getDatabaseHolder());
+	}
+
+	
+	protected void releaseDatabase(ODatabaseHolder holder) {
+		LOG.debug("Came into release db");
+		holder.getGraphDatabase().close();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.springframework.beans.factory.DisposableBean#destroy()
+	 */
+	@Override
+	public void destroy() throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.springframework.transaction.support.ResourceTransactionManager#getResourceFactory()
+	 */
+	@Override
+	public Object getResourceFactory() {
+		return orientDbTemplate;
 	}
 
 }

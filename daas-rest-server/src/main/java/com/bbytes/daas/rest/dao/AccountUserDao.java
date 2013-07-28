@@ -13,16 +13,16 @@
  */
 package com.bbytes.daas.rest.dao;
 
-import com.bbytes.daas.rest.domain.User;
+import com.bbytes.daas.rest.domain.AccountUser;
 
 /**
- * Application DAO
+ * Account user DAO 
  * 
  * @author Thanneer
  * 
  * @version 1.0.0
  */
 
-public interface UserDao extends DaasDAO<User> {
+public interface AccountUserDao extends DaasDAO<AccountUser> {
 
 }

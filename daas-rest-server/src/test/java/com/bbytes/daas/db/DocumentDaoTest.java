@@ -32,13 +32,14 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
  *
  * @version 
  */
-@Transactional
+
 public class DocumentDaoTest  extends BaseDBTest{
 
 	@Autowired
 	private DocumentDao documentDao;
 	
 	@Test
+	@Transactional
 	public void testCreate() throws BaasPersistentException{
 		ODocument doc = documentDao.create("test4", null, "orgName", "appName");
 		assertNotNull(doc);

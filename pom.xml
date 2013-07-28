@@ -19,7 +19,7 @@
 		<compiler.target.version>1.7</compiler.target.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jackson.version>1.9.12</jackson.version>
-		<orientdb.version>1.4.0</orientdb.version>
+		<orientdb.version>1.4.1</orientdb.version>
 
 	</properties>
 

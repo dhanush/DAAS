@@ -38,23 +38,23 @@ public class ApplicationDaoImpl extends AbstractDao<Application> implements Appl
 		// check if the org name and app name combo is unique
 		Map<String, String> propertyToValue = new HashMap<String, String>();
 		propertyToValue.put("name", app.getName());
-		propertyToValue.put("organizationName", app.getOrganizationName());
+		propertyToValue.put("accountName", app.getAccountName());
 
 		if (!findAny(propertyToValue)) {
 			app = super.save(app);
 		} else {
 			throw new BaasPersistentException("Application name has to be unique,  " + app.getName()
-					+ " under organization " + app.getOrganizationName() + " is already taken ");
+					+ " under account " + app.getAccountName() + " is already taken ");
 		}
 		return app;
 	}
 
 	/* (non-Javadoc)
-	 * @see com.bbytes.daas.rest.dao.ApplicationDao#findForOrganization(java.lang.String)
+	 * @see com.bbytes.daas.rest.dao.ApplicationDao#findForAccount(java.lang.String)
 	 */
 	@Override
-	public List<Application> findForOrganization(String organizationName) throws BaasPersistentException {
-		String sql = "SELECT *  FROM " + Application.class.getSimpleName() + "  WHERE  organizationName = " +"'" + organizationName+"'"  ;
+	public List<Application> findForAccount(String accountName) throws BaasPersistentException {
+		String sql = "SELECT *  FROM " + Application.class.getSimpleName() + "  WHERE  accountName = " +"'" + accountName+"'"  ;
 		
 		List<Application> result = orientDbTemplate.getObjectDatabase().query(
 				new OSQLSynchQuery<Application>(sql));

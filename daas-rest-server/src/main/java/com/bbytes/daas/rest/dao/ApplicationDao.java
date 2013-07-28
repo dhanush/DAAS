@@ -31,5 +31,5 @@ import com.bbytes.daas.rest.domain.Application;
 
 public interface ApplicationDao extends DaasDAO<Application>{
 
-	public List<Application> findForOrganization(String organizationName) throws BaasPersistentException;
+	public List<Application> findForAccount(String accountName) throws BaasPersistentException;
 }

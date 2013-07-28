@@ -14,7 +14,7 @@ public class Application extends Entity {
 	 */
 	private static final long serialVersionUID = -2202750001669949099L;
 
-	private String organizationName;
+	private String accountName;
 
 	public Application() {
 		super();
@@ -22,18 +22,18 @@ public class Application extends Entity {
 	}
 
 	/**
-	 * @return the organizationName
+	 * @return the accountName
 	 */
-	public String getOrganizationName() {
-		return organizationName;
+	public String getAccountName() {
+		return accountName;
 	}
 
 	/**
-	 * @param organizationName
-	 *            the organizationName to set
+	 * @param accountName
+	 *            the accountName to set
 	 */
-	public void setOrganizationName(String organizationName) {
-		this.organizationName = organizationName;
+	public void setAccountName(String accountName) {
+		this.accountName = accountName;
 	}
 
 }

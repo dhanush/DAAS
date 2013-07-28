@@ -22,7 +22,7 @@ import com.google.gson.Gson;
  * 
  * @version 1.0.0
  */
-public class User extends Entity {
+public class AccountUser extends Entity {
 
 	/**
 	 * 
@@ -41,13 +41,13 @@ public class User extends Entity {
 
 	private boolean active;
 
-	private String organizationName;
+	private String accountName;
 
 	private Role role;
 
-	public User() {
+	public AccountUser() {
 		super();
-		type = User.class.getSimpleName();
+		type = AccountUser.class.getSimpleName();
 	}
 
 	/**
@@ -155,19 +155,19 @@ public class User extends Entity {
 		this.role = role;
 	}
 
+
 	/**
-	 * @return the organizationName
+	 * @return the accountName
 	 */
-	public String getOrganizationName() {
-		return organizationName;
+	public String getAccountName() {
+		return accountName;
 	}
 
 	/**
-	 * @param organizationName
-	 *            the organizationName to set
+	 * @param accountName the accountName to set
 	 */
-	public void setOrganizationName(String organizationName) {
-		this.organizationName = organizationName;
+	public void setAccountName(String accountName) {
+		this.accountName = accountName;
 	}
 
 	public String toString() {

@@ -21,17 +21,19 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.dao.ApplicationDao;
-import com.bbytes.daas.rest.dao.OrganizationDao;
+import com.bbytes.daas.rest.dao.AccountDao;
 import com.bbytes.daas.rest.domain.Application;
-import com.bbytes.daas.rest.domain.Organization;
+import com.bbytes.daas.rest.domain.Account;
 
 /**
  * 
@@ -49,27 +51,33 @@ public class DAOTest extends BaseDBTest {
 	private ApplicationDao applicationDao;
 
 	@Autowired
-	private OrganizationDao organizationDao;
+	private AccountDao accountDao;
 
 	private String uuid;
+	
+	String orgName = "same name";
 
 	@Before
-	@Rollback(false)
 	public void setUp() throws BaasPersistentException {
 
-		Organization org = new Organization();
+		Account org = new Account();
 		org.setName(UUID.randomUUID().toString());
 
-		organizationDao.save(org);
+		accountDao.save(org);
+		
+		Account org2 = new Account();
+		org2.setName(UUID.randomUUID().toString());
 
-		Organization org2 = new Organization();
-		org.setName(UUID.randomUUID().toString());
+		accountDao.save(org2);
 
-		organizationDao.save(org2);
+		Application app1 = new Application();
+		app1.setName(orgName);
+
+		applicationDao.save(app1);
 
 		for (int i = 0; i < 2; i++) {
 			Application app = new Application();
-			app.setOrganizationName(org.getName());
+			app.setAccountName(org.getName());
 			app.setName(UUID.randomUUID().toString());
 			app = applicationDao.save(app);
 			uuid = app.getUuid();
@@ -86,7 +94,7 @@ public class DAOTest extends BaseDBTest {
 		assertTrue(size > 0);
 		long stop = Calendar.getInstance().getTimeInMillis();
 
-		System.out.println("Time taken to fetch in sec " + (start - stop) / 1000);
+		LOG.debug("Time taken to fetch in sec " + (start - stop) / 1000);
 
 	}
 
@@ -94,11 +102,11 @@ public class DAOTest extends BaseDBTest {
 	public void testDaoCount() throws BaasPersistentException {
 		long start = Calendar.getInstance().getTimeInMillis();
 		long size = applicationDao.count();
-		System.out.println("app object size " + size);
+		LOG.debug("app object size " + size);
 		assertTrue(size > 0);
 		long stop = Calendar.getInstance().getTimeInMillis();
 
-		System.out.println("Time taken to fetch size in sec " + (start - stop) / 1000);
+		LOG.debug("Time taken to fetch size in sec " + (start - stop) / 1000);
 
 	}
 
@@ -110,7 +118,6 @@ public class DAOTest extends BaseDBTest {
 		assertNotNull(app);
 		long stop = Calendar.getInstance().getTimeInMillis();
 
-		System.out.println("Time taken to fetch one app in sec " + (start - stop) / 1000);
 		LOG.debug("testDaoFindByID ended...");
 
 	}
@@ -128,28 +135,29 @@ public class DAOTest extends BaseDBTest {
 		available = applicationDao.findAny("uuid", "dummy uuid");
 		assertTrue(!available);
 
-		available = organizationDao.findAny("name", "testorg 2");
-		assertTrue(available);
-
-		available = organizationDao.findAny("name", "dummy org");
+		available = accountDao.findAny("name", "dummy org");
 		assertTrue(!available);
 
 	}
 
+	
+	@Test
+	@Rollback(false)
+	public void createOrg() throws BaasPersistentException {
+
+		Account org2 = new Account();
+		org2.setName(uuid);
+
+		accountDao.save(org2);
+	}
+	
 	@Test(expected=BaasPersistentException.class)
 	public void testDuplicateOrg() throws BaasPersistentException {
 
-		String orgName = UUID.randomUUID().toString();
-		
-		Organization org = new Organization();
-		org.setName(orgName);
-
-		organizationDao.save(org);
-
-		Organization org2 = new Organization();
+		Account org2 = new Account();
 		org2.setName(orgName);
 
-		organizationDao.save(org2);
+		accountDao.save(org2);
 	}
 	
 	@Test(expected=BaasPersistentException.class)
@@ -159,13 +167,13 @@ public class DAOTest extends BaseDBTest {
 		String appName = UUID.randomUUID().toString();
 		
 		Application app = new Application();
-		app.setOrganizationName(orgName);
+		app.setAccountName(orgName);
 		app.setName(appName);
 		app = applicationDao.save(app);
 		
 		
 		Application app2 = new Application();
-		app2.setOrganizationName(orgName);
+		app2.setAccountName(orgName);
 		app2.setName(appName);
 		app2 = applicationDao.save(app2);
 		

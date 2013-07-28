@@ -21,11 +21,12 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.db.orientDb.OrientDbTemplate;
 import com.bbytes.daas.rest.domain.Application;
-import com.bbytes.daas.rest.domain.Organization;
+import com.bbytes.daas.rest.domain.Account;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 /**
@@ -42,44 +43,47 @@ public class SaveObjectToDBTest extends BaseDBTest {
 	private OrientDbTemplate orientDbTemplate;
 
 	@Before
+	@Rollback(false)
 	public void setUp() {
 
 		long start = Calendar.getInstance().getTimeInMillis();
-		Organization org = new Organization();
+		Account org = new Account();
 		org.setName("testorg2");
 
 		orientDbTemplate.getObjectDatabase().save(org);
 
-		for (int i = 0; i < 200000; i++) {
+		for (int i = 0; i < 2000; i++) {
 			Application app = new Application();
-			app.setOrganizationName(org.getName());
+			app.setAccountName(org.getName());
 			app.setName("test app 1");
 			orientDbTemplate.getObjectDatabase().save(app);
 		}
 
 		long stop = Calendar.getInstance().getTimeInMillis();
 
-		System.out.println("Time taken to save 200000 records in sec" + (start - stop) / 1000);
+		System.out.println("Time taken to save 2000 records in sec " + (start - stop) / 1000);
 
 	}
 
 	@Test
+	@Rollback(false)
 	public void getSavedObjects() {
+		
 		long start = Calendar.getInstance().getTimeInMillis();
-		List<Organization> result = orientDbTemplate.getObjectDatabase().query(
-				new OSQLSynchQuery<Organization>("select * from Organization "));
+		List<Account> result = orientDbTemplate.getObjectDatabase().query(
+				new OSQLSynchQuery<Account>("select * from Application limit 10000"));
 
 		assertTrue(result.size() > 0);
 
 		List<Application> appResult = orientDbTemplate.getObjectDatabase().query(
-				new OSQLSynchQuery<Application>("select * from Application where organizationName ='testorg2' "));
+				new OSQLSynchQuery<Application>("select * from Application where accountName ='testorg2' limit 10000 "));
 
 		System.out.println(appResult.size());
 		assertTrue(appResult.size() > 0);
 
 		long stop = Calendar.getInstance().getTimeInMillis();
 
-		System.out.println("Time taken to query in sec" + (start - stop) / 1000);
+		System.out.println("Time taken to query in sec " + (start - stop) / 1000);
 
 	}
 }

@@ -25,7 +25,7 @@
 
 	
 	<logger name="com.bbytes.daas" >
-		<level value="debug" />
+		<level value="info" />
 	</logger>
 
 

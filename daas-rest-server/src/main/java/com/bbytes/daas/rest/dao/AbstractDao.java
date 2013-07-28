@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.collections.IteratorUtils;
+import org.apache.log4j.Logger;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +42,8 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
  */
 @Transactional("objectDB")
 public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements DaasDAO<E> {
+
+	private static final Logger LOG = Logger.getLogger(AbstractDao.class);
 
 	private final Class<E> entityType;
 
@@ -103,12 +106,12 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 */
 	@Override
 	public E find(String uuid) throws BaasPersistentException, BaasEntityNotFoundException {
-		List<E> result = orientDbTemplate.getObjectDatabase().query(
+		List<E> result = getObjectDataBase().query(
 				new OSQLSynchQuery<E>("select * from " + this.entityType.getSimpleName() + " where uuid = '" + uuid
 						+ "'"));
 
 		if (result == null || result.size() == 0)
-			throw new BaasEntityNotFoundException();
+			throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 
 		return result.get(0);
 
@@ -152,8 +155,9 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 		}
 
 		String sql = "SELECT COUNT(*) as count FROM " + this.entityType.getSimpleName() + "  WHERE " + whereCondition;
-		long count = ((ODocument) orientDbTemplate.getObjectDatabase().query(new OSQLSynchQuery<E>(sql)).get(0))
+		long count = ((ODocument) getObjectDataBase().query(new OSQLSynchQuery<E>(sql)).get(0))
 				.field("count");
+		LOG.debug("SQL Result : " + sql + "  - Result - " + count);
 		if (count == 0)
 			return false;
 

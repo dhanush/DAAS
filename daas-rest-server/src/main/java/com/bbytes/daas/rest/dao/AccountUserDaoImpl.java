@@ -15,28 +15,16 @@ package com.bbytes.daas.rest.dao;
 
 import org.springframework.stereotype.Repository;
 
-import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.domain.Organization;
+import com.bbytes.daas.rest.domain.AccountUser;
 
 /**
- * Organization DAO Impl
+ * Account DAO Impl
  * 
  * @author Thanneer
  * 
  * @version 1.0.0
  */
 @Repository
-public class OrganizationDaoImpl extends AbstractDao<Organization> implements OrganizationDao {
+public class AccountUserDaoImpl extends AbstractDao<AccountUser> implements AccountUserDao {
 
-	@Override
-	public Organization save(Organization org) throws BaasPersistentException  {
-		// check if the org name is unique if so then save
-		if (!findAny("name", org.getName())) {
-			org = super.save(org);
-		} else {
-			throw new BaasPersistentException("Organization name has to be unique,  " + org.getName()
-					+ " is already taken ");
-		}
-		return org;
-	}
 }

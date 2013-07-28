@@ -3,6 +3,9 @@ package com.bbytes.daas.rest.domain;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Id;
+import javax.persistence.Version;
+
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import com.google.gson.Gson;
@@ -18,6 +21,12 @@ public class Entity implements Serializable {
 
 	private static final long serialVersionUID = -5534745615089076782L;
 
+	@Id
+	protected String id;
+	
+	@Version
+	protected String version;
+	
 	protected String uuid;
 
 	protected String name;
@@ -27,6 +36,8 @@ public class Entity implements Serializable {
 	protected Date creationDate;
 	
 	protected Date modificationDate;
+	
+	
 
 	public Entity(){
 		

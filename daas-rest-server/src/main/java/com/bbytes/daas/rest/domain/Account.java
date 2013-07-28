@@ -4,22 +4,22 @@
 package com.bbytes.daas.rest.domain;
 
 /**
- * Java represenation of User Grid's Organization JSON Object -
+ * Java represenation of Account 
  * 
  * 
  * @author Dhanush Gopinath
  * @version 1.0.0
  */
-public class Organization extends Entity {
+public class Account extends Entity {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5673848472822451100L;
 
-	public Organization() {
+	public Account() {
 		super();
-		type = Organization.class.getSimpleName();
+		type = Account.class.getSimpleName();
 	}
 
 	/**
@@ -28,9 +28,9 @@ public class Organization extends Entity {
 	 * @param uuid
 	 * @param name
 	 */
-	public Organization(String uuid, String name) {
+	public Account(String uuid, String name) {
 		super();
-		type = Organization.class.getSimpleName();
+		type = Account.class.getSimpleName();
 		this.uuid = uuid;
 		this.name = name;
 	}

@@ -1,5 +1,6 @@
-
 package com.bbytes.daas.db.orientDb;
+
+import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 
 /**
  * 
@@ -10,26 +11,9 @@ package com.bbytes.daas.db.orientDb;
  * @version
  */
 
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
-
-public class ObjectDBTransactionHolder {
-
-	private ODatabaseObject database;
-
-	public ObjectDBTransactionHolder() {
-		super();
-	}
+public class ObjectDBTransactionHolder extends ODatabaseHolder {
 
 	public ObjectDBTransactionHolder(ODatabaseObject database) {
-		super();
-		this.database = database;
-	}
-
-	public ODatabaseObject getDatabase() {
-		return database;
-	}
-
-	public void setDatabase(ODatabaseObject database) {
-		this.database = database;
+		super(database);
 	}
 }
