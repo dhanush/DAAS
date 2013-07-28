@@ -41,7 +41,7 @@ public class ObjectDBConnTesting extends BaseDBTest{
 		assertTrue(orientDbTemplate.getObjectDatabase().exists());
 	}
 	
-	@Test(expected=ODatabaseException.class)
+	
 	@Transactional("objectDB")
 	public void testGraphDBFail(){
 		assertNotNull(TenantRouter.getTenantIdentifier());

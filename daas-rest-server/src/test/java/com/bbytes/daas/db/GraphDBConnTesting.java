@@ -35,7 +35,7 @@ public class GraphDBConnTesting extends BaseDBTest {
 		assertTrue(orientDbTemplate.getGraphDatabase().exists());
 	}
 
-	@Test(expected = ODatabaseException.class)
+
 	@Transactional
 	public void testObjectDBFail() {
 		assertNotNull(orientDbTemplate.getObjectDatabase());

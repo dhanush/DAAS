@@ -13,7 +13,7 @@
 
 	<artifactId>daas-rest-server</artifactId>
 	<packaging>jar</packaging>
-	<url>http://maven.apache.org</url>
+	
 
 	<dependencies>
 		<dependency>

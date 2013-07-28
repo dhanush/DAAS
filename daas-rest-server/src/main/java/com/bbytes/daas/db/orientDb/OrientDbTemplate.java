@@ -50,7 +50,6 @@ public class OrientDbTemplate {
 
 		db = connectionManager.getObjectDatabase();
 
-		System.out.println("Created new conn :" + db.hashCode());
 		OObjectDatabaseThreadLocal.INSTANCE.set(db);
 
 		return db;

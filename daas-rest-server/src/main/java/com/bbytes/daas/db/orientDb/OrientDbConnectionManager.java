@@ -111,16 +111,16 @@ public class OrientDbConnectionManager implements InitializingBean ,DisposableBe
 		defaultDbPool = new OObjectDatabasePool(databaseURL + "/" + defaultDatabaseName, username, password);
 		defaultDbPool.setup(minConnections, maxConnections);
 
-		init();
+		initTenantManagementDB();
 	}
 
 	/**
-	 * Check if Database is there if not create one in orientdb
+	 * Check if Database is there if not create one in orientdb for tenant management
 	 * 
 	 * @throws IOException
 	 * 
 	 */
-	private void init() throws IOException {
+	private void initTenantManagementDB() throws IOException {
 		OServerAdmin serverAdmin = new OServerAdmin(databaseURL).connect(username, password);
 		if (!serverAdmin.listDatabases().keySet().contains(defaultDatabaseName)) {
 			serverAdmin.createDatabase(defaultDatabaseName, "document", "local");
@@ -193,7 +193,7 @@ public class OrientDbConnectionManager implements InitializingBean ,DisposableBe
 			try {
 				logger.debug("Creating Object database for tenant - " + tenantDbName);
 				tenantObjectDatabasePool = new OObjectDatabasePool(databaseURL + "/" + tenantDbName, username, password);
-				tenantObjectDatabasePool.setup(minConnections, maxConnections);
+				tenantObjectDatabasePool.setup(1, 5);
 				
 				ODatabaseObject database = tenantObjectDatabasePool.acquire();
 				// Before to use persistent POJOs OrientDB needs to know which classes are persistent

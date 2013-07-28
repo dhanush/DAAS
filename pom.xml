@@ -256,14 +256,10 @@
 				<artifactId>orientdb-client</artifactId>
 				<version>${orientdb.version}</version>
 			</dependency>
+			
 			<!-- END REMOTE ENGINE DEPENDENCY -->
-
-
-			<dependency>
-				<groupId>com.bbytes</groupId>
-				<artifactId>daas-testing</artifactId>
-				<version>${project.version}</version>
-			</dependency>
+			
+			
 			<dependency>
 				<groupId>com.bbytes</groupId>
 				<artifactId>daas-client</artifactId>
@@ -275,11 +271,7 @@
 				<version>${project.version}</version>
 				<type>test-jar</type>
 			</dependency>
-			<dependency>
-				<groupId>com.bbytes</groupId>
-				<artifactId>daas-rest-server</artifactId>
-				<version>${project.version}</version>
-			</dependency>
+
 		</dependencies>
 
 

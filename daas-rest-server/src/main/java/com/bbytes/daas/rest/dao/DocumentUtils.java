@@ -71,6 +71,9 @@ public class DocumentUtils {
 
 	public static ODocument applyDefaultFields(ODocument document, String entityType, String accountName, String appName) {
 
+		if (document == null)
+			return document;
+
 		document.field(DaasDefaultFields.FIELD_CREATION_DATE.toString(), new Date());
 		document.field(DaasDefaultFields.ENTITY_TYPE.toString(), entityType);
 		document.field(DaasDefaultFields.FIELD_MODIFICATION_DATE.toString(), new Date());

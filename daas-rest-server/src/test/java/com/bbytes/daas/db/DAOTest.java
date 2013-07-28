@@ -54,8 +54,7 @@ public class DAOTest extends BaseDBTest {
 	private AccountDao accountDao;
 
 	private String uuid;
-	
-	String orgName = "same name";
+		
 
 	@Before
 	public void setUp() throws BaasPersistentException {
@@ -71,7 +70,7 @@ public class DAOTest extends BaseDBTest {
 		accountDao.save(org2);
 
 		Application app1 = new Application();
-		app1.setName(orgName);
+		app1.setName(UUID.randomUUID().toString());
 
 		applicationDao.save(app1);
 
@@ -141,21 +140,20 @@ public class DAOTest extends BaseDBTest {
 	}
 
 	
-	@Test
-	@Rollback(false)
-	public void createOrg() throws BaasPersistentException {
 
-		Account org2 = new Account();
-		org2.setName(uuid);
-
-		accountDao.save(org2);
-	}
 	
 	@Test(expected=BaasPersistentException.class)
-	public void testDuplicateOrg() throws BaasPersistentException {
+	public void testDuplicateAccount() throws BaasPersistentException {
 
+		String accName = UUID.randomUUID().toString();
+		
+		Account org1 = new Account();
+		org1.setName(accName);
+
+		accountDao.save(org1);
+		
 		Account org2 = new Account();
-		org2.setName(orgName);
+		org2.setName(accName);
 
 		accountDao.save(org2);
 	}
