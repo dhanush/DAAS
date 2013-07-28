@@ -40,7 +40,7 @@ public interface DaasDAO<E extends Entity> {
 	
 	public E find(String uuid) throws BaasPersistentException,BaasEntityNotFoundException;
 
-	public List<E> list() throws BaasPersistentException,BaasEntityNotFoundException;
+	public List<E> findAll() throws BaasPersistentException,BaasEntityNotFoundException;
 	
 	public long count() throws BaasPersistentException;
 	

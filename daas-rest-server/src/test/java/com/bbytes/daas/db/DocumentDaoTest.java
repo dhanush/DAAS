@@ -41,7 +41,8 @@ public class DocumentDaoTest  extends BaseDBTest{
 	@Test
 	@Transactional
 	public void testCreate() throws BaasPersistentException{
-		ODocument doc = documentDao.create("test4", null, "orgName", "appName");
+		String nullString=null;
+		ODocument doc = documentDao.create("test4", nullString, "orgName", "appName");
 		assertNotNull(doc);
 	}
 }

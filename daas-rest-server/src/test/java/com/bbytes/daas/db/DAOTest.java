@@ -89,7 +89,7 @@ public class DAOTest extends BaseDBTest {
 	@Test
 	public void testDaoQueryAll() throws BaasPersistentException, BaasEntityNotFoundException {
 		long start = Calendar.getInstance().getTimeInMillis();
-		int size = applicationDao.list().size();
+		int size = applicationDao.findAll().size();
 		System.out.println("application object size in DB " + size);
 		assertTrue(size > 0);
 		long stop = Calendar.getInstance().getTimeInMillis();

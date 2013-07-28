@@ -1,12 +1,10 @@
 package com.bbytes.daas.rest.controller;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasException;
+import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.dao.DocumentDao;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**
  * Rest service for accessing generic entities from Endure BAAS. These API's will be called by the
@@ -29,6 +31,9 @@ import com.bbytes.daas.rest.BaasException;
 @Controller
 public class EntityController {
 
+	
+	@Autowired
+	private DocumentDao documentDao;
 	/**
 	 * Returns all the entities of type entityType
 	 * 
@@ -38,18 +43,19 @@ public class EntityController {
 	 * @param accessToken
 	 * @returnmm
 	 * @throws BaasException
+	 * @throws BaasPersistentException 
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	<T> List<T> getEntities(@PathVariable String accountName, @PathVariable String applicationName,
+	List<ODocument> getEntities(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @RequestHeader("Authorization") String accessToken,
-			HttpServletRequest request) throws BaasException {
-		return null;
+			HttpServletRequest request) throws BaasException, BaasPersistentException {
+		return documentDao.list(entityType, applicationName);
 
 	}
 
 	/**
-	 * Returns a single entity of type entityType identified by the id
+	 * Returns a single entity of type entityType identified by the id , the id is the uuid property that is considered to query
 	 * 
 	 * @param accountName
 	 * @param applicationName
@@ -57,13 +63,14 @@ public class EntityController {
 	 * @param accessToken
 	 * @return
 	 * @throws BaasException
+	 * @throws BaasEntityNotFoundException 
 	 */
-	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityUuid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	<T> T getEntity(@PathVariable String accountName, @PathVariable String applicationName,
-			@PathVariable String entityType, @PathVariable String entityId,
-			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException {
-		return null;
+	ODocument getEntity(@PathVariable String accountName, @PathVariable String applicationName,
+			@PathVariable String entityType, @PathVariable String entityUuid,
+			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException, BaasEntityNotFoundException {
+		return documentDao.findById(entityType, entityUuid);
 	}
 
 	/**
@@ -122,16 +129,9 @@ public class EntityController {
 	public @ResponseBody
 	String createEntity(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @RequestHeader("Authorization") String accessToken,
-			@RequestBody String entityJson, HttpServletRequest request) throws BaasException {
-		// TODO: replace the actual impl
-		System.out.println(entityJson);
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			JsonNode entity = mapper.readTree(entityJson);
-			// TODO : parse and create entity?
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+			@RequestBody String entityJson, HttpServletRequest request) throws BaasException, BaasPersistentException {
+		// create the document with the property sent in request body
+		documentDao.create(entityType, entityJson, accountName, applicationName);
 		return "{'status': 'ok'}";
 	}
 
@@ -140,7 +140,8 @@ public class EntityController {
 	String updateEntity(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityUuid,
 			@RequestHeader("Authorization") String accessToken, @RequestBody String entityJson,
-			HttpServletRequest request) throws BaasException {
+			HttpServletRequest request) throws BaasException, BaasPersistentException {
+		documentDao.update(entityUuid,entityType,entityJson, accountName, applicationName);
 		return "{'status': 'ok'}";
 
 	}
@@ -149,7 +150,8 @@ public class EntityController {
 	public @ResponseBody
 	String deleteEntity(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityUuid,
-			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException {
+			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException, BaasPersistentException {
+		documentDao.remove(entityUuid,entityType, accountName, applicationName);
 		return "{'status': 'ok'}";
 
 	}

@@ -80,7 +80,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<E> list() throws BaasPersistentException, BaasEntityNotFoundException {
+	public List<E> findAll() throws BaasPersistentException, BaasEntityNotFoundException {
 		OObjectIteratorClassInterface<E> listItr = getObjectDataBase().browseClass(this.entityType);
 		List<E> result = IteratorUtils.toList(listItr);
 		if (result == null || result.size() == 0)

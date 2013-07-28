@@ -1,5 +1,9 @@
 package com.bbytes.daas.rest.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -9,12 +13,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.dao.ApplicationDao;
 import com.bbytes.daas.rest.dao.AccountDao;
-import com.bbytes.daas.rest.domain.Application;
+import com.bbytes.daas.rest.dao.ApplicationDao;
 import com.bbytes.daas.rest.domain.Account;
+import com.bbytes.daas.rest.domain.Application;
 
 /**
  * Management Rest service to create Apps and Account
@@ -26,6 +31,8 @@ import com.bbytes.daas.rest.domain.Account;
 @Controller
 @RequestMapping("/management")
 public class ManagementController {
+
+	private static final Logger LOG = Logger.getLogger(ManagementController.class);
 
 	@Autowired
 	private AccountDao accountDao;
@@ -48,13 +55,30 @@ public class ManagementController {
 	 * @throws BaasException
 	 * @throws BaasPersistentException
 	 */
-	@RequestMapping(value = "/accounts", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/account", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	Account createAccount(@RequestParam("name") String accountName) throws BaasException,
-			BaasPersistentException {
+	Account createAccount(@RequestParam("name") String accountName) throws BaasException, BaasPersistentException {
 		Account account = new Account();
 		account.setName(accountName);
 		return accountDao.save(account);
+	}
+
+	/**
+	 * Get all Accounts
+	 * 
+	 * @return
+	 * @throws BaasException
+	 * @throws BaasPersistentException
+	 */
+	@RequestMapping(value = "/accounts", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	List<Account> getAccounts() throws BaasException, BaasPersistentException {
+
+		try {
+			return accountDao.findAll();
+		} catch (BaasEntityNotFoundException e) {
+			return new ArrayList<Account>();
+		}
 	}
 
 	/**
@@ -64,21 +88,35 @@ public class ManagementController {
 	 * @param applicationName
 	 * @return
 	 * @throws BaasException
-	 * @throws BaasPersistentException 
+	 * @throws BaasPersistentException
 	 */
 	@RequestMapping(value = "/{accountName}/application", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	Application createApplication(@PathVariable String accountName, @RequestParam("name") String applicationName)
 			throws BaasException, BaasPersistentException {
-		// check if org is available
-		if (!accountDao.findAny("name", accountName)) {
-			throw new BaasException("Given Account '" + accountName
-					+ "' is not available, create one before creating applications under that account ");
-		}
-
 		Application app = new Application();
 		app.setAccountName(accountName);
 		app.setName(applicationName);
 		return applicationDao.save(app);
+	}
+
+	/**
+	 * Create App inside org
+	 * 
+	 * @param accountName
+	 * @param applicationName
+	 * @return
+	 * @throws BaasException
+	 * @throws BaasPersistentException
+	 */
+	@RequestMapping(value = "/{accountName}/applications", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	List<Application> getApplications(@PathVariable String accountName) throws BaasException, BaasPersistentException {
+		try {
+			// we dont have to filter based on account name as we have separate  database per account
+			return applicationDao.findAll();
+		} catch (BaasEntityNotFoundException e) {
+			return new ArrayList<Application>();
+		}
 	}
 }

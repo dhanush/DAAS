@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.BaasException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -31,45 +30,39 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
  */
 public interface DocumentDao {
 
-	public static final String ENTITY_TYPE = "entityType";
-	
-	public static final String ENTITY_CREATED = "created";
-
-	public static final String FIELD_CREATION_DATE = "creationDate";
-
-	public static final String FIELD_MODIFICATION_DATE = "modificationDate";
-
-	public static final String FIELD_ACCOUNT_NAME = "accountName";
-
-	public static final String FIELD_APPLICATION_NAME = "applicationName";
-	
-	public static final String FIELD_UUID = "uuid";
-
 	public ODocument create(String entityType, Map<String, Object> propertyMap, String orgName, String appName)
 			throws BaasPersistentException;
 
-	public ODocument save(ODocument entity) throws BaasPersistentException;
+	public ODocument create(String entityType, String entityInJson, String accountName, String appName)
+			throws BaasPersistentException;
 
-	public ODocument update(ODocument entity, Map<String, Object> propertyMap) throws BaasPersistentException;
+	public ODocument create(ODocument entity, String accountName, String appName) throws BaasPersistentException;
 
-	public ODocument update(ODocument entity) throws BaasPersistentException;
+	public ODocument update(String uuid, String entityType, String entityJson, String accountName, String appName) throws BaasPersistentException;
 
-	public void remove(ODocument entity) throws BaasPersistentException;
+	public ODocument update(ODocument entity, Map<String, Object> propertyMap, String accountName, String appName)
+			throws BaasPersistentException;
 
-	public ODocument find(ORID id) throws BaasPersistentException, BaasEntityNotFoundException;
+	public ODocument update(ODocument entity, String accountName, String appName) throws BaasPersistentException;
 
-	public ODocument find(String entityType , String uuid) throws BaasPersistentException, BaasEntityNotFoundException;
+	public void remove(ODocument entity, String accountName, String appName) throws BaasPersistentException;
+	
+	public void remove(String uuid, String entityType,  String accountName, String appName) throws BaasPersistentException ;
 
-	public List<ODocument> list(String entityType) throws BaasPersistentException, BaasEntityNotFoundException;
+	public ODocument find(ORID id) throws BaasEntityNotFoundException;
 
-	public long count(String entityType) throws BaasPersistentException;
+	public ODocument findById(String entityType, String uuid) throws BaasEntityNotFoundException;
 
-	public boolean findAny(String entityType,String property, String value) throws BaasPersistentException;
+	public List<ODocument> list(String entityType, String appName) throws BaasPersistentException;
 
-	public boolean findAny(String entityType,Map<String, String> propertyToValue) throws BaasPersistentException;
+	public long count(String entityType, String appName);
 
-	public void update(ODocument originalDocument, ODocument documentToMerge);
+	public boolean findAny(String entityType, String property, String value) throws BaasPersistentException;
 
-	public boolean exists(ODocument document) throws BaasException;
+	public boolean findAny(String entityType, Map<String, String> propertyToValue) throws BaasPersistentException;
+
+	public boolean exists(ODocument document);
+
+	public boolean exists(ORID rid);
 
 }
