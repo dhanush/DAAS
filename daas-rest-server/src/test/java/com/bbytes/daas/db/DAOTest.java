@@ -89,11 +89,6 @@ public class DAOTest extends BaseDBTest {
 	}
 	
 	
-	@After
-	public void cleanUp(){
-		template.getDatabase().close();
-		template.getDatabase().drop();
-	}
 
 	@Test
 	public void testDaoQueryAll() throws BaasPersistentException, BaasEntityNotFoundException {

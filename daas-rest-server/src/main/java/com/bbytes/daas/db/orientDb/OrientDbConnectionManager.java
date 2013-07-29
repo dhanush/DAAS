@@ -35,14 +35,13 @@ import com.orientechnologies.orient.object.db.OObjectDatabasePool;
 
 /**
  * Creates new connections to Orient database. It use global connection pull for establishing
- * connection.
- * Tenant aware conn manager
+ * connection. Tenant aware conn manager
  * 
  * @author Thanneer
  * 
  * @version
  */
-public class OrientDbConnectionManager implements InitializingBean ,DisposableBean{
+public class OrientDbConnectionManager implements InitializingBean, DisposableBean {
 
 	private static final Logger logger = Logger.getLogger(OrientDbConnectionManager.class);
 
@@ -110,7 +109,8 @@ public class OrientDbConnectionManager implements InitializingBean ,DisposableBe
 			throw new IllegalArgumentException("minConnections > maxConnections");
 		}
 
-		defaultTenantManageDbPool = new OObjectDatabasePool(databaseURL + "/" + tenantManagementDBName, username, password);
+		defaultTenantManageDbPool = new OObjectDatabasePool(databaseURL + "/" + tenantManagementDBName, username,
+				password);
 		defaultTenantManageDbPool.setup(minConnections, maxConnections);
 
 		initTenantManagementDB();
@@ -146,6 +146,8 @@ public class OrientDbConnectionManager implements InitializingBean ,DisposableBe
 	 * @return new database connection
 	 */
 	public OGraphDatabase getDatabase() {
+		boolean tenantDBNew = false;
+		OGraphDatabase graphDatabase = null;
 		String tenantDbName = TenantRouter.getTenantIdentifier();
 
 		if (tenantDbName == null)
@@ -159,14 +161,12 @@ public class OrientDbConnectionManager implements InitializingBean ,DisposableBe
 				tenantGraphDatabasePool = new OGraphDatabasePool(databaseURL + "/" + tenantDbName, username, password);
 				tenantGraphDatabasePool.setup(minConnections, maxConnections);
 				tenantToGraphDbConnPoolMap.put(tenantDbName, tenantGraphDatabasePool);
-				
-				OGraphDatabase graphDatabase = tenantGraphDatabasePool.acquire();
-				registerClassUnderPackageToDb(graphDatabase,domainClassBasePackage);
+				graphDatabase = tenantGraphDatabasePool.acquire();
 				return graphDatabase;
 			} catch (OConfigurationException e) {
 				try {
+					tenantDBNew = true;
 					OServerAdmin serverAdmin = new OServerAdmin(databaseURL).connect(username, password);
-
 					if (!serverAdmin.listDatabases().keySet().contains(tenantDbName)) {
 						serverAdmin.createDatabase(tenantDbName, "graph", "local");
 					}
@@ -175,27 +175,28 @@ public class OrientDbConnectionManager implements InitializingBean ,DisposableBe
 				}
 			}
 		}
+		graphDatabase = tenantGraphDatabasePool.acquire();
+		if (tenantDBNew)
+			registerClassUnderPackageToDb(graphDatabase, domainClassBasePackage);
 
-		return tenantGraphDatabasePool.acquire();
+		return graphDatabase;
 	}
 
-	
-	private void registerClassUnderPackageToDb(ODatabaseRecord graphDatabase , final String classPackage ){
-		 List<Class<?>> classes = null;
-		    try {
-		      classes = OReflectionHelper.getClassesForPackage(classPackage, Thread.currentThread().getContextClassLoader());
-		    } catch (ClassNotFoundException e) {
-		      throw new OException(e);
-		    }
-		    
-		    for (Class<?> c : classes) {
-		    	if(!graphDatabase.getMetadata().getSchema().existsClass(c.getSimpleName())){
-		    		graphDatabase.getMetadata().getSchema().createClass(c);
-		    	}
+	private void registerClassUnderPackageToDb(ODatabaseRecord graphDatabase, final String classPackage) {
+		List<Class<?>> classes = null;
+		try {
+			classes = OReflectionHelper.getClassesForPackage(classPackage, Thread.currentThread()
+					.getContextClassLoader());
+		} catch (ClassNotFoundException e) {
+			throw new OException(e);
+		}
+
+		for (Class<?> c : classes) {
+			if (!graphDatabase.getMetadata().getSchema().existsClass(c.getSimpleName())) {
+				graphDatabase.getMetadata().getSchema().createClass(c);
 			}
+		}
 	}
-	
-
 
 	@Override
 	public void destroy() throws Exception {
