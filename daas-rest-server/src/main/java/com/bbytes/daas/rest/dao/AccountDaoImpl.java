@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.collections.IteratorUtils;
 import org.springframework.stereotype.Repository;
@@ -45,7 +46,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 	 * The Db is global tenant management db - configured in db context xml file . The account is
 	 * created per tenant in tenant management db.
 	 */
-	protected ODatabaseObject getObjectDataBase() {
+	private ODatabaseObject getObjectDataBase() {
 		return orientDbTemplate.getTenantManagementDatabase();
 	}
 
@@ -53,7 +54,10 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 	public Account save(Account org) throws BaasPersistentException {
 		// check if the org name is unique if so then save
 		if (!findAny("name", org.getName())) {
-			org = super.save(org);
+			org.setUuid(UUID.randomUUID().toString());
+			org.setCreationDate(new Date());
+			org.setModificationDate(new Date());
+			org = getObjectDataBase().save(org);
 		} else {
 			throw new BaasPersistentException("Account name has to be unique,  " + org.getName() + " is already taken ");
 		}

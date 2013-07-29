@@ -18,7 +18,7 @@ import org.springframework.dao.support.DaoSupport;
 
 import com.bbytes.daas.db.orientDb.OrientDbTemplate;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
+import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
 
 /**
  * Orient DB DAO support
@@ -39,12 +39,13 @@ public abstract class OrientDbDaoSupport extends DaoSupport {
 			throw new IllegalArgumentException("'database' or 'orientDbTemplate' is required");
 		}
 	}
-	
-	protected OGraphDatabase getGraphDataBase() {
-		return orientDbTemplate.getGraphDatabase();
+
+	protected OGraphDatabase getDataBase() {
+		return orientDbTemplate.getDatabase();
 	}
-	
-	protected ODatabaseObject getObjectDataBase() {
-		return orientDbTemplate.getObjectDatabase();
+
+	protected ODatabaseRecord getDocumentDatabase() {
+		return orientDbTemplate.getDocumentDatabase();
 	}
+
 }

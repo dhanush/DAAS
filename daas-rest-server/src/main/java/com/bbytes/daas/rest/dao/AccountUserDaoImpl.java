@@ -15,7 +15,9 @@ package com.bbytes.daas.rest.dao;
 
 import org.springframework.stereotype.Repository;
 
+import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.domain.AccountUser;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**
  * Account DAO Impl
@@ -27,4 +29,12 @@ import com.bbytes.daas.rest.domain.AccountUser;
 @Repository
 public class AccountUserDaoImpl extends AbstractDao<AccountUser> implements AccountUserDao {
 
+	// to be replaced by current session user
+	@Deprecated
+	public ODocument getDummyCurrentUser() throws BaasPersistentException {
+		AccountUser user = new AccountUser();
+		user.setEmail("test@test.com");
+		return (ODocument) getDocumentDatabase().save(convert(user));
+
+	}
 }

@@ -21,6 +21,19 @@
 	<context:annotation-config />
 
 
+	<bean id="conversionService"
+		class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<property name="converters">
+			<list>
+				<bean class="com.bbytes.daas.rest.service.EntityToODocumentConvertor" />
+				<bean class="com.bbytes.daas.rest.service.ODocumentToEntityConvertor" />
+			</list>
+		</property>
+	</bean>
+
+
+
+
 	<!-- Enables the Spring MVC @Controller programming model -->
 
 	<mvc:annotation-driven />

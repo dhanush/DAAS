@@ -20,20 +20,20 @@ import java.util.Calendar;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bbytes.daas.db.orientDb.OrientDbTemplate;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.dao.ApplicationDao;
 import com.bbytes.daas.rest.dao.AccountDao;
-import com.bbytes.daas.rest.domain.Application;
+import com.bbytes.daas.rest.dao.ApplicationDao;
 import com.bbytes.daas.rest.domain.Account;
+import com.bbytes.daas.rest.domain.Application;
 
 /**
  * 
@@ -42,13 +42,16 @@ import com.bbytes.daas.rest.domain.Account;
  * 
  * @version
  */
-@Transactional("objectDB")
+@Transactional
 public class DAOTest extends BaseDBTest {
 
 	private static final Logger LOG = Logger.getLogger(DAOTest.class);
 
 	@Autowired
 	private ApplicationDao applicationDao;
+	
+	@Autowired
+	private OrientDbTemplate template;
 
 	@Autowired
 	private AccountDao accountDao;
@@ -83,6 +86,13 @@ public class DAOTest extends BaseDBTest {
 		}
 
 		LOG.debug("setup ended...");
+	}
+	
+	
+	@After
+	public void cleanUp(){
+		template.getDatabase().close();
+		template.getDatabase().drop();
 	}
 
 	@Test
@@ -175,6 +185,10 @@ public class DAOTest extends BaseDBTest {
 		app2.setName(appName);
 		app2 = applicationDao.save(app2);
 		
-		
 	}
+	
+	
+
+	
+	
 }

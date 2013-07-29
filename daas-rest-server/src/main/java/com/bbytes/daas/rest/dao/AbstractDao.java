@@ -22,14 +22,18 @@ import java.util.UUID;
 
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.log4j.Logger;
+import org.junit.After;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.domain.Entity;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.iterator.object.OObjectIteratorClassInterface;
+import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
@@ -40,12 +44,14 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
  * 
  * @version 1.0.0
  */
-@Transactional("objectDB")
 public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements DaasDAO<E> {
 
 	private static final Logger LOG = Logger.getLogger(AbstractDao.class);
 
 	private final Class<E> entityType;
+
+	@Autowired
+	protected ConversionService conversionService;
 
 	@SuppressWarnings("unchecked")
 	public AbstractDao() {
@@ -54,38 +60,41 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	}
 
 	@Override
+	@Transactional
 	public E save(E entity) throws BaasPersistentException {
 		entity.setUuid(UUID.randomUUID().toString());
 		entity.setCreationDate(new Date());
 		entity.setModificationDate(new Date());
-		return getObjectDataBase().save(entity);
+		return convertToEntity((ODocument) getDocumentDatabase().save(convert(entity)));
 	}
 
 	@Override
+	@Transactional
 	public E update(E entity) throws BaasPersistentException {
 		entity.setModificationDate(new Date());
-		return getObjectDataBase().save(entity);
+		return convertToEntity((ODocument) getDocumentDatabase().save(convert(entity)));
 	}
 
 	@Override
+	@Transactional
 	public void remove(E entity) throws BaasPersistentException {
-		getObjectDataBase().delete(entity);
+		getDocumentDatabase().delete(convert(entity));
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public E find(ORID id) throws BaasPersistentException, BaasEntityNotFoundException {
-		return (E) getObjectDataBase().load(id);
+		return (E) getDocumentDatabase().load(id);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<E> findAll() throws BaasPersistentException, BaasEntityNotFoundException {
-		OObjectIteratorClassInterface<E> listItr = getObjectDataBase().browseClass(this.entityType);
-		List<E> result = IteratorUtils.toList(listItr);
+		ORecordIteratorClass<ODocument> listItr = getDataBase().browseClass(this.entityType.getSimpleName());
+		List<ODocument> result = IteratorUtils.toList(listItr);
 		if (result == null || result.size() == 0)
 			throw new BaasEntityNotFoundException();
-		return result;
+		return convertToEntity(result);
 	}
 
 	/*
@@ -95,7 +104,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 */
 	@Override
 	public long count() throws BaasPersistentException {
-		long count = getObjectDataBase().countClass(this.entityType.getSimpleName());
+		long count = getDataBase().countClass(this.entityType.getSimpleName());
 		return count;
 	}
 
@@ -106,14 +115,14 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 */
 	@Override
 	public E find(String uuid) throws BaasPersistentException, BaasEntityNotFoundException {
-		List<E> result = getObjectDataBase().query(
-				new OSQLSynchQuery<E>("select * from " + this.entityType.getSimpleName() + " where uuid = '" + uuid
-						+ "'"));
+		List<ODocument> result = getDataBase().query(
+				new OSQLSynchQuery<ODocument>("select * from " + this.entityType.getSimpleName() + " where uuid = '"
+						+ uuid + "'"));
 
 		if (result == null || result.size() == 0)
 			throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 
-		return result.get(0);
+		return convertToEntity(result.get(0));
 
 	}
 
@@ -155,8 +164,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 		}
 
 		String sql = "SELECT COUNT(*) as count FROM " + this.entityType.getSimpleName() + "  WHERE " + whereCondition;
-		long count = ((ODocument) getObjectDataBase().query(new OSQLSynchQuery<E>(sql)).get(0))
-				.field("count");
+		long count = ((ODocument) getDataBase().query(new OSQLSynchQuery<E>(sql)).get(0)).field("count");
 		LOG.debug("SQL Result : " + sql + "  - Result - " + count);
 		if (count == 0)
 			return false;
@@ -164,4 +172,32 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 		return true;
 	}
 
+	/**
+	 * @param entity
+	 * @return
+	 */
+	protected ODocument convert(E entity) {
+		return (ODocument) conversionService.convert(entity, TypeDescriptor.valueOf(Entity.class),
+				TypeDescriptor.valueOf(ODocument.class));
+	}
+
+	/**
+	 * @param entity
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	protected E convertToEntity(ODocument entity) {
+		return (E) conversionService.convert(entity, TypeDescriptor.valueOf(ODocument.class),
+				TypeDescriptor.valueOf(Entity.class));
+	}
+
+	/**
+	 * @param entity
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	protected List<E> convertToEntity(List<ODocument> entityList) {
+		return  (List<E>) conversionService.convert(entityList, (Class<List<E>>)(Class<?>)List.class);
+	}
+	
 }

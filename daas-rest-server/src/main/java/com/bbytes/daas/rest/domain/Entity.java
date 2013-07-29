@@ -17,7 +17,7 @@ import com.google.gson.Gson;
  * 
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Entity implements Serializable {
+public class Entity implements Serializable{
 
 	private static final long serialVersionUID = -5534745615089076782L;
 

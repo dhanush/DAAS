@@ -22,6 +22,7 @@ import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.tx.OTransaction;
 
 /**
  * 
@@ -39,6 +40,14 @@ public class DocumentUtils {
 	 */
 	public static void createEntityType(OGraphDatabase graphDatabase, String entityType) {
 
+		// cannot create new class inside active transaction so we need to close the current
+		// transaction and
+		// then begin transaction once again after the class creation is done
+		OTransaction transaction = graphDatabase.getTransaction();
+		if (transaction != null && transaction.isActive()) {
+			transaction.close();
+		}
+
 		OClass entityVertexType = graphDatabase.getVertexType(entityType);
 		if (entityVertexType == null) {
 
@@ -54,6 +63,10 @@ public class DocumentUtils {
 			entityVertexType.createIndex(entityType + "." + DaasDefaultFields.FIELD_UUID.toString(),
 					OClass.INDEX_TYPE.UNIQUE, DaasDefaultFields.FIELD_UUID.toString());
 
+			// now we can begin the transaction
+			if (transaction != null) {
+				transaction.begin();
+			}
 		}
 	}
 
@@ -63,9 +76,23 @@ public class DocumentUtils {
 	 * @param edgeType
 	 */
 	public static void createEdgeType(OGraphDatabase graphDatabase, String edgeType) {
+
+		// cannot create new class inside active transaction so we need to close the current
+		// transaction and
+		// then begin transaction once again after the class creation is done
+		OTransaction transaction = graphDatabase.getTransaction();
+		if (transaction != null && transaction.isActive()) {
+			transaction.close();
+		}
+
 		OClass entityEdgeType = graphDatabase.getEdgeType(edgeType);
 		if (entityEdgeType == null) {
 			entityEdgeType = graphDatabase.createEdgeType(edgeType);
+		}
+
+		// now we can begin the transaction
+		if (transaction != null) {
+			transaction.begin();
 		}
 	}
 

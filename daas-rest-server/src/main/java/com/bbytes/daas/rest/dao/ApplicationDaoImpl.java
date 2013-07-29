@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.domain.Application;
@@ -34,6 +35,7 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 public class ApplicationDaoImpl extends AbstractDao<Application> implements ApplicationDao {
 
 	@Override
+	@Transactional
 	public Application save(Application app) throws BaasPersistentException {
 		// check if the org name and app name combo is unique
 		Map<String, String> propertyToValue = new HashMap<String, String>();
@@ -56,7 +58,7 @@ public class ApplicationDaoImpl extends AbstractDao<Application> implements Appl
 	public List<Application> findForAccount(String accountName) throws BaasPersistentException {
 		String sql = "SELECT *  FROM " + Application.class.getSimpleName() + "  WHERE  accountName = " +"'" + accountName+"'"  ;
 		
-		List<Application> result = orientDbTemplate.getObjectDatabase().query(
+		List<Application> result = orientDbTemplate.getDatabase().query(
 				new OSQLSynchQuery<Application>(sql));
 		
 

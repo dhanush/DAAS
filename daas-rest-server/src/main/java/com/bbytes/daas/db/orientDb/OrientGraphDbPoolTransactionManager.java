@@ -24,11 +24,9 @@ import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.ResourceTransactionManager;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import com.orientechnologies.orient.core.db.ODatabase;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
 import com.orientechnologies.orient.core.exception.OTransactionException;
-import com.orientechnologies.orient.object.db.OObjectDatabasePool;
 
 /**
  * 
@@ -58,7 +56,7 @@ public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransac
 	protected void doBegin(Object transactionObject, TransactionDefinition definition) throws TransactionException {
 		LOG.debug("Came into doBegin");
 		GraphOrientTransactionObject txObject = (GraphOrientTransactionObject) transactionObject;
-		OGraphDatabase db = (OGraphDatabase) orientDbTemplate.getGraphDatabase();
+		OGraphDatabase db = (OGraphDatabase) orientDbTemplate.getDatabase();
 
 		try {
 			txObject.setODatabaseRecordHolder(new ODatabaseHolder(db));

@@ -22,14 +22,18 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.db.orientDb.OrientDbTemplate;
+import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.dao.AccountDao;
-import com.bbytes.daas.rest.domain.Application;
 import com.bbytes.daas.rest.domain.Account;
+import com.bbytes.daas.rest.domain.Application;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 /**
@@ -39,11 +43,13 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
  * 
  * @version
  */
-@Transactional("objectDB")
 public class SaveObjectToDBTest extends BaseDBTest {
 
 	@Autowired
 	private OrientDbTemplate orientDbTemplate;
+	
+	@Autowired
+	private ConversionService conversionService;
 	
 	@Autowired
 	private AccountDao accountDao;
@@ -51,7 +57,6 @@ public class SaveObjectToDBTest extends BaseDBTest {
 	private String uuid = UUID.randomUUID().toString();
 
 	@Before
-	@Rollback(true)
 	public void setUp() {
 
 		long start = Calendar.getInstance().getTimeInMillis();
@@ -68,7 +73,7 @@ public class SaveObjectToDBTest extends BaseDBTest {
 			Application app = new Application();
 			app.setAccountName(org.getName());
 			app.setName("test app 1");
-			orientDbTemplate.getObjectDatabase().save(app);
+			orientDbTemplate.getDocumentDatabase().save(conversionService.convert(app,ODocument.class));
 		}
 
 		long stop = Calendar.getInstance().getTimeInMillis();
@@ -78,16 +83,14 @@ public class SaveObjectToDBTest extends BaseDBTest {
 	}
 
 	@Test
-	@Rollback(true)
-	public void getSavedObjects() {
+	public void getSavedObjects() throws BaasPersistentException, BaasEntityNotFoundException {
 		
 		long start = Calendar.getInstance().getTimeInMillis();
-		List<Account> result = orientDbTemplate.getObjectDatabase().query(
-				new OSQLSynchQuery<Account>("select * from Application limit 10000"));
+		List<Account> result = accountDao.findAll();
 
 		assertTrue(result.size() > 0);
 
-		List<Application> appResult = orientDbTemplate.getObjectDatabase().query(
+		List<Application> appResult = orientDbTemplate.getDocumentDatabase().query(
 				new OSQLSynchQuery<Application>("select * from Application where accountName ='"+uuid+"' limit 10000 "));
 
 		System.out.println(appResult.size());

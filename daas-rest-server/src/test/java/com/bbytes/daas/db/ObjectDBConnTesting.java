@@ -38,13 +38,13 @@ public class ObjectDBConnTesting extends BaseDBTest{
 	@Transactional("objectDB")
 	public void testObjectDBConn(){
 		assertNotNull(TenantRouter.getTenantIdentifier());
-		assertTrue(orientDbTemplate.getObjectDatabase().exists());
+		assertTrue(orientDbTemplate.getDocumentDatabase().exists());
 	}
 	
 	
 	@Transactional("objectDB")
 	public void testGraphDBFail(){
 		assertNotNull(TenantRouter.getTenantIdentifier());
-		assertTrue(orientDbTemplate.getGraphDatabase().exists());
+		assertTrue(orientDbTemplate.getDatabase().exists());
 	}
 }

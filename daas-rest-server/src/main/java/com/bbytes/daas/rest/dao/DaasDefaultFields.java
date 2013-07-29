@@ -31,7 +31,8 @@ public enum DaasDefaultFields {
 	FIELD_MODIFICATION_DATE("modificationDate"), 
 	FIELD_ACCOUNT_NAME("accountName"), 
 	FIELD_APPLICATION_NAME("applicationName"), 
-	FIELD_UUID("uuid");
+	FIELD_UUID("uuid"),
+	ENTITY_FULL_CLASS_NAME("fullClassName");
 
 	private String fieldName;
 	

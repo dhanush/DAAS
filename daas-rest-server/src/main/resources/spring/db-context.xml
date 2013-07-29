@@ -18,25 +18,18 @@
 	<!-- default transaction manager -->
 	<bean id="transactionManager"
 		class="com.bbytes.daas.db.orientDb.OrientGraphDbPoolTransactionManager">
-		<!-- <qualifier value="graphDB"/> -->
 	</bean>
 
-	<bean id="objectDbTransactionManager"
-		class="com.bbytes.daas.db.orientDb.OrientObjectDbPoolTransactionManager">
-		<qualifier value="objectDB" />
-	</bean>
-
-	<bean id="objectDbConnManager" class="com.bbytes.daas.db.orientDb.OrientDbConnectionManager">
-		<qualifier value="objectDB" />
+	<bean id="orientDbConnManager" class="com.bbytes.daas.db.orientDb.OrientDbConnectionManager">
 		<property name="databaseURL" value="remote:localhost" />
-		<property name="defaultDatabaseName" value="daas" />
+		<property name="tenantManagementDBName" value="daas" />
 		<property name="minConnections" value="1" />
 		<property name="maxConnections" value="5" />
 		<property name="username" value="root" />
 		<property name="password"
 			value="F2E6C6E8D8576B54C92456F4C78871EE79FF65400A15231684A38AF32FC52EB3" />
 
-		<property name="domainClassPackage" value="com.bbytes.daas.rest.domain" />
+		<property name="domainClassBasePackage" value="com.bbytes.daas.rest.domain" />
 	</bean>
 
 

@@ -13,10 +13,12 @@
  */
 package com.bbytes.daas.rest.dao;
 
+import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.domain.AccountUser;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**
- * Account user DAO 
+ * Account user DAO
  * 
  * @author Thanneer
  * 
@@ -25,4 +27,7 @@ import com.bbytes.daas.rest.domain.AccountUser;
 
 public interface AccountUserDao extends DaasDAO<AccountUser> {
 
+	// to be replaced by current session user
+	@Deprecated
+	public ODocument getDummyCurrentUser() throws BaasPersistentException;
 }

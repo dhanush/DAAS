@@ -22,11 +22,11 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.SessionStore;
-import com.bbytes.daas.rest.domain.AccountUser;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -55,6 +55,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#create(java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public ODocument create(String entityType, Map<String, Object> propertyMap, String accountName, String appName)
 			throws BaasPersistentException {
 		return createDocument(entityType, propertyMap, null, accountName, appName);
@@ -66,9 +67,24 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#create(java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public ODocument create(String entityType, String entityInJson, String accountName, String appName)
 			throws BaasPersistentException {
 		return createDocument(entityType, null, entityInJson, accountName, appName);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.bbytes.daas.rest.dao.DocumentDao#create(com.orientechnologies.orient.core.record.impl
+	 * .ODocument, java.lang.String, java.lang.String)
+	 */
+	@Override
+	@Transactional
+	public ODocument create(ODocument entity, String accountName, String appName) throws BaasPersistentException {
+		entity = DocumentUtils.applyDefaultFields(entity, entity.getClassName(), accountName, appName);
+		return entity.save();
 	}
 
 	/**
@@ -82,27 +98,29 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	private ODocument createDocument(String entityType, Map<String, Object> propertyMap, String entityInJson,
 			String accountName, String appName) throws BaasPersistentException {
 
-		DocumentUtils.createEntityType(getGraphDataBase(), entityType);
+		DocumentUtils.createEntityType(getDataBase(), entityType);
+		DocumentUtils.createEdgeType(getDataBase(), DaasDefaultFields.ENTITY_CREATED.toString());
 
 		ODocument entityVertex = null;
 
-		if (propertyMap == null && entityInJson != null) {
-			entityVertex = getGraphDataBase().createVertex(entityType);
-			entityVertex = entityVertex.fromJSON(entityInJson);
+		if (propertyMap == null) {
+			entityVertex = getDataBase().createVertex(entityType);
 		} else {
-			entityVertex = getGraphDataBase().createVertex(entityType, propertyMap);
+			entityVertex = getDataBase().createVertex(entityType, propertyMap);
 		}
+
+		if (entityInJson != null)
+			entityVertex = entityVertex.fromJSON(entityInJson);
 
 		entityVertex = DocumentUtils.applyDefaultFields(entityVertex, entityType, accountName, appName);
 
 		// ODocument currentUser = (ODocument) getObjectDataBase().getRecordByUserObject(
 		// sessionStore.getSessionUser() ,false);
 
-		ODocument currentUser = getDummyCurrentUser();
+		ODocument currentUser = userDao.getDummyCurrentUser();
 
-		DocumentUtils.createEdgeType(getGraphDataBase(), DaasDefaultFields.ENTITY_CREATED.toString());
-
-		ODocument createdEdge = getGraphDataBase().createEdge(currentUser, entityVertex,
+		
+		ODocument createdEdge = getDataBase().createEdge(currentUser, entityVertex,
 				DaasDefaultFields.ENTITY_CREATED.toString());
 
 		entityVertex.save();
@@ -115,18 +133,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		return entityVertex;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.bbytes.daas.rest.dao.DocumentDao#create(com.orientechnologies.orient.core.record.impl
-	 * .ODocument, java.lang.String, java.lang.String)
-	 */
-	@Override
-	public ODocument create(ODocument entity, String accountName, String appName) throws BaasPersistentException {
-		entity = DocumentUtils.applyDefaultFields(entity, entity.getClassName(), accountName, appName);
-		return entity.save();
-	}
+	
 
 	/*
 	 * (non-Javadoc)
@@ -136,7 +143,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 */
 	@Override
 	public boolean findAny(String entityType, String property, String value) throws BaasPersistentException {
-		OIndex<?> oIndex = getGraphDataBase().getMetadata().getIndexManager().getIndex(entityType + "." + property);
+		OIndex<?> oIndex = getDataBase().getMetadata().getIndexManager().getIndex(entityType + "." + property);
 		if (oIndex == null)
 			throw new BaasPersistentException("Index for " + entityType + "." + property + " is missing");
 		Collection<String> values = new ArrayList<>();
@@ -175,7 +182,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		}
 
 		String sql = "SELECT COUNT(*) as count FROM " + entityType + "  WHERE " + whereCondition;
-		long count = ((ODocument) getObjectDataBase().query(new OSQLSynchQuery<ODocument>(sql)).get(0)).field("count");
+		long count = ((ODocument) getDataBase().query(new OSQLSynchQuery<ODocument>(sql)).get(0)).field("count");
 
 		if (count == 0)
 			return false;
@@ -191,13 +198,14 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * .ODocument, java.util.Map, java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public ODocument update(ODocument docToBeUpdated, Map<String, Object> propertyMap, String accountName,
 			String appName) throws BaasPersistentException {
 
 		if (propertyMap != null)
 			docToBeUpdated = DocumentUtils.applyProperties(docToBeUpdated, propertyMap);
 
-		ODocument originalDoc = getGraphDataBase().load(docToBeUpdated.getIdentity());
+		ODocument originalDoc = getDataBase().load(docToBeUpdated.getIdentity());
 		if (originalDoc == null)
 			throw new BaasPersistentException(
 					"Document to be updated doesnt exist in DB , use create method to save the object to DB");
@@ -216,6 +224,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * .ODocument, java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public ODocument update(ODocument entity, String accountName, String appName) throws BaasPersistentException {
 		return update(entity, null, accountName, appName);
 	}
@@ -227,6 +236,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public ODocument update(String uuid, String entityType, String entityJson, String accountName, String appName)
 			throws BaasPersistentException {
 		ODocument originalDocument;
@@ -248,8 +258,9 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * .ODocument, java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void remove(ODocument entity, String accountName, String appName) throws BaasPersistentException {
-		ODocument docToBeRemoved = getGraphDataBase().load(entity.getIdentity());
+		ODocument docToBeRemoved = getDataBase().load(entity.getIdentity());
 		if (docToBeRemoved == null)
 			throw new BaasPersistentException("Document to be deleted doesnt exist in DB");
 		docToBeRemoved.delete();
@@ -263,6 +274,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public void remove(String uuid, String entityType, String accountName, String appName)
 			throws BaasPersistentException {
 		ODocument doc;
@@ -281,7 +293,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 */
 	@Override
 	public ODocument find(ORID id) throws BaasEntityNotFoundException {
-		ODocument result = getGraphDataBase().load(id);
+		ODocument result = getDataBase().load(id);
 
 		if (result == null)
 			throw new BaasEntityNotFoundException();
@@ -298,7 +310,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	public ODocument findById(String entityType, String uuid) throws BaasEntityNotFoundException {
 		String sql = "SELECT * FROM " + entityType + "  WHERE " + DaasDefaultFields.FIELD_UUID + " = " + "'" + uuid
 				+ "'";
-		List<ODocument> result = getGraphDataBase().query(new OSQLSynchQuery<ODocument>(sql));
+		List<ODocument> result = getDataBase().query(new OSQLSynchQuery<ODocument>(sql));
 
 		if (result == null || result.size() == 0)
 			throw new BaasEntityNotFoundException();
@@ -315,7 +327,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	public List<ODocument> list(String entityType, String appName) throws BaasPersistentException {
 		String sql = "SELECT * FROM " + entityType + "  WHERE " + DaasDefaultFields.FIELD_APPLICATION_NAME + " = "
 				+ "'" + appName + "'";
-		List<ODocument> result = getGraphDataBase().query(new OSQLSynchQuery<ODocument>(sql));
+		List<ODocument> result = getDataBase().query(new OSQLSynchQuery<ODocument>(sql));
 		return result;
 	}
 
@@ -328,7 +340,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	public long count(String entityType, String appName) {
 		String sql = "SELECT COUNT(*) as count FROM " + entityType + "  WHERE "
 				+ DaasDefaultFields.FIELD_APPLICATION_NAME + " = " + "'" + appName + "'";
-		long count = ((ODocument) getGraphDataBase().query(new OSQLSynchQuery<ODocument>(sql)).get(0)).field("count");
+		long count = ((ODocument) getDataBase().query(new OSQLSynchQuery<ODocument>(sql)).get(0)).field("count");
 		return count;
 	}
 
@@ -353,16 +365,6 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			return false;
 		}
 		return (doc != null);
-	}
-
-	// to be replaced by current session user
-	@Deprecated
-	private ODocument getDummyCurrentUser() throws BaasPersistentException {
-		AccountUser user = new AccountUser();
-		user.setEmail("test@test.com");
-		user = userDao.update(user);
-		return (ODocument) getObjectDataBase().getRecordByUserObject(user, false);
-
 	}
 
 }
