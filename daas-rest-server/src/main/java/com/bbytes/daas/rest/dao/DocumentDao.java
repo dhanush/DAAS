@@ -38,7 +38,20 @@ public interface DocumentDao {
 
 	public ODocument create(ODocument entity, String accountName, String appName) throws BaasPersistentException;
 
-	public ODocument update(String uuid, String entityType, String entityJson, String accountName, String appName) throws BaasPersistentException;
+	public ODocument relate(String primartyEntityType, String primaryEntityId, String secondaryEntityType,
+			String secondaryEntityId, String relationName) throws BaasPersistentException;
+
+	public boolean removeRelation(String primartyEntityType, String primaryEntityId, String secondaryEntityType,
+			String secondaryEntityId, String relationName) throws BaasPersistentException;
+
+	public List<ODocument> findRelated(String primartyEntityType, String primaryEntityId,String secondaryEntityType, String relationName)
+			throws BaasEntityNotFoundException;
+	
+	public List<ODocument> findRelated(String primartyEntityType, String primaryEntityId, String relationName)
+			throws BaasEntityNotFoundException;
+
+	public ODocument update(String uuid, String entityType, String entityJson, String accountName, String appName)
+			throws BaasPersistentException;
 
 	public ODocument update(ODocument entity, Map<String, Object> propertyMap, String accountName, String appName)
 			throws BaasPersistentException;
@@ -46,8 +59,9 @@ public interface DocumentDao {
 	public ODocument update(ODocument entity, String accountName, String appName) throws BaasPersistentException;
 
 	public void remove(ODocument entity, String accountName, String appName) throws BaasPersistentException;
-	
-	public void remove(String uuid, String entityType,  String accountName, String appName) throws BaasPersistentException ;
+
+	public void remove(String uuid, String entityType, String accountName, String appName)
+			throws BaasPersistentException;
 
 	public ODocument find(ORID id) throws BaasEntityNotFoundException;
 

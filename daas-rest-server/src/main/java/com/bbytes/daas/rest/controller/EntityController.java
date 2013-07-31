@@ -31,9 +31,9 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 @Controller
 public class EntityController {
 
-	
 	@Autowired
 	private DocumentDao documentDao;
+
 	/**
 	 * Returns all the entities of type entityType
 	 * 
@@ -43,7 +43,7 @@ public class EntityController {
 	 * @param accessToken
 	 * @returnmm
 	 * @throws BaasException
-	 * @throws BaasPersistentException 
+	 * @throws BaasPersistentException
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
@@ -55,7 +55,8 @@ public class EntityController {
 	}
 
 	/**
-	 * Returns a single entity of type entityType identified by the id , the id is the uuid property that is considered to query
+	 * Returns a single entity of type entityType identified by the id , the id is the uuid property
+	 * that is considered to query
 	 * 
 	 * @param accountName
 	 * @param applicationName
@@ -63,13 +64,14 @@ public class EntityController {
 	 * @param accessToken
 	 * @return
 	 * @throws BaasException
-	 * @throws BaasEntityNotFoundException 
+	 * @throws BaasEntityNotFoundException
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityUuid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	ODocument getEntity(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityUuid,
-			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException, BaasEntityNotFoundException {
+			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException,
+			BaasEntityNotFoundException {
 		return documentDao.findById(entityType, entityUuid);
 	}
 
@@ -90,13 +92,15 @@ public class EntityController {
 	 * @param accessToken
 	 * @return - List<T> - a list object consisting of objects of relatedEntityName
 	 * @throws BaasException
+	 * @throws BaasEntityNotFoundException 
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	<T> List<T> getRelatedEntities(@PathVariable String accountName, @PathVariable String applicationName,
-			@PathVariable String entityType, @RequestHeader("Authorization") String accessToken,
-			HttpServletRequest request) throws BaasException {
-		return null;
+	List<ODocument> getRelatedEntities(@PathVariable String accountName, @PathVariable String applicationName,
+			@PathVariable String entityType, @PathVariable String entityId, @PathVariable String relation,
+			@PathVariable String relatedEntityType, @RequestHeader("Authorization") String accessToken,
+			HttpServletRequest request) throws BaasException, BaasEntityNotFoundException {
+		return documentDao.findRelated(entityType, entityId, relatedEntityType, relation);
 	}
 
 	/**
@@ -141,7 +145,7 @@ public class EntityController {
 			@PathVariable String entityType, @PathVariable String entityUuid,
 			@RequestHeader("Authorization") String accessToken, @RequestBody String entityJson,
 			HttpServletRequest request) throws BaasException, BaasPersistentException {
-		documentDao.update(entityUuid,entityType,entityJson, accountName, applicationName);
+		documentDao.update(entityUuid, entityType, entityJson, accountName, applicationName);
 		return "{'status': 'ok'}";
 
 	}
@@ -150,8 +154,9 @@ public class EntityController {
 	public @ResponseBody
 	String deleteEntity(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityUuid,
-			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException, BaasPersistentException {
-		documentDao.remove(entityUuid,entityType, accountName, applicationName);
+			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException,
+			BaasPersistentException {
+		documentDao.remove(entityUuid, entityType, accountName, applicationName);
 		return "{'status': 'ok'}";
 
 	}
@@ -161,11 +166,11 @@ public class EntityController {
 	String addConnection(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityId, @PathVariable String relation,
 			@PathVariable String relatedEntityType, @PathVariable String relatedEntityId,
-			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException {
-
-		return "";
+			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException,
+			BaasPersistentException {
+		documentDao.relate(entityType, entityId, relatedEntityType, relatedEntityId, relation);
+		return "{'status': 'ok'}";
 	}
-
 
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}/{relatedEntityId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody

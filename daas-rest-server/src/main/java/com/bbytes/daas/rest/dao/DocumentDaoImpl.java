@@ -32,6 +32,12 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.orient.OrientEdge;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 
 /**
  * Document Dao Impl
@@ -72,7 +78,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			throws BaasPersistentException {
 		return createDocument(entityType, null, entityInJson, accountName, appName);
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -95,6 +101,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @return
 	 * @throws BaasPersistentException
 	 */
+	@Transactional
 	private ODocument createDocument(String entityType, Map<String, Object> propertyMap, String entityInJson,
 			String accountName, String appName) throws BaasPersistentException {
 
@@ -119,7 +126,6 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 		ODocument currentUser = userDao.getDummyCurrentUser();
 
-		
 		ODocument createdEdge = getDataBase().createEdge(currentUser, entityVertex,
 				DaasDefaultFields.ENTITY_CREATED.toString());
 
@@ -133,7 +139,101 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		return entityVertex;
 	}
 
-	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.rest.dao.DocumentDao#relate(java.lang.String, java.lang.String,
+	 * java.lang.String)
+	 */
+	@Override
+	@Transactional
+	public ODocument relate(String primartyEntityType, String primaryEntityId, String secondaryEntityType,
+			String secondaryEntityId, String relationName) throws BaasPersistentException {
+		try {
+			ODocument primaryEntity = findById(primartyEntityType, primaryEntityId);
+			ODocument secondaryEntity = findById(secondaryEntityType, secondaryEntityId);
+
+			OrientGraph graph = new OrientGraph(getDataBase());
+			graph.addVertex(null); // 1st OPERATION: IMPLICITLY BEGIN A TRANSACTION
+
+			Edge edge = graph.addEdge(null, graph.getVertex(primaryEntity.getIdentity()),
+					graph.getVertex(secondaryEntity.getIdentity()), relationName);
+			graph.commit();
+			return ((OrientEdge) edge).getRawEdge();
+
+		} catch (BaasEntityNotFoundException e) {
+			throw new BaasPersistentException(e);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.rest.dao.DocumentDao#removeRelation(java.lang.String, java.lang.String,
+	 * java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public boolean removeRelation(String primartyEntityType, String primaryEntityId, String secondaryEntityType,
+			String secondaryEntityId, String relationName) throws BaasPersistentException {
+		try {
+			ODocument primaryEntity = findById(primartyEntityType, primaryEntityId);
+			// ODocument secondaryEntity = findById(secondaryEntityType, secondaryEntityId);
+
+			OrientGraph graph = new OrientGraph(getDataBase());
+
+			Vertex vertex = graph.getVertex(primaryEntity.getIdentity());
+
+			for (Edge e : vertex.getEdges(Direction.OUT, relationName)) {
+				graph.removeEdge(e);
+			}
+
+			return true;
+
+		} catch (BaasEntityNotFoundException e) {
+			throw new BaasPersistentException(e);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.rest.dao.DocumentDao#findRelated(java.lang.String, java.lang.String,
+	 * java.lang.String)
+	 */
+	@Override
+	public List<ODocument> findRelated(String primartyEntityType, String primaryEntityId, String relationName)
+			throws BaasEntityNotFoundException {
+		return findRelated(primartyEntityType, primaryEntityId, null, relationName);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.rest.dao.DocumentDao#findRelated(java.lang.String, java.lang.String,
+	 * java.lang.String)
+	 */
+	@Override
+	public List<ODocument> findRelated(String primartyEntityType, String primaryEntityId, String secondaryEntityType,
+			String relationName) throws BaasEntityNotFoundException {
+		List<ODocument> result = new ArrayList<>();
+
+		ODocument primaryEntity = findById(primartyEntityType, primaryEntityId);
+
+		OrientGraph graph = new OrientGraph(getDataBase());
+
+		Vertex vertex = graph.getVertex(primaryEntity.getIdentity());
+
+		for (Vertex v : vertex.getVertices(Direction.OUT, relationName)) {
+			ODocument doc = ((OrientVertex) v).getRawVertex();
+			if (secondaryEntityType == null
+					|| doc.field(DaasDefaultFields.ENTITY_TYPE.toString()).equals(secondaryEntityType)) {
+				result.add(doc);
+			}
+		}
+
+		return result;
+
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -260,10 +360,12 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Override
 	@Transactional
 	public void remove(ODocument entity, String accountName, String appName) throws BaasPersistentException {
+
 		ODocument docToBeRemoved = getDataBase().load(entity.getIdentity());
 		if (docToBeRemoved == null)
 			throw new BaasPersistentException("Document to be deleted doesnt exist in DB");
-		docToBeRemoved.delete();
+
+		getDataBase().removeVertex(entity.getIdentity());
 
 	}
 
@@ -277,13 +379,15 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Transactional
 	public void remove(String uuid, String entityType, String accountName, String appName)
 			throws BaasPersistentException {
-		ODocument doc;
+		ODocument docToBeRemoved;
 		try {
-			doc = findById(entityType, uuid);
+			docToBeRemoved = findById(entityType, uuid);
+			if (docToBeRemoved == null)
+				throw new BaasPersistentException("Document to be deleted doesnt exist in DB");
+			getDataBase().removeVertex(docToBeRemoved.getIdentity());
 		} catch (BaasEntityNotFoundException e) {
 			throw new BaasPersistentException(e);
 		}
-		remove(doc, accountName, appName);
 	}
 
 	/*
