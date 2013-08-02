@@ -12,9 +12,7 @@
 	</parent>
 
 	<artifactId>daas-rest-server</artifactId>
-	<packaging>jar</packaging>
-
-
+	<packaging>war</packaging>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -184,7 +182,6 @@
 		</dependency>
 
 
-
 		<!-- END REMOTE ENGINE DEPENDENCY -->
 
 		<dependency>
@@ -219,8 +216,6 @@
 					<target>${compiler.target.version}</target>
 				</configuration>
 			</plugin>
-
-
 		</plugins>
 	</build>
 </project>

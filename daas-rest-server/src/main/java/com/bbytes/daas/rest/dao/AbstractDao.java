@@ -22,7 +22,6 @@ import java.util.UUID;
 
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.log4j.Logger;
-import org.junit.After;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.convert.ConversionService;
