@@ -20,5 +20,5 @@
 	
 	<util:properties id="props"
 		location="classpath:META-INF/test-rest-config.properties" />
-	<import resource="classpath:/spring/rest-daas-server-context.xml"/>
+	<import resource="test-rest-daas-server-context.xml"/>
 </beans>

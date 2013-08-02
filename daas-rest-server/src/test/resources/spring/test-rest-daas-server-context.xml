@@ -9,30 +9,35 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
 		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
 
 
-	<tx:annotation-driven />
 
+	<import resource="test-db-context.xml" />
 
-	<!-- default transaction manager -->
-	<bean id="transactionManager"
-		class="com.bbytes.daas.db.orientDb.OrientGraphDbPoolTransactionManager">
+	<context:component-scan base-package="com.bbytes.daas" />
+
+	<context:annotation-config />
+	<bean id="conversionService"
+		class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<property name="converters">
+			<list>
+				<bean class="com.bbytes.daas.rest.service.EntityToODocumentConvertor" />
+				<bean class="com.bbytes.daas.rest.service.ODocumentToEntityConvertor" />
+			</list>
+		</property>
 	</bean>
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<mvc:annotation-driven />
 
-	<bean id="orientDbConnManager" class="com.bbytes.daas.db.orientDb.OrientDbConnectionManager">
-		<property name="databaseURL" value="remote:localhost" />
-		<property name="tenantManagementDBName" value="daas-test" />
-		<property name="minConnections" value="1" />
-		<property name="maxConnections" value="5" />
-		<property name="username" value="root" />
-		<property name="password"
-			value="F2E6C6E8D8576B54C92456F4C78871EE79FF65400A15231684A38AF32FC52EB3" />
+	<util:properties id="props"
+		location="classpath:META-INF/rest-config.properties" />
 
-		<property name="domainClassBasePackage" value="com.bbytes.daas.rest.domain" />
+	<bean id="sessionStore" class="com.bbytes.daas.rest.SessionStore"
+		scope="session">
+		<aop:scoped-proxy />
 	</bean>
-
-
 
 
 </beans>
