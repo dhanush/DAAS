@@ -20,14 +20,11 @@ import java.util.Calendar;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bbytes.daas.db.orientDb.OrientDbTemplate;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.dao.AccountDao;
@@ -51,9 +48,6 @@ public class DAOTest extends BaseDBTest {
 	private ApplicationDao applicationDao;
 	
 	@Autowired
-	private OrientDbTemplate template;
-
-	@Autowired
 	private AccountDao accountDao;
 
 	private String uuid;
@@ -70,12 +64,14 @@ public class DAOTest extends BaseDBTest {
 		Account org2 = new Account();
 		org2.setName(UUID.randomUUID().toString());
 
-		accountDao.save(org2);
+		org2 = accountDao.save(org2);
+		System.out.println(org2);
 
 		Application app1 = new Application();
 		app1.setName(UUID.randomUUID().toString());
 
-		applicationDao.save(app1);
+		app1 = applicationDao.save(app1);
+		System.out.println(app1);
 
 		for (int i = 0; i < 2; i++) {
 			Application app = new Application();

@@ -8,8 +8,6 @@ import javax.persistence.Version;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-import com.google.gson.Gson;
-
 /**
  * Base entity for holding information that is available across the entities
  * 
@@ -84,10 +82,7 @@ public class Entity implements Serializable{
 		this.type = type;
 	}
 
-	public String toString() {
-		Gson gson = new Gson();
-		return gson.toJson(this);
-	}
+
 	/**
 	 * @return the creationDate
 	 */

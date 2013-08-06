@@ -1,12 +1,9 @@
 package com.bbytes.daas.rest;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
@@ -37,7 +34,7 @@ import com.bbytes.daas.db.orientDb.TenantRouter;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(locations = "classpath:/spring/test-rest-servlet.xml")
-public class EntityControllerTest extends DAASTesting {
+public class ManagementControllerTest extends DAASTesting {
 
 	@Autowired
 	protected WebApplicationContext wac;
@@ -71,47 +68,35 @@ public class EntityControllerTest extends DAASTesting {
 		long date = DateTime.now().getMillis();
 		password = "usertest";
 		username = password + date;
-		appName = "myapp";
-		accountName = "TestORG";
+		appName = "myapp" + date;
+		accountName = "TestORG" + date;
 		token = "token";
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-		TenantRouter.setTenantIdentifier(accountName);
+
 	}
 
 	@Test
-	public void testCreateEntity() throws Exception {
-		String contextPath = "/" + accountName + "/" + appName + "/stores";
-
+	public void testCreateAccount() throws Exception {
+		String contextPath = "/management/account" ;
+		
 		this.mockMvc
 				.perform(
-						post(contextPath).session(session).contentType(MediaType.APPLICATION_JSON)
-								.header("Authorization", "Bearer " + token).accept(MediaType.APPLICATION_JSON)
-								.content("{'name': 'mystorename'}")).andExpect(status().isOk())
+						post(contextPath).param("name", accountName).session(session).contentType(MediaType.APPLICATION_JSON).header("Authorization", "Bearer " + token)
+								.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(print());
 	}
 
+	
 	@Test
-	public void testUpdateEntity() throws Exception {
-		String contextPath = "/" + accountName + "/" + appName + "/stores/123";
+	public void testCreateApplication() throws Exception {
+		String contextPath = "/management/"+accountName+"/application" ;
+		TenantRouter.setTenantIdentifier(accountName);
 		this.mockMvc
 				.perform(
-						put(contextPath).session(session).contentType(MediaType.APPLICATION_JSON)
-								.header("Authorization", "Bearer " + token).accept(MediaType.APPLICATION_JSON)
-								.content("{'name': 'mystorename'}")).andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(jsonPath("$.status").value("ok"));
+						post(contextPath).param("name", appName).session(session).contentType(MediaType.APPLICATION_JSON).header("Authorization", "Bearer " + token)
+								.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(print());
 	}
 
-	@Test
-	public void testDeleteEntity() throws Exception {
-		String contextPath = "/" + accountName + "/" + appName + "/stores/123";
-
-		this.mockMvc
-				.perform(
-						delete(contextPath).session(session).header("Authorization", "Bearer " + token)
-								.accept(MediaType.APPLICATION_JSON).content("{'name': 'mystorename'}"))
-				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(jsonPath("$.status").value("ok"));
-	}
-
+	
 }

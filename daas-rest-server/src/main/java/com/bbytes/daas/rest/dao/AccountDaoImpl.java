@@ -31,6 +31,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.iterator.object.OObjectIteratorClassInterface;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * Account DAO Impl
@@ -47,32 +48,37 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 	 * created per tenant in tenant management db.
 	 */
 	private ODatabaseObject getObjectDataBase() {
-		return orientDbTemplate.getTenantManagementDatabase();
+		return (OObjectDatabaseTx) orientDbTemplate.getTenantManagementDatabase();
 	}
 
 	@Override
-	public Account save(Account org) throws BaasPersistentException {
+	public Account save(Account account) throws BaasPersistentException {
 		// check if the org name is unique if so then save
-		if (!findAny("name", org.getName())) {
-			org.setUuid(UUID.randomUUID().toString());
-			org.setCreationDate(new Date());
-			org.setModificationDate(new Date());
-			org = getObjectDataBase().save(org);
+		
+		if (!findAny("name", account.getName())) {
+			account.setUuid(UUID.randomUUID().toString());
+			account.setCreationDate(new Date());
+			account.setModificationDate(new Date());
+			OObjectDatabaseTx db = (OObjectDatabaseTx) getObjectDataBase();
+			db.save(account);
+			account = db.detach(account, true);
 		} else {
-			throw new BaasPersistentException("Account name has to be unique,  " + org.getName() + " is already taken ");
+			throw new BaasPersistentException("Account name has to be unique,  " + account.getName() + " is already taken ");
 		}
-		return org;
+		return account;
 	}
 
 	@Override
 	public Account update(Account entity) throws BaasPersistentException {
-		ODatabaseObject db = getObjectDataBase();
+		OObjectDatabaseTx db = (OObjectDatabaseTx) getObjectDataBase();
 		try {
 			entity.setModificationDate(new Date());
-			return db.save(entity);
+			db.save(entity);
+			entity = db.detach(entity, true);
 		} finally {
 			db.close();
 		}
+		return entity;
 	}
 
 	@Override
@@ -87,9 +93,11 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 
 	@Override
 	public Account find(ORID id) throws BaasPersistentException, BaasEntityNotFoundException {
-		ODatabaseObject db = getObjectDataBase();
+		OObjectDatabaseTx db = (OObjectDatabaseTx) getObjectDataBase();
 		try {
-			return (Account) db.load(id);
+			Account account = db.load(id);
+			account = db.detach(account, true);
+			return account;
 		} finally {
 			db.close();
 		}
@@ -97,19 +105,22 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 
 	@Override
 	public List<Account> findAll() throws BaasPersistentException, BaasEntityNotFoundException {
-		ODatabaseObject db = getObjectDataBase();
+		OObjectDatabaseTx db = (OObjectDatabaseTx) getObjectDataBase();
 		try {
 			OObjectIteratorClassInterface<Account> listItr = db.browseClass(Account.class);
 			@SuppressWarnings("unchecked")
 			List<Account> result = IteratorUtils.toList(listItr);
 			if (result == null || result.size() == 0)
 				throw new BaasEntityNotFoundException();
-			return result;
+			return detach(result, db);
 		} finally {
 			db.close();
 		}
 	}
 
+	
+	
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -133,14 +144,14 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 	 */
 	@Override
 	public Account find(String uuid) throws BaasPersistentException, BaasEntityNotFoundException {
-		ODatabaseObject db = getObjectDataBase();
+		OObjectDatabaseTx db = (OObjectDatabaseTx) getObjectDataBase();
 		try {
 			List<Account> result = db.query(new OSQLSynchQuery<Account>("select * from "
 					+ Account.class.getSimpleName() + " where uuid = '" + uuid + "'"));
 
 			if (result == null || result.size() == 0)
 				throw new BaasEntityNotFoundException("Entity not found " + Account.class.getSimpleName());
-
+			result = detach(result, db);
 			return result.get(0);
 		} finally {
 			db.close();

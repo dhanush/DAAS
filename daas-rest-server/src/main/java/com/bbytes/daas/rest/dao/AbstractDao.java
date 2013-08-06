@@ -13,6 +13,7 @@
  */
 package com.bbytes.daas.rest.dao;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,6 +36,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * 
@@ -196,7 +198,17 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 */
 	@SuppressWarnings("unchecked")
 	protected List<E> convertToEntity(List<ODocument> entityList) {
-		return  (List<E>) conversionService.convert(entityList, (Class<List<E>>)(Class<?>)List.class);
+		return (List<E>) conversionService.convert(entityList, (Class<List<E>>) (Class<?>) List.class);
 	}
-	
+
+	protected List<E> detach(List<E> entityList, OObjectDatabaseTx db) {
+		List<E> result = new ArrayList<>();
+		for (E e : entityList) {
+			e = db.detach(e, true);
+			result.add(e);
+		}
+
+		return result;
+	}
+
 }

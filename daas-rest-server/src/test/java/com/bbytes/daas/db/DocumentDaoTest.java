@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.db.orientDb.OrientDbTemplate;
+import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.dao.DaasDefaultFields;
 import com.bbytes.daas.rest.dao.DocumentDao;
@@ -125,6 +126,17 @@ public class DocumentDaoTest extends BaseDBTest {
 
 	}
 
+	
+	@Test(expected=BaasEntityNotFoundException.class)
+	public void testFindByID() throws BaasPersistentException, BaasEntityNotFoundException {
+		ODocument document = documentDao.findById("doc1", doc1.field(DaasDefaultFields.FIELD_UUID.toString()).toString());
+		assertNotNull(document);
+		
+		ODocument document2 = documentDao.findById("doc1", "123");
+		assertNotNull(document2);
+	}
+	
+	
 	@Test
 	public void testRemoveRelation() throws BaasPersistentException {
 
