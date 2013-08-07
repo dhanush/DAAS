@@ -49,6 +49,12 @@ public interface DocumentDao {
 	
 	public List<ODocument> findRelated(String primartyEntityType, String primaryEntityId, String relationName)
 			throws BaasEntityNotFoundException;
+	
+	public List<ODocument> findRelatedReverse(String secondaryEntityType, String secondaryEntityId,String primartyEntityType, String relationName)
+			throws BaasEntityNotFoundException;
+	
+	public List<ODocument> findRelatedReverse(String secondaryEntityType, String secondaryEntityId, String relationName)
+			throws BaasEntityNotFoundException;
 
 	public ODocument update(String uuid, String entityType, String entityJson, String accountName, String appName)
 			throws BaasPersistentException;

@@ -234,6 +234,41 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		return result;
 
 	}
+	
+	
+	/* (non-Javadoc)
+	 * @see com.bbytes.daas.rest.dao.DocumentDao#findRelatedReverse(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<ODocument> findRelatedReverse(String secondaryEntityType, String secondaryEntityId,
+			String primartyEntityType, String relationName) throws BaasEntityNotFoundException {
+		List<ODocument> result = new ArrayList<>();
+
+		ODocument secondaryEntity = findById(secondaryEntityType, secondaryEntityId);
+
+		OrientGraph graph = new OrientGraph(getDataBase());
+
+		Vertex vertex = graph.getVertex(secondaryEntity.getIdentity());
+
+		for (Vertex v : vertex.getVertices(Direction.IN, relationName)) {
+			ODocument doc = ((OrientVertex) v).getRawVertex();
+			if (secondaryEntityType == null
+					|| doc.field(DaasDefaultFields.ENTITY_TYPE.toString()).equals(primartyEntityType)) {
+				result.add(doc);
+			}
+		}
+
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.bbytes.daas.rest.dao.DocumentDao#findRelatedReverse(java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<ODocument> findRelatedReverse(String secondaryEntityType, String secondaryEntityId, String relationName)
+			throws BaasEntityNotFoundException {
+		return findRelatedReverse(secondaryEntityType, secondaryEntityId, null, relationName);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -470,5 +505,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		}
 		return (doc != null);
 	}
+
+	
 
 }
