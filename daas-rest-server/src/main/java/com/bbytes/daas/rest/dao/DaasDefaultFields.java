@@ -25,7 +25,7 @@ import java.util.List;
  */
 public enum DaasDefaultFields {
 
-	ENTITY_TYPE("entityType"), 
+	ENTITY_TYPE("type"), 
 	ENTITY_CREATED("created"), 
 	FIELD_CREATION_DATE("creationDate"), 
 	FIELD_MODIFICATION_DATE("modificationDate"), 

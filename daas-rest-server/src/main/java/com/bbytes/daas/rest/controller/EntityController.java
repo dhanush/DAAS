@@ -153,14 +153,14 @@ public class EntityController {
 		return document.toJSON();
 	}
 
-	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityUuid}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityUuid}", method = RequestMethod.DELETE, produces = MediaType.TEXT_PLAIN_VALUE)
 	public @ResponseBody
 	String deleteEntity(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityUuid,
 			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException,
 			BaasPersistentException {
 		documentDao.remove(entityUuid, entityType, accountName, applicationName);
-		return "{'status': 'ok'}";
+		return "success";
 
 	}
 
@@ -175,7 +175,7 @@ public class EntityController {
 		return document.toJSON();
 	}
 
-	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}/{relatedEntityId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}/{relatedEntityId}", method = RequestMethod.DELETE, produces = MediaType.TEXT_PLAIN_VALUE)
 	public @ResponseBody
 	String deleteConnection(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityId, @PathVariable String relation,
@@ -183,7 +183,7 @@ public class EntityController {
 			@RequestHeader("Authorization") String accessToken, HttpServletRequest request) throws BaasException,
 			BaasPersistentException {
 		documentDao.removeRelation(entityType, entityId, relatedEntityType, relatedEntityId, relation);
-		return "{'status': 'ok'}";
+		return "success";
 	}
 
 }

@@ -129,7 +129,7 @@ public class DocumentUtils {
 		// backup the baasbox's fields
 		Map<String, Object> map = backupDefaultFields(originalDocument);
 		// update the document
-		originalDocument.merge(documentToMerge, false, false);
+		originalDocument.merge(documentToMerge, true, false);
 		// restore the baasbox's fields
 		restoreDefaultFields(originalDocument, map);
 		return originalDocument;

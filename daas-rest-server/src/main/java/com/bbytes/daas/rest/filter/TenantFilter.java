@@ -35,7 +35,6 @@ public class TenantFilter implements Filter {
 		HttpServletRequest httpRequest = (HttpServletRequest) request; 
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		String uri = httpRequest.getRequestURI();
-		System.out.println(uri);
 		String contextPath = httpRequest.getContextPath();
 		String pathAfterUrlContext = uri.substring(contextPath.length()+1);
 		String accountName = TenantUtils.getAccountFromURL(pathAfterUrlContext);
