@@ -381,7 +381,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			throw new BaasPersistentException(e);
 		}
 		ODocument documentToMerge = new ODocument().fromJSON(entityJson);
-		DocumentUtils.update(originalDocument, documentToMerge);
+		documentToMerge = DocumentUtils.update(originalDocument, documentToMerge);
 		return documentToMerge.save();
 	}
 
