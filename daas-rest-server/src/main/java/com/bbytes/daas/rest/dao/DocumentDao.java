@@ -72,6 +72,10 @@ public interface DocumentDao {
 	public ODocument find(ORID id) throws BaasEntityNotFoundException;
 
 	public ODocument findById(String entityType, String uuid) throws BaasEntityNotFoundException;
+	
+	public List<ODocument> findByProperty(String entityType, String propertyName, String propertyValue) throws BaasEntityNotFoundException;
+	
+	public List<ODocument> findByProperty(String applicationName, String entityType, String propertyName, String propertyValue) throws BaasEntityNotFoundException;
 
 	public List<ODocument> list(String entityType, String appName) throws BaasPersistentException;
 

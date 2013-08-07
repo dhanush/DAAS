@@ -234,10 +234,12 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		return result;
 
 	}
-	
-	
-	/* (non-Javadoc)
-	 * @see com.bbytes.daas.rest.dao.DocumentDao#findRelatedReverse(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.rest.dao.DocumentDao#findRelatedReverse(java.lang.String,
+	 * java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
 	public List<ODocument> findRelatedReverse(String secondaryEntityType, String secondaryEntityId,
@@ -261,8 +263,11 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.bbytes.daas.rest.dao.DocumentDao#findRelatedReverse(java.lang.String, java.lang.String, java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.rest.dao.DocumentDao#findRelatedReverse(java.lang.String,
+	 * java.lang.String, java.lang.String)
 	 */
 	@Override
 	public List<ODocument> findRelatedReverse(String secondaryEntityType, String secondaryEntityId, String relationName)
@@ -460,6 +465,47 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.bbytes.daas.rest.dao.DocumentDao#findByProperty(java.lang.String, java.lang.String,
+	 * java.lang.String)
+	 */
+	@Override
+	public List<ODocument> findByProperty(String entityType, String propertyName, String propertyValue)
+			throws BaasEntityNotFoundException {
+
+		String sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " = " + "'" + propertyValue + "'";
+		List<ODocument> result = getDataBase().query(new OSQLSynchQuery<ODocument>(sql));
+
+		if (result == null || result.size() == 0)
+			throw new BaasEntityNotFoundException("No entity found for given property name " + propertyName
+					+ " and value " + propertyValue + "for entity type " + entityType);
+
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.rest.dao.DocumentDao#findByProperty(java.lang.String, java.lang.String,
+	 * java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<ODocument> findByProperty(String applicationName, String entityType, String propertyName,
+			String propertyValue) throws BaasEntityNotFoundException {
+		String sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " = " + "'" + propertyValue + "'"
+				+ " and " + DaasDefaultFields.FIELD_APPLICATION_NAME.toString()+" = " +"'" + applicationName+"'";
+		
+		List<ODocument> result = getDataBase().query(new OSQLSynchQuery<ODocument>(sql));
+
+		if (result == null || result.size() == 0)
+			throw new BaasEntityNotFoundException("No entity found for given property name " + propertyName
+					+ " and value " + propertyValue + "for entity type " + entityType);
+
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#list(java.lang.String, java.lang.String)
 	 */
 	@Override
@@ -505,7 +551,5 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		}
 		return (doc != null);
 	}
-
-	
 
 }
