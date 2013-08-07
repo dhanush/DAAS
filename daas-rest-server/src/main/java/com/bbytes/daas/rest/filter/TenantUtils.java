@@ -12,7 +12,6 @@ public class TenantUtils {
 
 	private static final String URL_PATH_MANAGEMENT = "management";
 	private static final String URL_PATH_MANAGEMENT_LOGIN = "management/login";
-	private static final String URL_PATH_MANAGEMENT_ACCOUNT = "management/account";
 	private static final String URL_PATH_MANAGEMENT_ACCOUNTS = "management/accounts";
 
 	/**
@@ -39,8 +38,7 @@ public class TenantUtils {
 			// if the path parameter starts with management and if the path parameter doesnt start
 			// with any of these context paths - get the second entry in the path parameter
 			if (!pathParameter.startsWith(URL_PATH_MANAGEMENT_LOGIN)
-					&& !pathParameter.startsWith(URL_PATH_MANAGEMENT_ACCOUNT)
-					&& !pathParameter.startsWith(URL_PATH_MANAGEMENT_ACCOUNTS)) {
+						&& !pathParameter.startsWith(URL_PATH_MANAGEMENT_ACCOUNTS)) {
 				accountName = pathParameter.split("/")[1];
 			}
 		}

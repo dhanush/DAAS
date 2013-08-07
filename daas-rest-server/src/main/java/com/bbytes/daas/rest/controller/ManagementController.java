@@ -55,7 +55,7 @@ public class ManagementController {
 	 * @throws BaasException
 	 * @throws BaasPersistentException
 	 */
-	@RequestMapping(value = "/account/{accountName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/accounts/{accountName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	Account createAccount(@PathVariable("accountName") String accountName) throws BaasException, BaasPersistentException {
 		Account account = new Account();
@@ -90,7 +90,7 @@ public class ManagementController {
 	 * @throws BaasException
 	 * @throws BaasPersistentException
 	 */
-	@RequestMapping(value = "/{accountName}/application/{applicationName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/accounts/{accountName}/applications/{applicationName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	Application createApplication(@PathVariable String accountName, @PathVariable("applicationName") String applicationName)
 			throws BaasException, BaasPersistentException {
@@ -109,7 +109,7 @@ public class ManagementController {
 	 * @throws BaasException
 	 * @throws BaasPersistentException
 	 */
-	@RequestMapping(value = "/{accountName}/applications", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/accounts/{accountName}/applications", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	List<Application> getApplications(@PathVariable String accountName) throws BaasException, BaasPersistentException {
 		try {

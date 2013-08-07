@@ -77,7 +77,7 @@ public class ManagementControllerTest extends DAASTesting {
 
 	@Test
 	public void testCreateAccount() throws Exception {
-		String contextPath = "/management/account/"+accountName ;
+		String contextPath = "/management/accounts/"+accountName ;
 		
 		this.mockMvc
 				.perform(
@@ -89,7 +89,7 @@ public class ManagementControllerTest extends DAASTesting {
 	
 	@Test
 	public void testCreateApplication() throws Exception {
-		String contextPath = "/management/"+accountName+"/application/"+ appName;
+		String contextPath = "/management/accounts/"+accountName+"/applications/"+ appName;
 		TenantRouter.setTenantIdentifier(accountName);
 		this.mockMvc
 				.perform(
