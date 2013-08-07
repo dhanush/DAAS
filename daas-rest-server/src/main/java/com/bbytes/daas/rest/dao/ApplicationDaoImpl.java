@@ -58,7 +58,7 @@ public class ApplicationDaoImpl extends AbstractDao<Application> implements Appl
 	public List<Application> findForAccount(String accountName) throws BaasPersistentException {
 		String sql = "SELECT *  FROM " + Application.class.getSimpleName() + "  WHERE  accountName = " +"'" + accountName+"'"  ;
 		
-		List<Application> result = orientDbTemplate.getDatabase().query(
+		List<Application> result = getDataBase().query(
 				new OSQLSynchQuery<Application>(sql));
 		
 
