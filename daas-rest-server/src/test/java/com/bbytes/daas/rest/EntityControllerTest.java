@@ -3,11 +3,16 @@ package com.bbytes.daas.rest;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
+import java.io.IOException;
+
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonProcessingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -54,6 +59,7 @@ public class EntityControllerTest extends DAASTesting {
 	protected String accountName;
 	protected String token;
 	protected Store store;
+	private String entityUuid;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
@@ -66,7 +72,7 @@ public class EntityControllerTest extends DAASTesting {
 	}
 
 	@Before
-	public void setup() throws BaasException {
+	public void setup() throws JsonProcessingException, IOException, Exception {
 		// appending date to make them unique as retesting will create duplicate entry error
 		long date = DateTime.now().getMillis();
 		password = "usertest";
@@ -76,36 +82,40 @@ public class EntityControllerTest extends DAASTesting {
 		token = "token";
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 		TenantRouter.setTenantIdentifier(accountName);
+		createEntity();
 	}
-
-	@Test
-	public void testCreateEntity() throws Exception {
+	
+	public void createEntity() throws Exception, IOException, JsonProcessingException {
 		String contextPath = "/" + accountName + "/" + appName + "/stores";
-
+		CustomResultHandlerImpl customResultHandler = new CustomResultHandlerImpl();
 		this.mockMvc
 				.perform(
 						post(contextPath).session(session).contentType(MediaType.APPLICATION_JSON)
 								.header("Authorization", "Bearer " + token).accept(MediaType.APPLICATION_JSON)
 								.content("{'name': 'mystorename'}")).andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(print());
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(customResultHandler);
+		
+		String resultJson = customResultHandler.getJsonResult();
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode resultJsonNode = mapper.readTree(resultJson);
+		entityUuid = resultJsonNode.get("uuid").getTextValue();
 	}
 
 	@Test
 	public void testUpdateEntity() throws Exception {
-		String contextPath = "/" + accountName + "/" + appName + "/stores/123";
+		String contextPath = "/" + accountName + "/" + appName + "/stores/" +entityUuid;
 		this.mockMvc
 				.perform(
 						put(contextPath).session(session).contentType(MediaType.APPLICATION_JSON)
 								.header("Authorization", "Bearer " + token).accept(MediaType.APPLICATION_JSON)
-								.content("{'name': 'mystorename'}")).andExpect(status().isOk())
+								.content("{'name': 'mystorename123'}")).andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(jsonPath("$.status").value("ok"));
+				.andExpect(jsonPath("$.name").value("mystorename123")).andDo(print());
 	}
 
 	@Test
 	public void testDeleteEntity() throws Exception {
-		String contextPath = "/" + accountName + "/" + appName + "/stores/123";
-
+		String contextPath = "/" + accountName + "/" + appName + "/stores/"+entityUuid;
 		this.mockMvc
 				.perform(
 						delete(contextPath).session(session).header("Authorization", "Bearer " + token)
@@ -113,5 +123,4 @@ public class EntityControllerTest extends DAASTesting {
 				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(jsonPath("$.status").value("ok"));
 	}
-
 }
