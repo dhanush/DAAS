@@ -77,11 +77,11 @@ public class ManagementControllerTest extends DAASTesting {
 
 	@Test
 	public void testCreateAccount() throws Exception {
-		String contextPath = "/management/account" ;
+		String contextPath = "/management/account/"+accountName ;
 		
 		this.mockMvc
 				.perform(
-						post(contextPath).param("name", accountName).session(session).contentType(MediaType.APPLICATION_JSON).header("Authorization", "Bearer " + token)
+						post(contextPath).session(session).contentType(MediaType.APPLICATION_JSON).header("Authorization", "Bearer " + token)
 								.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(print());
 	}
@@ -89,11 +89,11 @@ public class ManagementControllerTest extends DAASTesting {
 	
 	@Test
 	public void testCreateApplication() throws Exception {
-		String contextPath = "/management/"+accountName+"/application" ;
+		String contextPath = "/management/"+accountName+"/application/"+ appName;
 		TenantRouter.setTenantIdentifier(accountName);
 		this.mockMvc
 				.perform(
-						post(contextPath).param("name", appName).session(session).contentType(MediaType.APPLICATION_JSON).header("Authorization", "Bearer " + token)
+						post(contextPath).session(session).contentType(MediaType.APPLICATION_JSON).header("Authorization", "Bearer " + token)
 								.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(print());
 	}

@@ -55,9 +55,9 @@ public class ManagementController {
 	 * @throws BaasException
 	 * @throws BaasPersistentException
 	 */
-	@RequestMapping(value = "/account", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/account/{accountName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	Account createAccount(@RequestParam("name") String accountName) throws BaasException, BaasPersistentException {
+	Account createAccount(@PathVariable("accountName") String accountName) throws BaasException, BaasPersistentException {
 		Account account = new Account();
 		account.setName(accountName);
 		return accountDao.save(account);
@@ -90,9 +90,9 @@ public class ManagementController {
 	 * @throws BaasException
 	 * @throws BaasPersistentException
 	 */
-	@RequestMapping(value = "/{accountName}/application", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/{accountName}/application/{applicationName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	Application createApplication(@PathVariable String accountName, @RequestParam("name") String applicationName)
+	Application createApplication(@PathVariable String accountName, @PathVariable("applicationName") String applicationName)
 			throws BaasException, BaasPersistentException {
 		Application app = new Application();
 		app.setAccountName(accountName);
