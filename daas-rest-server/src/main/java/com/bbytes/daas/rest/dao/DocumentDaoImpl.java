@@ -250,7 +250,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 		for (Vertex v : vertex.getVertices(Direction.IN, relationName)) {
 			ODocument doc = ((OrientVertex) v).getRawVertex();
-			if (secondaryEntityType == null
+			if (primartyEntityType == null
 					|| doc.field(DaasDefaultFields.ENTITY_TYPE.toString()).equals(primartyEntityType)) {
 				result.add(doc);
 			}

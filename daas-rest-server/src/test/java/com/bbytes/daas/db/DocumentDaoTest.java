@@ -15,6 +15,8 @@ package com.bbytes.daas.db;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +80,18 @@ public class DocumentDaoTest extends BaseDBTest {
 				doc1.field(DaasDefaultFields.FIELD_UUID.toString()).toString(), "doc2",
 				doc2.field(DaasDefaultFields.FIELD_UUID.toString()).toString(), "rel1");
 		assertNotNull(relateDoc);
+
+	}
+	
+	@Test
+	public void testRelateEntityReverseQuery() throws BaasPersistentException, BaasEntityNotFoundException {
+
+		ODocument relateDoc = documentDao.relate("doc1",
+				doc1.field(DaasDefaultFields.FIELD_UUID.toString()).toString(), "doc2",
+				doc2.field(DaasDefaultFields.FIELD_UUID.toString()).toString(), "rel1");
+		
+		List<ODocument> docs = documentDao.findRelatedReverse("doc2", doc2.field(DaasDefaultFields.FIELD_UUID.toString()).toString(), "rel1");
+		assertNotNull(docs.get(0));
 
 	}
 
