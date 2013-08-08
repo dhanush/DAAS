@@ -34,10 +34,4 @@
 	<util:properties id="props"
 		location="classpath:META-INF/rest-config.properties" />
 
-	<bean id="sessionStore" class="com.bbytes.daas.rest.SessionStore"
-		scope="session">
-		<aop:scoped-proxy />
-	</bean>
-
-
 </beans>
