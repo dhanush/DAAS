@@ -45,7 +45,7 @@ public class TenantUtils {
 			// // if the path parameter starts with management/accounts but has applications path
 			// inside it then it means creating or getting application inside an account - the we
 			// return the 3rd entry in the array
-			if (pathParameter.startsWith(URL_PATH_MANAGEMENT_ACCOUNTS) && pathParameter.contains("/applications/")) {
+			if (pathParameter.startsWith(URL_PATH_MANAGEMENT_ACCOUNTS) && pathParameter.contains("/applications")) {
 				accountName = pathParameter.split("/")[2];
 			}
 		}
