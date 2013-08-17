@@ -15,7 +15,7 @@
 
 
 	<import resource="test-db-context.xml" />
-
+	
 	<context:component-scan base-package="com.bbytes.daas" />
 
 	<context:annotation-config />
@@ -25,6 +25,7 @@
 			<list>
 				<bean class="com.bbytes.daas.rest.service.EntityToODocumentConvertor" />
 				<bean class="com.bbytes.daas.rest.service.ODocumentToEntityConvertor" />
+				<bean class="com.bbytes.daas.rest.service.ODocumentToEntityListConvertor" />
 			</list>
 		</property>
 	</bean>
@@ -34,11 +35,5 @@
 
 	<util:properties id="props"
 		location="classpath:META-INF/rest-config.properties" />
-
-	<bean id="sessionStore" class="com.bbytes.daas.rest.SessionStore"
-		scope="session">
-		<aop:scoped-proxy />
-	</bean>
-
 
 </beans>

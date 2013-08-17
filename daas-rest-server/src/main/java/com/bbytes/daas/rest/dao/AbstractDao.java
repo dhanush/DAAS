@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.domain.Entity;
+import com.bbytes.daas.rest.service.DaasGenericList;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -198,7 +199,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 */
 	@SuppressWarnings("unchecked")
 	protected List<E> convertToEntity(List<ODocument> entityList) {
-		return (List<E>) conversionService.convert(entityList, (Class<List<E>>) (Class<?>) List.class);
+		return (List<E>) conversionService.convert(entityList, DaasGenericList.class).getData();
 	}
 
 	protected List<E> detach(List<E> entityList, OObjectDatabaseTx db) {

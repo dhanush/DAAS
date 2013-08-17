@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,8 +19,10 @@ import com.bbytes.daas.rest.BaasException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.dao.AccountDao;
 import com.bbytes.daas.rest.dao.ApplicationDao;
+import com.bbytes.daas.rest.dao.UserDao;
 import com.bbytes.daas.rest.domain.Account;
 import com.bbytes.daas.rest.domain.Application;
+import com.bbytes.daas.rest.domain.DaasUser;
 
 /**
  * Management Rest service to create Apps and Account
@@ -38,7 +41,13 @@ public class ManagementController {
 	private AccountDao accountDao;
 
 	@Autowired
+	private UserDao userDao;
+
+	@Autowired
 	private ApplicationDao applicationDao;
+	
+//	@Autowired
+//	private SessionSecurityTokenManager securityTokenManager;
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public @ResponseBody
@@ -57,11 +66,50 @@ public class ManagementController {
 	 */
 	@RequestMapping(value = "/accounts/{accountName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	Account createAccount(@PathVariable("accountName") String accountName) throws BaasException, BaasPersistentException {
+	Account createAccount(@PathVariable("accountName") String accountName) throws BaasException,
+			BaasPersistentException {
 		Account account = new Account();
 		account.setName(accountName);
 		return accountDao.save(account);
 	}
+
+	/**
+	 * Create account user
+	 * 
+	 * @param accountName
+	 * @param user
+	 * @return
+	 * @throws BaasException
+	 * @throws BaasPersistentException
+	 */
+	@RequestMapping(value = "/accounts/{accountName}/user", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	DaasUser createAccountUser(@PathVariable("accountName") String accountName, @RequestBody DaasUser user)
+			throws BaasException, BaasPersistentException {
+		if(user==null)
+			throw new IllegalArgumentException("User object is null");
+		user.setAccountName(accountName);
+		return userDao.saveAccountUser(user);
+	}
+	
+	
+//	/**
+//	 * Create and send the security token for account user
+//	 * @param accountName
+//	 * @param user
+//	 * @return
+//	 * @throws BaasException
+//	 * @throws BaasPersistentException
+//	 */
+//	@RequestMapping(value = "/accounts/{accountName}/security/token", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+//	public @ResponseBody
+//	SessionSecurityToken getAccountUserSecurityToken(@PathVariable("accountName") String accountName, @RequestBody DaasUser user)
+//			throws BaasException, BaasPersistentException {
+//		if(user==null)
+//			throw new IllegalArgumentException("User object is null");
+//		
+//		return securityTokenManager.createAccountUserSessionSecurityToken(accountName, user.getUserName(), user.getPassword());
+//	}
 
 	/**
 	 * Get all Accounts
@@ -92,13 +140,55 @@ public class ManagementController {
 	 */
 	@RequestMapping(value = "/accounts/{accountName}/applications/{applicationName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	Application createApplication(@PathVariable String accountName, @PathVariable("applicationName") String applicationName)
-			throws BaasException, BaasPersistentException {
+	Application createApplication(@PathVariable String accountName,
+			@PathVariable("applicationName") String applicationName) throws BaasException, BaasPersistentException {
 		Application app = new Application();
 		app.setAccountName(accountName);
 		app.setName(applicationName);
 		return applicationDao.save(app);
 	}
+
+	/**
+	 * Create account user
+	 * 
+	 * @param accountName
+	 * @param user
+	 * @return
+	 * @throws BaasException
+	 * @throws BaasPersistentException
+	 */
+	@RequestMapping(value = "/accounts/{accountName}/applications/{applicationName}/user", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	DaasUser createAppUser(@PathVariable("accountName") String accountName,
+			@PathVariable("applicationName") String applicationName, @RequestBody DaasUser user) throws BaasException,
+			BaasPersistentException {
+		
+		if(user==null)
+			throw new IllegalArgumentException("User object is null");
+		
+		user.setAccountName(accountName);
+		user.setApplicationName(applicationName);
+		return userDao.saveAppUser(user);
+	}
+	
+//	/**
+//	 * Create and send the security token for app user
+//	 * @param accountName
+//	 * @param user
+//	 * @return
+//	 * @throws BaasException
+//	 * @throws BaasPersistentException
+//	 */
+//	@RequestMapping(value = "/accounts/{accountName}/applications/{applicationName}/security/token", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+//	public @ResponseBody
+//	SessionSecurityToken getAppUserSecurityToken(@PathVariable("accountName") String accountName,
+//			@PathVariable("applicationName") String applicationName, @RequestBody DaasUser user)
+//			throws BaasException, BaasPersistentException {
+//		if(user==null)
+//			throw new IllegalArgumentException("User object is null");
+//		
+//		return securityTokenManager.createAppUserSessionSecurityToken(accountName, applicationName,user.getUserName(), user.getPassword());
+//	}
 
 	/**
 	 * Create App inside org
@@ -113,7 +203,7 @@ public class ManagementController {
 	public @ResponseBody
 	List<Application> getApplications(@PathVariable String accountName) throws BaasException, BaasPersistentException {
 		try {
-			// we dont have to filter based on account name as we have separate  database per account
+			// we dont have to filter based on account name as we have separate database per account
 			return applicationDao.findAll();
 		} catch (BaasEntityNotFoundException e) {
 			return new ArrayList<Application>();
