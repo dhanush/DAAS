@@ -1,6 +1,8 @@
 package com.bbytes.daas.rest;
 
+import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -12,6 +14,7 @@ import java.io.IOException;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonProcessingException;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
@@ -99,6 +102,39 @@ public class EntityControllerTest extends DAASTesting {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode resultJsonNode = mapper.readTree(resultJson);
 		entityUuid = resultJsonNode.get("uuid").getTextValue();
+	}
+	
+	@Test
+	public void testGetEntity() throws Exception, IOException, JsonProcessingException {
+		String contextPath = "/" + accountName + "/" + appName + "/stores";
+		CustomResultHandlerImpl customResultHandler = new CustomResultHandlerImpl();
+		this.mockMvc
+				.perform(
+						get(contextPath).session(session).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(customResultHandler);
+		
+		String resultJson = customResultHandler.getJsonResult();
+		System.out.println(resultJson);
+	}
+	
+	@Test
+	public void testGetEntityWithProperty() throws Exception, IOException, JsonProcessingException {
+		String contextPath = "/" + accountName + "/" + appName + "/stores?pName=name&pValue=mystorename";
+		CustomResultHandlerImpl customResultHandler = new CustomResultHandlerImpl();
+		this.mockMvc
+				.perform(
+						get(contextPath).session(session).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(customResultHandler);
+		
+		String resultJson = customResultHandler.getJsonResult();
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+		JsonNode resultJsonNode = mapper.readTree(resultJson);
+		for(JsonNode node : resultJsonNode){
+			String name = node.get("name").getTextValue();
+			assertEquals(name, "mystorename");
+		}
 	}
 
 	@Test

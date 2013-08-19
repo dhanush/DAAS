@@ -1,5 +1,6 @@
 package com.bbytes.daas.rest;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -34,7 +35,7 @@ import com.bbytes.daas.db.orientDb.TenantRouter;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(locations = "classpath:/spring/test-rest-servlet.xml")
-public class ManagementControllerTest extends DAASTesting {
+public class ManagementControllerTest extends DAASTesting{
 
 	@Autowired
 	protected WebApplicationContext wac;
@@ -50,7 +51,7 @@ public class ManagementControllerTest extends DAASTesting {
 	protected String appName;
 	protected String accountName;
 	protected String token;
-	protected Store store;
+
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
@@ -77,26 +78,46 @@ public class ManagementControllerTest extends DAASTesting {
 
 	@Test
 	public void testCreateAccount() throws Exception {
-		String contextPath = "/management/accounts/"+accountName ;
-		
+		String contextPath = "/management/accounts/" + accountName;
+
 		this.mockMvc
 				.perform(
-						post(contextPath).session(session).contentType(MediaType.APPLICATION_JSON).header("Authorization", "Bearer " + token)
-								.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(print());
+						post(contextPath).session(session).contentType(MediaType.APPLICATION_JSON)
+								.header("Authorization", "Bearer " + token).accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(print());
 	}
 
-	
 	@Test
 	public void testCreateApplication() throws Exception {
-		String contextPath = "/management/accounts/"+accountName+"/applications/"+ appName;
+		String contextPath = "/management/accounts/" + accountName + "/applications/" + appName;
 		TenantRouter.setTenantIdentifier(accountName);
 		this.mockMvc
 				.perform(
-						post(contextPath).session(session).contentType(MediaType.APPLICATION_JSON).header("Authorization", "Bearer " + token)
-								.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(print());
+						post(contextPath).session(session).contentType(MediaType.APPLICATION_JSON)
+								.header("Authorization", "Bearer " + token).accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(print());
 	}
 
+	@Test
+	public void testGetApplications() throws Exception {
+		String contextPath = "/management/accounts/" + accountName + "/applications";
+		TenantRouter.setTenantIdentifier(accountName);
+		this.mockMvc
+				.perform(
+						get(contextPath).session(session).contentType(MediaType.APPLICATION_JSON)
+								.header("Authorization", "Bearer " + token).accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(print());
+	}
 	
+	@Test
+	public void testGetAccounts() throws Exception {
+		String contextPath = "/management/accounts/";
+		TenantRouter.setTenantIdentifier(accountName);
+		this.mockMvc
+				.perform(
+						get(contextPath).session(session).contentType(MediaType.APPLICATION_JSON)
+								.header("Authorization", "Bearer " + token).accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(print());
+	}
+
 }

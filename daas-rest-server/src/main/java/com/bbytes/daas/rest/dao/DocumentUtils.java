@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Zorba Open Source Project
+ * Copyright (C) 2013 The Daas Open Source Project
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -49,6 +49,7 @@ public class DocumentUtils {
 		}
 
 		OClass entityVertexType = graphDatabase.getVertexType(entityType);
+			
 		if (entityVertexType == null) {
 
 			entityVertexType = graphDatabase.createVertexType(entityType);
@@ -62,7 +63,8 @@ public class DocumentUtils {
 			// create index - uuid based
 			entityVertexType.createIndex(entityType + "." + DaasDefaultFields.FIELD_UUID.toString(),
 					OClass.INDEX_TYPE.UNIQUE, DaasDefaultFields.FIELD_UUID.toString());
-
+			entityVertexType.setOverSize(2); 
+			
 			// now we can begin the transaction
 			if (transaction != null) {
 				transaction.begin();

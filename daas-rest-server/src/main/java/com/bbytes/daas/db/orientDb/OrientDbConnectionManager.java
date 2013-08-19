@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Zorba Open Source Project
+ * Copyright (C) 2013 The Daas Open Source Project
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -26,6 +26,7 @@ import org.springframework.util.StringUtils;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.reflection.OReflectionHelper;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
+import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabasePool;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
@@ -114,6 +115,10 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		defaultTenantManageDbPool.setup(minConnections, maxConnections);
 
 		initTenantManagementDB();
+		
+		
+		OGlobalConfiguration.TX_USE_LOG.setValue(false);
+		OGlobalConfiguration.MVRBTREE_NODE_PAGE_SIZE.setValue(2048);
 	}
 
 	/**
@@ -152,7 +157,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 
 		if (tenantDbName == null)
 			throw new IllegalArgumentException(
-					"Tenant name or identifier is null, please set the tenant name on TenantRouter");
+					"Account information missing in HTTP parameter or URL for tenant identification");
 
 		OGraphDatabasePool tenantGraphDatabasePool = tenantToGraphDbConnPoolMap.get(tenantDbName);
 		if (tenantGraphDatabasePool == null) {

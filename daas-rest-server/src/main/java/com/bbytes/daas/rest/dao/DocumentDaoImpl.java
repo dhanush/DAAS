@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Zorba Open Source Project
+ * Copyright (C) 2013 The Daas Open Source Project
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -49,7 +49,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 	@Autowired
-	private AccountUserDao userDao;
+	private UserDao userDao;
 
 	/*
 	 * (non-Javadoc)
