@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Zorba Open Source Project
+ * Copyright (C) 2013 The Daas Open Source Project
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,28 +13,34 @@
  */
 package com.bbytes.daas.rest.dao;
 
-import org.springframework.stereotype.Repository;
-
+import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.domain.AccountUser;
+import com.bbytes.daas.rest.domain.DaasUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**
- * Account DAO Impl
+ *  User DAO for all types of users like account user , application user . 
  * 
  * @author Thanneer
  * 
  * @version 1.0.0
  */
-@Repository
-public class AccountUserDaoImpl extends AbstractDao<AccountUser> implements AccountUserDao {
+
+public interface UserDao extends DaasDAO<DaasUser> {
 
 	// to be replaced by current session user
 	@Deprecated
-	public ODocument getDummyCurrentUser() throws BaasPersistentException {
-		AccountUser user = new AccountUser();
-		user.setEmail("test@test.com");
-		return (ODocument) getDocumentDatabase().save(convert(user));
-
-	}
+	public ODocument getDummyCurrentUser() throws BaasPersistentException;
+	
+	public DaasUser saveAccountUser(DaasUser user) throws BaasPersistentException ;
+	
+	public DaasUser saveAppUser(DaasUser user) throws BaasPersistentException ;
+	
+	public DaasUser findUser(String userName) throws BaasEntityNotFoundException ;
+	
+	public DaasUser findUser(String accountName, String userName) throws BaasEntityNotFoundException ;
+	
+	public DaasUser findUser(String accountName, String appName, String userName) throws BaasEntityNotFoundException ;
+	
+	
 }

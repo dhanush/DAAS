@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Zorba Open Source Project
+ * Copyright (C) 2013 The Daas Open Source Project
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -11,23 +11,17 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bbytes.daas.rest.dao;
+package com.bbytes.daas.service;
 
-import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.domain.AccountUser;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**
- * Account user DAO
+ * 
  * 
  * @author Thanneer
  * 
- * @version 1.0.0
+ * @version
  */
+public class EntitytServiceImpl implements EntitytService{
 
-public interface AccountUserDao extends DaasDAO<AccountUser> {
-
-	// to be replaced by current session user
-	@Deprecated
-	public ODocument getDummyCurrentUser() throws BaasPersistentException;
+	
 }

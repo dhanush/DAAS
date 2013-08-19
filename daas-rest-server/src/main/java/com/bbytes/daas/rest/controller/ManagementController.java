@@ -1,6 +1,5 @@
 package com.bbytes.daas.rest.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -11,18 +10,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.dao.AccountDao;
-import com.bbytes.daas.rest.dao.ApplicationDao;
-import com.bbytes.daas.rest.dao.UserDao;
 import com.bbytes.daas.rest.domain.Account;
 import com.bbytes.daas.rest.domain.Application;
 import com.bbytes.daas.rest.domain.DaasUser;
+import com.bbytes.daas.service.ManagementService;
+import com.bbytes.daas.service.UserService;
 
 /**
  * Management Rest service to create Apps and Account
@@ -38,26 +35,15 @@ public class ManagementController {
 	private static final Logger LOG = Logger.getLogger(ManagementController.class);
 
 	@Autowired
-	private AccountDao accountDao;
-
-	@Autowired
-	private UserDao userDao;
-
-	@Autowired
-	private ApplicationDao applicationDao;
+	private ManagementService managementService;
 	
-//	@Autowired
-//	private SessionSecurityTokenManager securityTokenManager;
+	@Autowired
+	private UserService userService;
 
-	@RequestMapping(value = "/login", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-	public @ResponseBody
-	String login(@RequestParam("userName") String userName, @RequestParam("password") String password)
-			throws BaasException {
-		return null;
-	}
+
 
 	/**
-	 * Create org
+	 * Create account
 	 * 
 	 * @param accountName
 	 * @return
@@ -66,11 +52,9 @@ public class ManagementController {
 	 */
 	@RequestMapping(value = "/accounts/{accountName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	Account createAccount(@PathVariable("accountName") String accountName) throws BaasException,
-			BaasPersistentException {
-		Account account = new Account();
-		account.setName(accountName);
-		return accountDao.save(account);
+	Account createAccount(@PathVariable("accountName") String accountName) throws BaasPersistentException {
+		LOG.debug("Request to create account : " + accountName);
+		return managementService.createAccount(accountName);
 	}
 
 	/**
@@ -86,47 +70,22 @@ public class ManagementController {
 	public @ResponseBody
 	DaasUser createAccountUser(@PathVariable("accountName") String accountName, @RequestBody DaasUser user)
 			throws BaasException, BaasPersistentException {
-		if(user==null)
-			throw new IllegalArgumentException("User object is null");
-		user.setAccountName(accountName);
-		return userDao.saveAccountUser(user);
+		return userService.createAccountUser(accountName, user);
 	}
-	
-	
-//	/**
-//	 * Create and send the security token for account user
-//	 * @param accountName
-//	 * @param user
-//	 * @return
-//	 * @throws BaasException
-//	 * @throws BaasPersistentException
-//	 */
-//	@RequestMapping(value = "/accounts/{accountName}/security/token", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-//	public @ResponseBody
-//	SessionSecurityToken getAccountUserSecurityToken(@PathVariable("accountName") String accountName, @RequestBody DaasUser user)
-//			throws BaasException, BaasPersistentException {
-//		if(user==null)
-//			throw new IllegalArgumentException("User object is null");
-//		
-//		return securityTokenManager.createAccountUserSessionSecurityToken(accountName, user.getUserName(), user.getPassword());
-//	}
 
 	/**
 	 * Get all Accounts
 	 * 
 	 * @return
+	 * @throws BaasEntityNotFoundException
 	 * @throws BaasException
 	 * @throws BaasPersistentException
 	 */
 	@RequestMapping(value = "/accounts", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	List<Account> getAccounts() throws BaasException, BaasPersistentException {
-
-		try {
-			return accountDao.findAll();
-		} catch (BaasEntityNotFoundException e) {
-			return new ArrayList<Account>();
-		}
+	List<Account> getAccounts() throws BaasPersistentException, BaasEntityNotFoundException {
+		LOG.debug("Request to get all accounts");
+		return managementService.getAllAccounts();
 	}
 
 	/**
@@ -142,10 +101,7 @@ public class ManagementController {
 	public @ResponseBody
 	Application createApplication(@PathVariable String accountName,
 			@PathVariable("applicationName") String applicationName) throws BaasException, BaasPersistentException {
-		Application app = new Application();
-		app.setAccountName(accountName);
-		app.setName(applicationName);
-		return applicationDao.save(app);
+		return managementService.createApplication(accountName, applicationName);
 	}
 
 	/**
@@ -162,51 +118,21 @@ public class ManagementController {
 	DaasUser createAppUser(@PathVariable("accountName") String accountName,
 			@PathVariable("applicationName") String applicationName, @RequestBody DaasUser user) throws BaasException,
 			BaasPersistentException {
-		
-		if(user==null)
-			throw new IllegalArgumentException("User object is null");
-		
-		user.setAccountName(accountName);
-		user.setApplicationName(applicationName);
-		return userDao.saveAppUser(user);
+		return userService.createApplicationUser(accountName, applicationName, user);
 	}
-	
-//	/**
-//	 * Create and send the security token for app user
-//	 * @param accountName
-//	 * @param user
-//	 * @return
-//	 * @throws BaasException
-//	 * @throws BaasPersistentException
-//	 */
-//	@RequestMapping(value = "/accounts/{accountName}/applications/{applicationName}/security/token", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-//	public @ResponseBody
-//	SessionSecurityToken getAppUserSecurityToken(@PathVariable("accountName") String accountName,
-//			@PathVariable("applicationName") String applicationName, @RequestBody DaasUser user)
-//			throws BaasException, BaasPersistentException {
-//		if(user==null)
-//			throw new IllegalArgumentException("User object is null");
-//		
-//		return securityTokenManager.createAppUserSessionSecurityToken(accountName, applicationName,user.getUserName(), user.getPassword());
-//	}
 
 	/**
-	 * Create App inside org
-	 * 
+	 *  get all Apps inside account
+	 *  
 	 * @param accountName
-	 * @param applicationName
 	 * @return
 	 * @throws BaasException
 	 * @throws BaasPersistentException
+	 * @throws BaasEntityNotFoundException 
 	 */
 	@RequestMapping(value = "/accounts/{accountName}/applications", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	List<Application> getApplications(@PathVariable String accountName) throws BaasException, BaasPersistentException {
-		try {
-			// we dont have to filter based on account name as we have separate database per account
-			return applicationDao.findAll();
-		} catch (BaasEntityNotFoundException e) {
-			return new ArrayList<Application>();
-		}
+	List<Application> getApplications(@PathVariable String accountName) throws BaasPersistentException, BaasEntityNotFoundException {
+		return managementService.getAllApplications(accountName);
 	}
 }

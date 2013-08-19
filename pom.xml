@@ -10,10 +10,14 @@
 	<name>DAAS</name>
 	<url>http://daas.bbytes.com</url>
 
+
+
+
 	<properties>
 		<jetty.version>9.0.2.v20130417</jetty.version>
 		<spring.version>3.2.3.RELEASE</spring.version>
 		<spring.security.version>3.1.1.RELEASE</spring.security.version>
+		<spring.sec.oauth.version>1.0.0.RELEASE</spring.sec.oauth.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<compiler.source.version>1.7</compiler.source.version>
 		<compiler.target.version>1.7</compiler.target.version>
@@ -22,6 +26,7 @@
 		<orientdb.version>1.4.1</orientdb.version>
 
 	</properties>
+
 
 	<dependencyManagement>
 		<dependencies>
@@ -117,7 +122,11 @@
 				<artifactId>spring-webmvc</artifactId>
 				<version>${spring.version}</version>
 			</dependency>
-
+			<dependency>
+				<groupId>org.springframework.security.oauth</groupId>
+				<artifactId>spring-security-oauth2</artifactId>
+				<version>${spring.sec.oauth.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjrt</artifactId>
@@ -194,6 +203,12 @@
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
 				<version>4.2.2</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>14.0.1</version>
 			</dependency>
 
 			<dependency>

@@ -9,33 +9,13 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
 		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd http://www.springframework.org/schema/aop
-        http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
 
 
-	<import resource="test-db-context.xml" />
-	
-	<import resource="test-daas-security-context.xml"/>
-	
-	<context:component-scan base-package="com.bbytes.daas" />
-
-	<context:annotation-config />
-	<bean id="conversionService"
-		class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
-		<property name="converters">
-			<list>
-				<bean class="com.bbytes.daas.rest.service.EntityToODocumentConvertor" />
-				<bean class="com.bbytes.daas.rest.service.ODocumentToEntityConvertor" />
-				<bean class="com.bbytes.daas.rest.service.ODocumentToEntityListConvertor" />
-			</list>
-		</property>
-	</bean>
-	
 	<!-- Enables the Spring MVC @Controller programming model -->
-	<mvc:annotation-driven />
 
-	<util:properties id="props"
-		location="classpath:META-INF/rest-config.properties" />
+	<context:component-scan base-package="com.bbytes.daas.rest.controller" />
+	<mvc:annotation-driven />
 
 </beans>

@@ -1,5 +1,7 @@
 package com.bbytes.daas.rest.filter;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Utility class for Tenant Routing
  * 
@@ -10,9 +12,25 @@ package com.bbytes.daas.rest.filter;
 public class TenantUtils {
 
 	private static final String URL_PATH_MANAGEMENT = "management";
-	private static final String URL_PATH_MANAGEMENT_LOGIN = "management/login";
+	private static final String URL_PATH_OAUTH = "oauth/";
 	private static final String URL_PATH_MANAGEMENT_ACCOUNTS = "management/accounts";
+	private static final String PARAMETER_ACCOUNT = "account";
 
+	
+	
+	public static boolean isOAuthRequestURL(String pathAfterUrlContext)
+	{
+		if(pathAfterUrlContext!=null && pathAfterUrlContext.contains(URL_PATH_OAUTH))
+			return true;
+		
+		return false;
+	}
+	
+	public static String getAccountFromRequest(HttpServletRequest httpRequest) {
+		String accountName = httpRequest.getParameter(PARAMETER_ACCOUNT);
+		return accountName;
+	}
+	
 	/**
 	 * Returns the account name from the path after the url context path
 	 * 

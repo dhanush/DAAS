@@ -14,31 +14,36 @@ import javax.servlet.http.HttpServletResponse;
 import com.bbytes.daas.db.orientDb.TenantRouter;
 
 /**
- * Filter to set the correct {@link TenantRouter} by parsing the path parameter 
- *
+ * Filter to set the correct {@link TenantRouter} by parsing the path parameter
+ * 
  * @author Dhanush Gopinath
- *
- * @version 
+ * 
+ * @version
  */
 public class TenantFilter implements Filter {
-	
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
 			ServletException {
-		HttpServletRequest httpRequest = (HttpServletRequest) request; 
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		String uri = httpRequest.getRequestURI();
 		String contextPath = httpRequest.getContextPath();
-		String pathAfterUrlContext = uri.substring(contextPath.length()+1);
-		String accountName = TenantUtils.getAccountFromURL(pathAfterUrlContext);
-		if(accountName!=null)
+		String pathAfterUrlContext = uri.substring(contextPath.length() + 1);
+		String accountName = null;
+		if (TenantUtils.isOAuthRequestURL(uri)) {
+			accountName = TenantUtils.getAccountFromRequest(httpRequest);
+		} else {
+			accountName = TenantUtils.getAccountFromURL(pathAfterUrlContext);
+		}
+
+		if (accountName != null)
 			TenantRouter.setTenantIdentifier(accountName);
 		chain.doFilter(httpRequest, httpResponse);
 	}
@@ -46,7 +51,7 @@ public class TenantFilter implements Filter {
 	@Override
 	public void destroy() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
