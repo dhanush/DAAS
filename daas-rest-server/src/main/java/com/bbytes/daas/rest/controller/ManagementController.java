@@ -58,6 +58,21 @@ public class ManagementController {
 	}
 	
 	/**
+	 * Get account
+	 * 
+	 * @param accountName
+	 * @return
+	 * @throws BaasException
+	 * @throws BaasPersistentException
+	 * @throws BaasEntityNotFoundException 
+	 */
+	@RequestMapping(value = "/accounts/{accountName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	Account getAccount(@PathVariable("accountName") String accountName) throws BaasPersistentException, BaasEntityNotFoundException {
+		return managementService.getAccount(accountName);
+	}
+	
+	/**
 	 * Delete account
 	 * 
 	 * @param accountName
@@ -117,6 +132,23 @@ public class ManagementController {
 	Application createApplication(@PathVariable String accountName,
 			@PathVariable("applicationName") String applicationName) throws BaasException, BaasPersistentException {
 		return managementService.createApplication(accountName, applicationName);
+	}
+	
+	/**
+	 * Get App 
+	 * 
+	 * @param accountName
+	 * @param applicationName
+	 * @return
+	 * @throws BaasException
+	 * @throws BaasPersistentException
+	 * @throws BaasEntityNotFoundException 
+	 */
+	@RequestMapping(value = "/accounts/{accountName}/applications/{applicationName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	Application getApplication(@PathVariable String accountName,
+			@PathVariable("applicationName") String applicationName) throws BaasPersistentException, BaasEntityNotFoundException {
+		return managementService.getApplication(accountName, applicationName);
 	}
 	
 	/**
