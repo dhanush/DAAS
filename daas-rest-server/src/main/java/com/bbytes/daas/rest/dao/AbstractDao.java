@@ -134,7 +134,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 * @see com.bbytes.daas.rest.dao.DaasDAO#isAvailable(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public boolean findAny(String property, String value) throws BaasPersistentException {
+	public boolean findAny(String property, String value) {
 		Map<String, String> propertyToValue = new HashMap<String, String>();
 		propertyToValue.put(property, value);
 		return findAny(propertyToValue);
@@ -146,7 +146,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 * @see com.bbytes.daas.rest.dao.DaasDAO#findAny(java.util.Map)
 	 */
 	@Override
-	public boolean findAny(Map<String, String> propertyToValue) throws BaasPersistentException {
+	public boolean findAny(Map<String, String> propertyToValue){
 
 		if (propertyToValue == null)
 			throw new IllegalArgumentException("Null value passed as arg");
@@ -210,6 +210,20 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 		}
 
 		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.bbytes.daas.rest.dao.DaasDAO#find(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<E> find(String property, String value) throws BaasEntityNotFoundException {
+		List<ODocument> result = getDataBase().query(
+				new OSQLSynchQuery<ODocument>("select * from " + this.entityType.getSimpleName() + " where " + property + " = " + "'" + value + "'"));
+
+		if (result == null || result.size() == 0)
+			throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
+
+		return convertToEntity(result);
 	}
 
 }

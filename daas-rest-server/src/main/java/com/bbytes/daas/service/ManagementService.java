@@ -36,10 +36,16 @@ public interface ManagementService {
 
 	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")
 	public Account createAccount(String accountName) throws BaasPersistentException;
+	
+	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")
+	public boolean deleteAccount(String accountName) throws BaasPersistentException,BaasEntityNotFoundException;
 
 	@PreAuthorize("hasAnyRole('ROLE_TENENT_ADMIN','ROLE_ACCOUNT_ADMIN')")
 	public List<Application> getAllApplications(String accountName) throws BaasPersistentException, BaasEntityNotFoundException;
 
 	@PreAuthorize("hasAnyRole('ROLE_TENENT_ADMIN','ROLE_ACCOUNT_ADMIN')")
 	public Application createApplication(String accountName, String applicationName) throws BaasPersistentException;
+	
+	@PreAuthorize("hasAnyRole('ROLE_TENENT_ADMIN','ROLE_ACCOUNT_ADMIN')")
+	public boolean deleteApplication(String accountName, String applicationName) throws BaasPersistentException,BaasEntityNotFoundException;
 }

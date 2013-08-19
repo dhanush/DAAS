@@ -165,7 +165,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 	 * @see com.bbytes.daas.rest.dao.DaasDAO#isAvailable(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public boolean findAny(String property, String value) throws BaasPersistentException {
+	public boolean findAny(String property, String value) {
 		Map<String, String> propertyToValue = new HashMap<String, String>();
 		propertyToValue.put(property, value);
 		return findAny(propertyToValue);
@@ -177,7 +177,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 	 * @see com.bbytes.daas.rest.dao.DaasDAO#findAny(java.util.Map)
 	 */
 	@Override
-	public boolean findAny(Map<String, String> propertyToValue) throws BaasPersistentException {
+	public boolean findAny(Map<String, String> propertyToValue) {
 		ODatabaseObject db = getObjectDataBase();
 		try {
 			if (propertyToValue == null)

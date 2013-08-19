@@ -92,6 +92,40 @@ public class ManagementServiceImpl implements ManagementService {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.bbytes.daas.service.ManagementService#deleteAccount(java.lang.String)
+	 */
+	@Override
+	public boolean deleteAccount(String accountName) throws BaasPersistentException, BaasEntityNotFoundException {
+		List<Account> accns = accountDao.find("name", accountName);
+		if(accns!=null && accns.size()>0)
+		{
+			// account name is unique so get the only one in the list
+			Account accn = accns.get(0);
+			accountDao.remove(accn);
+		}
+		
+		return true;
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see com.bbytes.daas.service.ManagementService#deleteApplication(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public boolean deleteApplication(String accountName, String applicationName) throws BaasPersistentException ,BaasEntityNotFoundException{
+		List<Application> apps = applicationDao.find("name", accountName);
+		if(apps!=null && apps.size()>0)
+		{
+			// account name is unique so get the only one in the list
+			Application app = apps.get(0);
+			applicationDao.remove(app);
+		}
+		
+		return true;
+		
+	}
+
 	
 
 }

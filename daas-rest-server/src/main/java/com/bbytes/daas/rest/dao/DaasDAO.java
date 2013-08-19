@@ -36,15 +36,17 @@ public interface DaasDAO<E extends Entity> {
 
 	public void remove(E entity) throws BaasPersistentException;
 
-	public E find(ORID id) throws BaasPersistentException,BaasEntityNotFoundException;
-	
-	public E find(String uuid) throws BaasPersistentException,BaasEntityNotFoundException;
+	public E find(ORID id) throws BaasPersistentException, BaasEntityNotFoundException;
 
-	public List<E> findAll() throws BaasPersistentException,BaasEntityNotFoundException;
-	
+	public E find(String uuid) throws BaasPersistentException, BaasEntityNotFoundException;
+
+	public List<E> findAll() throws BaasPersistentException, BaasEntityNotFoundException;
+
 	public long count() throws BaasPersistentException;
-	
-	public boolean findAny(String property , String value) throws BaasPersistentException;
-	
-	public boolean findAny(Map<String,String> propertyToValue) throws BaasPersistentException;
+
+	public List<E> find(String property, String value) throws BaasEntityNotFoundException;
+
+	public boolean findAny(String property, String value);
+
+	public boolean findAny(Map<String, String> propertyToValue);
 }

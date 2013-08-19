@@ -56,6 +56,21 @@ public class ManagementController {
 		LOG.debug("Request to create account : " + accountName);
 		return managementService.createAccount(accountName);
 	}
+	
+	/**
+	 * Delete account
+	 * 
+	 * @param accountName
+	 * @return
+	 * @throws BaasException
+	 * @throws BaasPersistentException
+	 * @throws BaasEntityNotFoundException 
+	 */
+	@RequestMapping(value = "/accounts/{accountName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	boolean deleteAccount(@PathVariable("accountName") String accountName) throws BaasPersistentException, BaasEntityNotFoundException {
+		return managementService.deleteAccount(accountName);
+	}
 
 	/**
 	 * Create account user
@@ -89,7 +104,7 @@ public class ManagementController {
 	}
 
 	/**
-	 * Create App inside org
+	 * Create App inside account
 	 * 
 	 * @param accountName
 	 * @param applicationName
@@ -102,6 +117,23 @@ public class ManagementController {
 	Application createApplication(@PathVariable String accountName,
 			@PathVariable("applicationName") String applicationName) throws BaasException, BaasPersistentException {
 		return managementService.createApplication(accountName, applicationName);
+	}
+	
+	/**
+	 * Delete App inside account
+	 * 
+	 * @param accountName
+	 * @param applicationName
+	 * @return
+	 * @throws BaasException
+	 * @throws BaasPersistentException
+	 * @throws BaasEntityNotFoundException 
+	 */
+	@RequestMapping(value = "/accounts/{accountName}/applications/{applicationName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	boolean deleteApplication(@PathVariable String accountName,
+			@PathVariable("applicationName") String applicationName) throws BaasPersistentException, BaasEntityNotFoundException {
+		return managementService.deleteApplication(accountName, applicationName);
 	}
 
 	/**
