@@ -8,6 +8,8 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
 
+	<http pattern="/ping" security="none" xmlns="http://www.springframework.org/schema/security" />
+
 	<http pattern="/**/oauth/token" create-session="stateless" authentication-manager-ref="clientAuthenticationManager"
 		xmlns="http://www.springframework.org/schema/security">
 		<intercept-url pattern="/**/oauth/token" access="IS_AUTHENTICATED_FULLY" />
