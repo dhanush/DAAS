@@ -65,8 +65,8 @@ public class DaasClientDetailsService implements ClientDetailsService {
 			baseClientDetails.setAccessTokenValiditySeconds(accessTokenValiditySeconds);
 			baseClientDetails.setAuthorities(user.getAuthorities());
 			baseClientDetails.setClientId(user.getUserName());
-			baseClientDetails.setClientSecret("");
-			baseClientDetails.setRefreshTokenValiditySeconds(0);
+			baseClientDetails.setClientSecret(user.getPassword());
+//			baseClientDetails.setRefreshTokenValiditySeconds(accessTokenValiditySeconds);
 			return baseClientDetails;
 		} catch (BaasEntityNotFoundException e) {
 			throw new UsernameNotFoundException("Username Not Found", e);

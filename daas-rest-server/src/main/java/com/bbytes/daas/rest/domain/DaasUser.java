@@ -39,19 +39,16 @@ public class DaasUser extends Entity {
 
 	private String email;
 
-	@JsonIgnore
 	private String password;
 
 	private String mobileNo;
 
-	@JsonIgnore
 	private boolean active;
 
 	private String accountName;
 
 	private String applicationName;
 
-	@JsonIgnore
 	private List<Role> roles;
 
 	public DaasUser() {
@@ -174,11 +171,11 @@ public class DaasUser extends Entity {
 	/**
 	 * @return the authorities
 	 */
+	@JsonIgnore
 	public Set<GrantedAuthority> getAuthorities() {
 		Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
 		for (Role role : getRoles())
 			authorities.add(new SimpleGrantedAuthority(role.toString()));
-
 		return authorities;
 	}
 
@@ -195,7 +192,7 @@ public class DaasUser extends Entity {
 			return tobeCopied;
 		
 		this.userName=tobeCopied.getUserName();
-		this.email=tobeCopied.getUserName();
+		this.email=tobeCopied.getEmail();
 		this.password=tobeCopied.getPassword();
 		this.mobileNo=tobeCopied.getMobileNo();
 		this.accountName=tobeCopied.getAccountName();

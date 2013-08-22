@@ -28,10 +28,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 
 public interface UserDao extends DaasDAO<DaasUser> {
 
-	// to be replaced by current session user
-	@Deprecated
-	public ODocument getDummyCurrentUser() throws BaasPersistentException;
-	
 	public DaasUser saveAccountUser(DaasUser user) throws BaasPersistentException ;
 	
 	public DaasUser saveAppUser(DaasUser user) throws BaasPersistentException ;

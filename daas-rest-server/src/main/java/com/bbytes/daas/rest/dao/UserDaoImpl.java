@@ -55,7 +55,7 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 			roles.add(Role.ROLE_ACCOUNT_ADMIN);
 			roles.add(Role.ROLE_APPLICATION_USER);
 			DaasUser accountUser = new DaasUser(roles);
-			accountUser = user.copy(user);
+			accountUser = accountUser.copy(user);
 			user = super.save(accountUser);
 		} else {
 			throw new BaasPersistentException("User name and email has to be unique,  " + user.getName() + " or "
@@ -83,22 +83,13 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 			List<Role> roles = new ArrayList<Role>();
 			roles.add(Role.ROLE_APPLICATION_USER);
 			DaasUser appUser = new DaasUser(roles);
-			appUser = user.copy(user);
+			appUser = appUser.copy(user);
 			user = super.save(appUser);
 		} else {
 			throw new BaasPersistentException("User name and email has to be unique,  " + user.getName() + " or "
 					+ user.getEmail() + " is already taken ");
 		}
 		return user;
-	}
-
-	// to be replaced by current session user
-	@Deprecated
-	public ODocument getDummyCurrentUser() throws BaasPersistentException {
-		DaasUser user = new DaasUser();
-		user.setEmail("test@test.com");
-		return (ODocument) getDocumentDatabase().save(convert(user));
-
 	}
 
 	/*
