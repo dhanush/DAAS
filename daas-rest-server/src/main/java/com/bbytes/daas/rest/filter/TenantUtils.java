@@ -14,6 +14,8 @@ public class TenantUtils {
 	private static final String URL_PATH_MANAGEMENT = "management";
 	private static final String URL_PATH_OAUTH = "oauth/";
 	private static final String URL_PATH_MANAGEMENT_ACCOUNTS = "management/accounts";
+	private static final String URL_PATH_APPLCIATIONS="applications";
+	private static final String URL_PATH_USER="user";
 	private static final String PARAMETER_ACCOUNT = "account";
 
 	
@@ -63,7 +65,7 @@ public class TenantUtils {
 			// // if the path parameter starts with management/accounts but has applications path
 			// inside it then it means creating or getting application inside an account - the we
 			// return the 3rd entry in the array
-			if (pathParameter.startsWith(URL_PATH_MANAGEMENT_ACCOUNTS) && pathParameter.contains("/applications")) {
+			if (pathParameter.startsWith(URL_PATH_MANAGEMENT_ACCOUNTS) && (pathParameter.contains(URL_PATH_APPLCIATIONS) || pathParameter.contains(URL_PATH_USER))) {
 				accountName = pathParameter.split("/")[2];
 			}
 		}

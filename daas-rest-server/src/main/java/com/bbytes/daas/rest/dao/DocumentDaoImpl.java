@@ -20,12 +20,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.domain.DaasUser;
+import com.bbytes.daas.service.SecurityService;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -49,7 +52,9 @@ import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 	@Autowired
-	private UserDao userDao;
+	private SecurityService securityService;
+	
+	private Logger log = Logger.getLogger(DocumentDaoImpl.class);
 
 	/*
 	 * (non-Javadoc)
@@ -120,19 +125,27 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		// ODocument currentUser = (ODocument) getObjectDataBase().getRecordByUserObject(
 		// sessionStore.getSessionUser() ,false);
 
-		ODocument currentUser = userDao.getDummyCurrentUser();
+		DaasUser currentDaasUser = null;
+		try {
+			currentDaasUser = securityService.getLoggedInUser();
+			ODocument currentUser = (ODocument) getDataBase().getRecordByUserObject(
+					currentDaasUser ,false);
 
-		ODocument createdEdge = getDataBase().createEdge(currentUser, entityVertex,
-				DaasDefaultFields.ENTITY_CREATED.toString());
+			ODocument createdEdge = getDataBase().createEdge(currentUser, entityVertex,
+					DaasDefaultFields.ENTITY_CREATED.toString());
 
-		entityVertex.save();
-		createdEdge.save();
+			entityVertex.save();
+			createdEdge.save();
 
-		// need to have another rest like /entity/connections
-		// in connections and out connections to be displayed
-		// System.out.println("out " + getGraphDataBase().getOutEdges(entityVertex.getIdentity()));
-		// System.out.println("in "+ getGraphDataBase().getInEdges(entityVertex.getIdentity()));
-		return entityVertex;
+			// need to have another rest like /entity/connections
+			// in connections and out connections to be displayed
+			// System.out.println("out " + getGraphDataBase().getOutEdges(entityVertex.getIdentity()));
+			// System.out.println("in "+ getGraphDataBase().getInEdges(entityVertex.getIdentity()));
+			return entityVertex;
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			throw new BaasPersistentException(e);
+		}
 	}
 
 	/*
