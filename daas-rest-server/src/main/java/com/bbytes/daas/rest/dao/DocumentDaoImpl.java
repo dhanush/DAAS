@@ -22,12 +22,14 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.domain.DaasUser;
+import com.bbytes.daas.rest.service.EntityToODocumentConvertor;
 import com.bbytes.daas.service.SecurityService;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
@@ -53,6 +55,9 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 	@Autowired
 	private SecurityService securityService;
+	
+	@Autowired
+	private ConversionService conversionService;
 	
 	private Logger log = Logger.getLogger(DocumentDaoImpl.class);
 
@@ -128,12 +133,13 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		DaasUser currentDaasUser = null;
 		try {
 			currentDaasUser = securityService.getLoggedInUser();
-			ODocument currentUser = (ODocument) getDataBase().getRecordByUserObject(
-					currentDaasUser ,false);
-
+			if(currentDaasUser == null) {
+				log.error("User is not Logged in");
+				throw new BaasPersistentException("User is not Logged in");
+			}
+			ODocument currentUser =	conversionService.convert(currentDaasUser, ODocument.class);
 			ODocument createdEdge = getDataBase().createEdge(currentUser, entityVertex,
 					DaasDefaultFields.ENTITY_CREATED.toString());
-
 			entityVertex.save();
 			createdEdge.save();
 

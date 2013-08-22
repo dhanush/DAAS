@@ -141,4 +141,5 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 
 		return convertToEntity(result.get(0));
 	}
+	
 }

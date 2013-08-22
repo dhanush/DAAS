@@ -19,7 +19,8 @@ public class TenantRouter {
 	 */
 	public static void setTenantIdentifier(String tenantIdentifier) {
 
-		if (tenantDBNameHolder.get() != null) {
+		
+		if (tenantDBNameHolder.get() != null && !tenantIdentifier.equals(tenantDBNameHolder.get())) {
 			clearContext();
 		}
 
@@ -38,5 +39,6 @@ public class TenantRouter {
 	 */
 	public static void clearContext() {
 		tenantDBNameHolder.remove();
+		OrientDbTemplate.THREAD_LOCAL_DB_INSTANCE.remove();
 	}
 }

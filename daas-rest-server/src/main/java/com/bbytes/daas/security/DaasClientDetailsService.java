@@ -55,8 +55,7 @@ public class DaasClientDetailsService implements ClientDetailsService {
 		if(clientDetails!=null)
 			return clientDetails;
 		} catch (NoSuchClientException e) {
-			// ignore  exception as the user is not admin types
-			LOG.error(e);
+			LOG.warn("Logged in User is not configured user " + e.getMessage());
 		}
 		
 		try {

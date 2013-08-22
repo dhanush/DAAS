@@ -90,9 +90,6 @@
 	<oauth:client-details-service id="adminClientDetails">
 		<oauth:client client-id="admin" secret="admin" authorized-grant-types="client_credentials" authorities="ROLE_TENENT_ADMIN"
 			scope="read,write,trust" access-token-validity="3600" />
-		<oauth:client client-id="accAdmin" secret="accAdmin" authorized-grant-types="client_credentials" scope="read,write,trust"
-			authorities="ROLE_ACCOUNT_ADMIN" />
-		<oauth:client client-id="appUser" secret="appUser" scope="read,write,trust" authorities="ROLE_APPLICATION_USER" />
 	</oauth:client-details-service>
 
 
