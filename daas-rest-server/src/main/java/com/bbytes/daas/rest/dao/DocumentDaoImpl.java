@@ -126,7 +126,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			entityVertex = entityVertex.fromJSON(entityInJson);
 
 		entityVertex = DocumentUtils.applyDefaultFields(entityVertex, entityType, accountName, appName);
-
+		entityVertex.save();
 		// ODocument currentUser = (ODocument) getObjectDataBase().getRecordByUserObject(
 		// sessionStore.getSessionUser() ,false);
 
@@ -140,7 +140,6 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			ODocument currentUser =	conversionService.convert(currentDaasUser, ODocument.class);
 			ODocument createdEdge = getDataBase().createEdge(currentUser, entityVertex,
 					DaasDefaultFields.ENTITY_CREATED.toString());
-			entityVertex.save();
 			createdEdge.save();
 
 			// need to have another rest like /entity/connections
