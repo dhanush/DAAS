@@ -34,6 +34,7 @@ import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.domain.Entity;
 import com.bbytes.daas.rest.service.DaasGenericList;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
+import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -65,29 +66,53 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	@Override
 	@Transactional
 	public E save(E entity) throws BaasPersistentException {
-		entity.setUuid(UUID.randomUUID().toString());
-		entity.setCreationDate(new Date());
-		entity.setModificationDate(new Date());
-		return convertToEntity((ODocument) getDocumentDatabase().save(convert(entity)));
+		
+		ODatabaseRecord db = getDocumentDatabase();
+		try {
+			entity.setUuid(UUID.randomUUID().toString());
+			entity.setCreationDate(new Date());
+			entity.setModificationDate(new Date());
+			return convertToEntity((ODocument) db.save(convert(entity)));
+		} finally {
+			db.close();
+		}
 	}
 
 	@Override
 	@Transactional
 	public E update(E entity) throws BaasPersistentException {
-		entity.setModificationDate(new Date());
-		return convertToEntity((ODocument) getDocumentDatabase().save(convert(entity)));
+		ODatabaseRecord db = getDocumentDatabase();
+		try {
+			entity.setModificationDate(new Date());
+			return convertToEntity((ODocument) db.save(convert(entity)));
+		} finally {
+			db.close();
+		}
+		
+		
 	}
 
 	@Override
 	@Transactional
 	public void remove(E entity) throws BaasPersistentException {
-		getDocumentDatabase().delete(convert(entity));
+		ODatabaseRecord db = getDocumentDatabase();
+		try {
+			db.delete(convert(entity));
+		} finally {
+			db.close();
+		}
+		
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public E find(ORID id) throws BaasPersistentException, BaasEntityNotFoundException {
-		return (E) getDocumentDatabase().load(id);
+		ODatabaseRecord db = getDocumentDatabase();
+		try {
+			return (E) db.load(id);
+		} finally {
+			db.close();
+		}
 	}
 
 	@Override
@@ -169,7 +194,6 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 			throw new IllegalArgumentException("Null value passed as arg");
 
 		OGraphDatabase db = getDataBase();
-
 		try {
 			String whereCondition = "";
 			int index = 0;
@@ -206,9 +230,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 */
 	@Override
 	public List<E> find(String property, String value) throws BaasEntityNotFoundException {
-
 		OGraphDatabase db = getDataBase();
-
 		try {
 			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>("select * from "
 					+ this.entityType.getSimpleName() + " where " + property + " = " + "'" + value + "'"));
