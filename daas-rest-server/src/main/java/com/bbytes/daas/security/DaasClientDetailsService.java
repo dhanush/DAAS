@@ -55,8 +55,7 @@ public class DaasClientDetailsService implements ClientDetailsService {
 		if(clientDetails!=null)
 			return clientDetails;
 		} catch (NoSuchClientException e) {
-			// ignore  exception as the user is not admin types
-			LOG.error(e);
+			LOG.warn("Logged in User is not configured user " + e.getMessage());
 		}
 		
 		try {
@@ -65,8 +64,8 @@ public class DaasClientDetailsService implements ClientDetailsService {
 			baseClientDetails.setAccessTokenValiditySeconds(accessTokenValiditySeconds);
 			baseClientDetails.setAuthorities(user.getAuthorities());
 			baseClientDetails.setClientId(user.getUserName());
-			baseClientDetails.setClientSecret("");
-			baseClientDetails.setRefreshTokenValiditySeconds(0);
+			baseClientDetails.setClientSecret(user.getPassword());
+//			baseClientDetails.setRefreshTokenValiditySeconds(accessTokenValiditySeconds);
 			return baseClientDetails;
 		} catch (BaasEntityNotFoundException e) {
 			throw new UsernameNotFoundException("Username Not Found", e);

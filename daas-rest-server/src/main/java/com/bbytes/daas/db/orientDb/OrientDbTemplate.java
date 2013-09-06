@@ -21,9 +21,9 @@ import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
 @Component
 public class OrientDbTemplate {
 
-	public static ThreadLocal<ODatabaseObject> TENANT_MANAGE_DB_INSTANCE = new ThreadLocal<ODatabaseObject>();
+	static ThreadLocal<ODatabaseObject> TENANT_MANAGE_DB_INSTANCE = new ThreadLocal<ODatabaseObject>();
 
-	public static ThreadLocal<OGraphDatabase> THREAD_LOCAL_DB_INSTANCE = new ThreadLocal<OGraphDatabase>();
+	static ThreadLocal<OGraphDatabase> THREAD_LOCAL_DB_INSTANCE = new ThreadLocal<OGraphDatabase>();
 
 	@Autowired
 	private OrientDbConnectionManager connectionManager;
@@ -71,7 +71,6 @@ public class OrientDbTemplate {
 
 		return null;
 	}
-
 
 	protected ODatabaseObject getThreadLocalTenantManagementDB() {
 		ODatabaseObject db = TENANT_MANAGE_DB_INSTANCE.get();
