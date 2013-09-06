@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
+import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -101,38 +102,45 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	private ODocument createDocument(String entityType, Map<String, Object> propertyMap, String entityInJson,
 			String accountName, String appName) throws BaasPersistentException {
 
-		DocumentUtils.createEntityType(getDataBase(), entityType);
-		DocumentUtils.createEdgeType(getDataBase(), DaasDefaultFields.ENTITY_CREATED.toString());
+		OGraphDatabase db = getDataBase();
 
-		ODocument entityVertex = null;
+		try {
+			DocumentUtils.createEntityType(db, entityType);
+			DocumentUtils.createEdgeType(db, DaasDefaultFields.ENTITY_CREATED.toString());
 
-		if (propertyMap == null) {
-			entityVertex = getDataBase().createVertex(entityType);
-		} else {
-			entityVertex = getDataBase().createVertex(entityType, propertyMap);
+			ODocument entityVertex = null;
+
+			if (propertyMap == null) {
+				entityVertex = db.createVertex(entityType);
+			} else {
+				entityVertex = db.createVertex(entityType, propertyMap);
+			}
+
+			if (entityInJson != null)
+				entityVertex = entityVertex.fromJSON(entityInJson);
+
+			entityVertex = DocumentUtils.applyDefaultFields(entityVertex, entityType, accountName, appName);
+
+			// ODocument currentUser = (ODocument) getObjectDataBase().getRecordByUserObject(
+			// sessionStore.getSessionUser() ,false);
+
+			ODocument currentUser = userDao.getDummyCurrentUser();
+
+			ODocument createdEdge = db.createEdge(currentUser, entityVertex,
+					DaasDefaultFields.ENTITY_CREATED.toString());
+
+			entityVertex.save();
+			createdEdge.save();
+
+			// need to have another rest like /entity/connections
+			// in connections and out connections to be displayed
+			// System.out.println("out " +
+			// getGraphDataBase().getOutEdges(entityVertex.getIdentity()));
+			// System.out.println("in "+ getGraphDataBase().getInEdges(entityVertex.getIdentity()));
+			return entityVertex;
+		} finally {
+			db.close();
 		}
-
-		if (entityInJson != null)
-			entityVertex = entityVertex.fromJSON(entityInJson);
-
-		entityVertex = DocumentUtils.applyDefaultFields(entityVertex, entityType, accountName, appName);
-
-		// ODocument currentUser = (ODocument) getObjectDataBase().getRecordByUserObject(
-		// sessionStore.getSessionUser() ,false);
-
-		ODocument currentUser = userDao.getDummyCurrentUser();
-
-		ODocument createdEdge = getDataBase().createEdge(currentUser, entityVertex,
-				DaasDefaultFields.ENTITY_CREATED.toString());
-
-		entityVertex.save();
-		createdEdge.save();
-
-		// need to have another rest like /entity/connections
-		// in connections and out connections to be displayed
-		// System.out.println("out " + getGraphDataBase().getOutEdges(entityVertex.getIdentity()));
-		// System.out.println("in "+ getGraphDataBase().getInEdges(entityVertex.getIdentity()));
-		return entityVertex;
 	}
 
 	/*
@@ -488,8 +496,8 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	public List<ODocument> findByProperty(String applicationName, String entityType, String propertyName,
 			String propertyValue) throws BaasEntityNotFoundException {
 		String sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " = " + "'" + propertyValue + "'"
-				+ " and " + DaasDefaultFields.FIELD_APPLICATION_NAME.toString()+" = " +"'" + applicationName+"'";
-		
+				+ " and " + DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName + "'";
+
 		List<ODocument> result = getDataBase().query(new OSQLSynchQuery<ODocument>(sql));
 
 		if (result == null || result.size() == 0)
@@ -519,10 +527,16 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 */
 	@Override
 	public long count(String entityType, String appName) {
-		String sql = "SELECT COUNT(*) as count FROM " + entityType + "  WHERE "
-				+ DaasDefaultFields.FIELD_APPLICATION_NAME + " = " + "'" + appName + "'";
-		long count = ((ODocument) getDataBase().query(new OSQLSynchQuery<ODocument>(sql)).get(0)).field("count");
-		return count;
+
+		OGraphDatabase db = getDataBase();
+		try {
+			String sql = "SELECT COUNT(*) as count FROM " + entityType + "  WHERE "
+					+ DaasDefaultFields.FIELD_APPLICATION_NAME + " = " + "'" + appName + "'";
+			long count = ((ODocument) db.query(new OSQLSynchQuery<ODocument>(sql)).get(0)).field("count");
+			return count;
+		} finally {
+			db.close();
+		}
 	}
 
 	/*
