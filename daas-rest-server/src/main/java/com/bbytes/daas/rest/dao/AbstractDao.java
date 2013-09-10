@@ -33,6 +33,8 @@ import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.domain.Entity;
 import com.bbytes.daas.rest.service.DaasGenericList;
+import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
+import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -64,39 +66,70 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	@Override
 	@Transactional
 	public E save(E entity) throws BaasPersistentException {
-		entity.setUuid(UUID.randomUUID().toString());
-		entity.setCreationDate(new Date());
-		entity.setModificationDate(new Date());
-		return convertToEntity((ODocument) getDocumentDatabase().save(convert(entity)));
+		
+		ODatabaseRecord db = getDocumentDatabase();
+		try {
+			entity.setUuid(UUID.randomUUID().toString());
+			entity.setCreationDate(new Date());
+			entity.setModificationDate(new Date());
+			return convertToEntity((ODocument) db.save(convert(entity)));
+		} finally {
+			db.close();
+		}
 	}
 
 	@Override
 	@Transactional
 	public E update(E entity) throws BaasPersistentException {
-		entity.setModificationDate(new Date());
-		return convertToEntity((ODocument) getDocumentDatabase().save(convert(entity)));
+		ODatabaseRecord db = getDocumentDatabase();
+		try {
+			entity.setModificationDate(new Date());
+			return convertToEntity((ODocument) db.save(convert(entity)));
+		} finally {
+			db.close();
+		}
+		
+		
 	}
 
 	@Override
 	@Transactional
 	public void remove(E entity) throws BaasPersistentException {
-		getDocumentDatabase().delete(convert(entity));
+		ODatabaseRecord db = getDocumentDatabase();
+		try {
+			db.delete(convert(entity));
+		} finally {
+			db.close();
+		}
+		
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public E find(ORID id) throws BaasPersistentException, BaasEntityNotFoundException {
-		return (E) getDocumentDatabase().load(id);
+		ODatabaseRecord db = getDocumentDatabase();
+		try {
+			return (E) db.load(id);
+		} finally {
+			db.close();
+		}
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<E> findAll() throws BaasPersistentException, BaasEntityNotFoundException {
-		ORecordIteratorClass<ODocument> listItr = getDataBase().browseClass(this.entityType.getSimpleName());
-		List<ODocument> result = IteratorUtils.toList(listItr);
-		if (result == null || result.size() == 0)
-			throw new BaasEntityNotFoundException();
-		return convertToEntity(result);
+		OGraphDatabase db = getDataBase();
+		try {
+			ORecordIteratorClass<ODocument> listItr = db.browseClass(this.entityType.getSimpleName());
+			List<ODocument> result = IteratorUtils.toList(listItr);
+			if (result == null || result.size() == 0)
+				throw new BaasEntityNotFoundException();
+
+			return convertToEntity(result);
+		} finally {
+			db.close();
+		}
+
 	}
 
 	/*
@@ -106,8 +139,13 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 */
 	@Override
 	public long count() throws BaasPersistentException {
-		long count = getDataBase().countClass(this.entityType.getSimpleName());
-		return count;
+		OGraphDatabase db = getDataBase();
+		try {
+			long count = db.countClass(this.entityType.getSimpleName());
+			return count;
+		} finally {
+			db.close();
+		}
 	}
 
 	/*
@@ -117,14 +155,18 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 */
 	@Override
 	public E find(String uuid) throws BaasPersistentException, BaasEntityNotFoundException {
-		List<ODocument> result = getDataBase().query(
-				new OSQLSynchQuery<ODocument>("select * from " + this.entityType.getSimpleName() + " where uuid = '"
-						+ uuid + "'"));
+		OGraphDatabase db = getDataBase();
+		try {
+			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>("select * from "
+					+ this.entityType.getSimpleName() + " where uuid = '" + uuid + "'"));
 
-		if (result == null || result.size() == 0)
-			throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
+			if (result == null || result.size() == 0)
+				throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 
-		return convertToEntity(result.get(0));
+			return convertToEntity(result.get(0));
+		} finally {
+			db.close();
+		}
 
 	}
 
@@ -146,32 +188,60 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 * @see com.bbytes.daas.rest.dao.DaasDAO#findAny(java.util.Map)
 	 */
 	@Override
-	public boolean findAny(Map<String, String> propertyToValue){
+	public boolean findAny(Map<String, String> propertyToValue) {
 
 		if (propertyToValue == null)
 			throw new IllegalArgumentException("Null value passed as arg");
 
-		String whereCondition = "";
-		int index = 0;
-		for (Iterator<String> iterator = propertyToValue.keySet().iterator(); iterator.hasNext();) {
-			String property = iterator.next();
-			String value = propertyToValue.get(property);
-			if (index == 0) {
-				whereCondition = whereCondition + property + " = " + "'" + value + "'";
-			} else {
-				whereCondition = whereCondition + " and " + property + " = " + "'" + value + "'";
+		OGraphDatabase db = getDataBase();
+		try {
+			String whereCondition = "";
+			int index = 0;
+			for (Iterator<String> iterator = propertyToValue.keySet().iterator(); iterator.hasNext();) {
+				String property = iterator.next();
+				String value = propertyToValue.get(property);
+				if (index == 0) {
+					whereCondition = whereCondition + property + " = " + "'" + value + "'";
+				} else {
+					whereCondition = whereCondition + " and " + property + " = " + "'" + value + "'";
+				}
+				index++;
+
 			}
-			index++;
 
+			String sql = "SELECT COUNT(*) as count FROM " + this.entityType.getSimpleName() + "  WHERE "
+					+ whereCondition;
+			long count = ((ODocument) db.query(new OSQLSynchQuery<E>(sql)).get(0)).field("count");
+			LOG.debug("SQL Result : " + sql + "  - Result - " + count);
+			if (count == 0)
+				return false;
+
+			return true;
+
+		} finally {
+			db.close();
 		}
+	}
 
-		String sql = "SELECT COUNT(*) as count FROM " + this.entityType.getSimpleName() + "  WHERE " + whereCondition;
-		long count = ((ODocument) getDataBase().query(new OSQLSynchQuery<E>(sql)).get(0)).field("count");
-		LOG.debug("SQL Result : " + sql + "  - Result - " + count);
-		if (count == 0)
-			return false;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.rest.dao.DaasDAO#find(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<E> find(String property, String value) throws BaasEntityNotFoundException {
+		OGraphDatabase db = getDataBase();
+		try {
+			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>("select * from "
+					+ this.entityType.getSimpleName() + " where " + property + " = " + "'" + value + "'"));
 
-		return true;
+			if (result == null || result.size() == 0)
+				throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
+
+			return convertToEntity(result);
+		} finally {
+			db.close();
+		}
 	}
 
 	/**
@@ -210,20 +280,6 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 		}
 
 		return result;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.bbytes.daas.rest.dao.DaasDAO#find(java.lang.String, java.lang.String)
-	 */
-	@Override
-	public List<E> find(String property, String value) throws BaasEntityNotFoundException {
-		List<ODocument> result = getDataBase().query(
-				new OSQLSynchQuery<ODocument>("select * from " + this.entityType.getSimpleName() + " where " + property + " = " + "'" + value + "'"));
-
-		if (result == null || result.size() == 0)
-			throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
-
-		return convertToEntity(result);
 	}
 
 }
