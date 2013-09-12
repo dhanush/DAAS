@@ -53,13 +53,15 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 
 	@Override
 	public Account save(Account account) throws BaasPersistentException {
+		OObjectDatabaseTx db = null;
 		// check if the org name is unique if so then save
-		OObjectDatabaseTx db = (OObjectDatabaseTx) getObjectDataBase();
 		try {
 			if (!findAny("name", account.getName())) {
 				account.setUuid(UUID.randomUUID().toString());
 				account.setCreationDate(new Date());
 				account.setModificationDate(new Date());
+				
+				db = (OObjectDatabaseTx) getObjectDataBase();
 				db.save(account);
 				account = db.detach(account, true);
 			} else {
