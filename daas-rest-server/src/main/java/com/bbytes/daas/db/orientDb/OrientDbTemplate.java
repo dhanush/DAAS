@@ -52,7 +52,7 @@ public class OrientDbTemplate {
 
 		ODatabaseObject db = getThreadLocalTenantManagementDB();
 		// The database is valid and is open if its not null, so just return it
-		if (db != null)
+		if (db != null && !db.isClosed())
 			return db;
 
 		db = connectionManager.getTenantManagementDatabase();

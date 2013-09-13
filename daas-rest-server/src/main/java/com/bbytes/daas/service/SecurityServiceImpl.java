@@ -10,7 +10,6 @@ import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.dao.UserDao;
 import com.bbytes.daas.rest.domain.DaasUser;
 
-
 /**
  * 
  * 
@@ -23,7 +22,7 @@ public class SecurityServiceImpl implements SecurityService {
 
 	@Autowired
 	private UserDao userDao;
-	
+
 	private Logger log = Logger.getLogger(SecurityServiceImpl.class);
 
 	/*
@@ -32,8 +31,11 @@ public class SecurityServiceImpl implements SecurityService {
 	 * @see com.bbytes.daas.service.SecurityService#getLoggedInUser()
 	 */
 	@Override
-	public DaasUser getLoggedInUser() throws Exception{
+	public DaasUser getLoggedInUser() throws Exception {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth == null) {
+			return null;
+		}
 		String name = auth.getName();
 		try {
 			return userDao.findUser(name);
