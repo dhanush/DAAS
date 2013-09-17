@@ -23,7 +23,8 @@
 		<compiler.target.version>1.7</compiler.target.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jackson.version>1.9.12</jackson.version>
-		<orientdb.version>1.4.1</orientdb.version>
+		<orientdb.version>1.5.1</orientdb.version>
+		<tinkerpop.version>2.4.0</tinkerpop.version>
 
 	</properties>
 
@@ -294,31 +295,31 @@
 			<dependency>
 				<groupId>com.tinkerpop.blueprints</groupId>
 				<artifactId>blueprints-core</artifactId>
-				<version>2.3.0</version>
+				<version>${tinkerpop.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.tinkerpop.blueprints</groupId>
 				<artifactId>blueprints-orient-graph</artifactId>
-				<version>2.3.0</version>
+				<version>${tinkerpop.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.tinkerpop.gremlin</groupId>
 				<artifactId>gremlin-groovy</artifactId>
-				<version>2.3.0</version>
+				<version>${tinkerpop.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.tinkerpop.gremlin</groupId>
 				<artifactId>gremlin-java</artifactId>
-				<version>2.3.0</version>
+				<version>${tinkerpop.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.tinkerpop.gremlin</groupId>
 				<artifactId>gremlin</artifactId>
-				<version>2.3.0</version>
+				<version>${tinkerpop.version}</version>
 			</dependency>
 
 			<!-- END REMOTE ENGINE DEPENDENCY -->

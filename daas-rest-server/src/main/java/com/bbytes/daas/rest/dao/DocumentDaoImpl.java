@@ -111,8 +111,10 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	private ODocument createDocument(String entityType, Map<String, Object> propertyMap, String entityInJson,
 			String accountName, String appName) throws BaasPersistentException {
 
-		OGraphDatabase db = getDataBase();
+		OGraphDatabase db = null;
+
 		try {
+			db = getDataBase();
 			DocumentUtils.createEntityType(db, entityType);
 			DocumentUtils.createEdgeType(db, DaasDefaultFields.ENTITY_CREATED.toString());
 
@@ -136,9 +138,12 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			try {
 				currentDaasUser = securityService.getLoggedInUser();
 				if (currentDaasUser == null) {
-					log.error("User is not Logged in");
 					throw new BaasPersistentException("User is not Logged in");
 				}
+
+				// fix for close db conn , this will reopen the conn
+				db = getDataBase();
+
 				ODocument currentUser = conversionService.convert(currentDaasUser, ODocument.class);
 				ODocument createdEdge = db.createEdge(currentUser, entityVertex,
 						DaasDefaultFields.ENTITY_CREATED.toString());
@@ -157,7 +162,8 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 				throw new BaasPersistentException(e);
 			}
 		} finally {
-			db.close();
+			if (db != null)
+				db.close();
 		}
 	}
 
@@ -172,23 +178,25 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	public ODocument relate(String primartyEntityType, String primaryEntityId, String secondaryEntityType,
 			String secondaryEntityId, String relationName) throws BaasPersistentException {
 
-		OGraphDatabase db = getDataBase();
+		OGraphDatabase db = null;
 		try {
 			ODocument primaryEntity = findById(primartyEntityType, primaryEntityId);
 			ODocument secondaryEntity = findById(secondaryEntityType, secondaryEntityId);
 
+			db = getDataBase();
 			OrientGraph graph = new OrientGraph(db);
 			graph.addVertex(null); // 1st OPERATION: IMPLICITLY BEGIN A TRANSACTION
 
 			Edge edge = graph.addEdge(null, graph.getVertex(primaryEntity.getIdentity()),
 					graph.getVertex(secondaryEntity.getIdentity()), relationName);
 			graph.commit();
-			return ((OrientEdge) edge).getRawEdge();
+			return ((OrientEdge) edge).getRecord();
 
 		} catch (BaasEntityNotFoundException e) {
 			throw new BaasPersistentException(e);
 		} finally {
-			db.close();
+			if (db != null)
+				db.close();
 		}
 	}
 
@@ -202,12 +210,13 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	public boolean removeRelation(String primartyEntityType, String primaryEntityId, String secondaryEntityType,
 			String secondaryEntityId, String relationName) throws BaasPersistentException {
 
-		OGraphDatabase db = getDataBase();
+		OGraphDatabase db = null;
 
 		try {
 			ODocument primaryEntity = findById(primartyEntityType, primaryEntityId);
 			// ODocument secondaryEntity = findById(secondaryEntityType, secondaryEntityId);
 
+			db = getDataBase();
 			OrientGraph graph = new OrientGraph(db);
 
 			Vertex vertex = graph.getVertex(primaryEntity.getIdentity());
@@ -221,7 +230,8 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		} catch (BaasEntityNotFoundException e) {
 			throw new BaasPersistentException(e);
 		} finally {
-			db.close();
+			if (db != null)
+				db.close();
 		}
 	}
 
@@ -248,16 +258,17 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			String relationName) throws BaasEntityNotFoundException {
 		List<ODocument> result = new ArrayList<>();
 
-		OGraphDatabase db = getDataBase();
+		OGraphDatabase db = null;
 		try {
 			ODocument primaryEntity = findById(primartyEntityType, primaryEntityId);
 
-			OrientGraph graph = new OrientGraph(getDataBase());
+			db = getDataBase();
+			OrientGraph graph = new OrientGraph(db);
 
 			Vertex vertex = graph.getVertex(primaryEntity.getIdentity());
 
 			for (Vertex v : vertex.getVertices(Direction.OUT, relationName)) {
-				ODocument doc = ((OrientVertex) v).getRawVertex();
+				ODocument doc = ((OrientVertex) v).getRecord();
 				if (secondaryEntityType == null
 						|| doc.field(DaasDefaultFields.ENTITY_TYPE.toString()).equals(secondaryEntityType)) {
 					result.add(doc);
@@ -266,7 +277,8 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 			return result;
 		} finally {
-			db.close();
+			if (db != null)
+				db.close();
 		}
 
 	}
@@ -282,13 +294,14 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			String primartyEntityType, String relationName) throws BaasEntityNotFoundException {
 		List<ODocument> result = new ArrayList<>();
 
-		OGraphDatabase db = getDataBase();
+		OGraphDatabase db = null;
 		try {
 			ODocument secondaryEntity = findById(secondaryEntityType, secondaryEntityId);
+			db = getDataBase();
 			OrientGraph graph = new OrientGraph(db);
 			Vertex vertex = graph.getVertex(secondaryEntity.getIdentity());
 			for (Vertex v : vertex.getVertices(Direction.IN, relationName)) {
-				ODocument doc = ((OrientVertex) v).getRawVertex();
+				ODocument doc = ((OrientVertex) v).getRecord();
 				if (primartyEntityType == null
 						|| doc.field(DaasDefaultFields.ENTITY_TYPE.toString()).equals(primartyEntityType)) {
 					result.add(doc);
@@ -480,17 +493,19 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Transactional
 	public void remove(String uuid, String entityType, String accountName, String appName)
 			throws BaasPersistentException {
-		OGraphDatabase db = getDataBase();
+		OGraphDatabase db = null;
 		ODocument docToBeRemoved;
 		try {
 			docToBeRemoved = findById(entityType, uuid);
 			if (docToBeRemoved == null)
 				throw new BaasPersistentException("Document to be deleted doesnt exist in DB");
+			db = getDataBase();
 			db.removeVertex(docToBeRemoved.getIdentity());
 		} catch (BaasEntityNotFoundException e) {
 			throw new BaasPersistentException(e);
 		} finally {
-			db.close();
+			if (db != null)
+				db.close();
 		}
 	}
 

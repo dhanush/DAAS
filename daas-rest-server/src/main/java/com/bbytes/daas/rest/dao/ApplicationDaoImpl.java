@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.domain.Application;
+import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 /**
@@ -51,17 +52,24 @@ public class ApplicationDaoImpl extends AbstractDao<Application> implements Appl
 		return app;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.bbytes.daas.rest.dao.ApplicationDao#findForAccount(java.lang.String)
 	 */
 	@Override
 	public List<Application> findForAccount(String accountName) throws BaasPersistentException {
-		String sql = "SELECT *  FROM " + Application.class.getSimpleName() + "  WHERE  accountName = " +"'" + accountName+"'"  ;
-		
-		List<Application> result = getDataBase().query(
-				new OSQLSynchQuery<Application>(sql));
-		
 
-		return result;
+		OGraphDatabase db = getDataBase();
+		try {
+			String sql = "SELECT *  FROM " + Application.class.getSimpleName() + "  WHERE  accountName = " + "'"
+					+ accountName + "'";
+
+			List<Application> result = db.query(new OSQLSynchQuery<Application>(sql));
+
+			return result;
+		} finally {
+			db.close();
+		}
 	}
 }
