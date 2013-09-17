@@ -10,12 +10,8 @@
 		<groupId>com.bbytes</groupId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
-
-
 	<artifactId>daas-rest-server</artifactId>
 	<packaging>war</packaging>
-
-	
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -170,6 +166,12 @@
 		<dependency>
 			<groupId>com.orientechnologies</groupId>
 			<artifactId>orientdb-graphdb</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>pipes</artifactId>
+					<groupId>com.tinkerpop</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -190,8 +192,13 @@
 		<dependency>
 			<groupId>com.tinkerpop.gremlin</groupId>
 			<artifactId>gremlin-java</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>pipes</artifactId>
+					<groupId>com.tinkerpop</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-
 
 		<!-- END REMOTE ENGINE DEPENDENCY -->
 
