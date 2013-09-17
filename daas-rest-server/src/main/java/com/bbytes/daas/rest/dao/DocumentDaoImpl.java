@@ -224,7 +224,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			for (Edge e : vertex.getEdges(Direction.OUT, relationName)) {
 				graph.removeEdge(e);
 			}
-
+			graph.commit();
 			return true;
 
 		} catch (BaasEntityNotFoundException e) {
