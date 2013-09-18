@@ -21,8 +21,12 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
+import com.bbytes.daas.rest.BaasException;
+import com.bbytes.daas.rest.BaasTenantCreationException;
+import com.bbytes.daas.rest.dao.AccountDao;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.reflection.OReflectionHelper;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
@@ -49,6 +53,9 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 	private Map<String, OGraphDatabasePool> tenantToGraphDbConnPoolMap = new HashMap<String, OGraphDatabasePool>();
 
 	private OObjectDatabasePool defaultTenantManageDbPool;
+
+	@Autowired
+	private AccountDao accountDao;
 
 	private String databaseURL;
 	private String tenantManagementDBName;
@@ -115,8 +122,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		defaultTenantManageDbPool.setup(minConnections, maxConnections);
 
 		initTenantManagementDB();
-		
-		
+
 		OGlobalConfiguration.TX_USE_LOG.setValue(false);
 		OGlobalConfiguration.MVRBTREE_NODE_PAGE_SIZE.setValue(2048);
 	}
@@ -160,7 +166,13 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 					"Account information missing in HTTP parameter or URL for tenant identification");
 
 		OGraphDatabasePool tenantGraphDatabasePool = tenantToGraphDbConnPoolMap.get(tenantDbName);
+		// if accn does not exist then throw cannot create new tenant db
+
 		if (tenantGraphDatabasePool == null) {
+			if (!accountDao.findAny("name", tenantDbName)) {
+				throw new BaasTenantCreationException("Failed to create tenant DB " + tenantDbName
+						+ " as there is no account created with name " + tenantDbName);
+			}
 			try {
 				logger.debug("Creating Graph database for tenant - " + tenantDbName);
 				tenantGraphDatabasePool = new OGraphDatabasePool(databaseURL + "/" + tenantDbName, username, password);
