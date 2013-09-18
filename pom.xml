@@ -10,9 +10,6 @@
 	<name>DAAS</name>
 	<url>http://daas.bbytes.com</url>
 
-
-
-
 	<properties>
 		<jetty.version>9.0.2.v20130417</jetty.version>
 		<spring.version>3.2.3.RELEASE</spring.version>
@@ -25,9 +22,7 @@
 		<jackson.version>1.9.12</jackson.version>
 		<orientdb.version>1.5.1</orientdb.version>
 		<tinkerpop.version>2.4.0</tinkerpop.version>
-
 	</properties>
-
 
 	<dependencyManagement>
 		<dependencies>
