@@ -52,9 +52,14 @@ public class ManagementController {
 	 */
 	@RequestMapping(value = "/accounts/{accountName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	Account createAccount(@PathVariable("accountName") String accountName) throws BaasPersistentException {
+	Account createAccount(@PathVariable("accountName") String accountName, @RequestBody Account account) throws BaasPersistentException {
 		LOG.debug("Request to create account : " + accountName);
-		return managementService.createAccount(accountName);
+		if(account == null) {
+			return managementService.createAccount(accountName, null, null, null);
+		}
+		else {
+			return managementService.createAccount(accountName, account.getAccountType(), account.getAccountSubType(), account.getFullName());
+		}
 	}
 	
 	/**

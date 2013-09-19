@@ -62,9 +62,12 @@ public class ManagementServiceImpl implements ManagementService {
 	 * @see com.bbytes.daas.service.ManagementService#createAccount(java.lang.String)
 	 */
 	@Override
-	public Account createAccount(String accountName) throws BaasPersistentException {
+	public Account createAccount(String accountName, String accountType, String accountSubType, String accountFullName) throws BaasPersistentException {
 		Account account = new Account();
 		account.setName(accountName);
+		account.setAccountType(accountType);
+		account.setAccountSubType(accountSubType);
+		account.setFullName(accountFullName);
 		return accountDao.save(account);
 	}
 

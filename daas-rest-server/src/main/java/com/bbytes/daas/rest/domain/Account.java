@@ -16,6 +16,16 @@ public class Account extends Entity {
 	 * 
 	 */
 	private static final long serialVersionUID = -5673848472822451100L;
+	
+	private String accountType;
+	
+	private String accountSubType;
+	
+	/**
+	 * Variable to hold the brands full name. (Optional)
+	 */
+	private String fullName;
+
 
 	public Account() {
 		super();
@@ -50,4 +60,47 @@ public class Account extends Entity {
 		this.name = name;
 	}
 
+	/**
+	 * @return the accountType
+	 */
+	public String getAccountType() {
+		return accountType;
+	}
+
+	/**
+	 * @param accountType the accountType to set
+	 */
+	public void setAccountType(String accountType) {
+		this.accountType = accountType;
+	}
+
+	/**
+	 * @return the accountSubType
+	 */
+	public String getAccountSubType() {
+		return accountSubType;
+	}
+
+	/**
+	 * @param accountSubType the accountSubType to set
+	 */
+	public void setAccountSubType(String accountSubType) {
+		this.accountSubType = accountSubType;
+	}
+
+	/**
+	 * @return the fullName
+	 */
+	public String getFullName() {
+		return fullName;
+	}
+
+	/**
+	 * Sets the account full name. This can be the brand name also. This is an optional item
+	 * 
+	 * @param fullName the fullName to set
+	 */
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
 }

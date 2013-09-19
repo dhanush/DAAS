@@ -38,7 +38,7 @@ public interface ManagementService {
 	public Account getAccount(String accountName) throws BaasPersistentException, BaasEntityNotFoundException;
 
 	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")
-	public Account createAccount(String accountName) throws BaasPersistentException;
+	public Account createAccount(String accountName, String accountType, String accountSubType, String accountFullName) throws BaasPersistentException;
 	
 	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")
 	public boolean deleteAccount(String accountName) throws BaasPersistentException,BaasEntityNotFoundException;
