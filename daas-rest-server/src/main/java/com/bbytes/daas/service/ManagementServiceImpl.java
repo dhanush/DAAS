@@ -128,7 +128,7 @@ public class ManagementServiceImpl implements ManagementService {
 	@Override
 	public boolean deleteApplication(String accountName, String applicationName) throws BaasPersistentException,
 			BaasEntityNotFoundException {
-		List<Application> apps = applicationDao.find("name", accountName);
+		List<Application> apps = applicationDao.find("name", applicationName);
 		if (apps != null && apps.size() > 0) {
 			// account name is unique so get the only one in the list
 			Application app = apps.get(0);

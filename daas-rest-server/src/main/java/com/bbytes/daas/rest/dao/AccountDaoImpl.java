@@ -26,6 +26,7 @@ import org.springframework.stereotype.Repository;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.rest.domain.Account;
+import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.iterator.object.OObjectIteratorClassInterface;
@@ -159,6 +160,27 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 			db.close();
 		}
 
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.rest.dao.DaasDAO#find(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<Account> find(String property, String value) throws BaasEntityNotFoundException {
+		OObjectDatabaseTx db = (OObjectDatabaseTx) getObjectDataBase();
+		try {
+			List<Account> result = db.query(new OSQLSynchQuery<ODocument>("select * from "
+					+ Account.class.getSimpleName() + " where " + property + " = " + "'" + value + "'"));
+
+			if (result == null || result.size() == 0)
+				throw new BaasEntityNotFoundException("Account not found " + Account.class.getSimpleName());
+			result = detach(result, db);
+			return result;
+		} finally {
+			db.close();
+		}
 	}
 
 	/*
