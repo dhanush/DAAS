@@ -52,14 +52,9 @@ public class ManagementController {
 	 */
 	@RequestMapping(value = "/accounts/{accountName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	Account createAccount(@PathVariable("accountName") String accountName, @RequestBody Account account) throws BaasPersistentException {
+	Account createAccount(@PathVariable("accountName") String accountName) throws BaasPersistentException {
 		LOG.debug("Request to create account : " + accountName);
-		if(account == null) {
-			return managementService.createAccount(accountName, null, null, null);
-		}
-		else {
-			return managementService.createAccount(accountName, account.getAccountType(), account.getAccountSubType(), account.getFullName());
-		}
+		return managementService.createAccount(accountName);
 	}
 	
 	/**
@@ -128,6 +123,7 @@ public class ManagementController {
 	 * 
 	 * @param accountName
 	 * @param applicationName
+	 * @param application TODO
 	 * @return
 	 * @throws BaasException
 	 * @throws BaasPersistentException
@@ -135,8 +131,14 @@ public class ManagementController {
 	@RequestMapping(value = "/accounts/{accountName}/applications/{applicationName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	Application createApplication(@PathVariable String accountName,
-			@PathVariable("applicationName") String applicationName) throws BaasException, BaasPersistentException {
-		return managementService.createApplication(accountName, applicationName);
+			@PathVariable("applicationName") String applicationName, @RequestBody Application application)
+			throws BaasException, BaasPersistentException {
+		if (application == null) {
+			return managementService.createApplication(accountName, applicationName, null, null, null);
+		} else {
+			return managementService.createApplication(accountName, applicationName, application.getApplicationType(),
+					application.getApplicationSubType(), application.getFullName());
+		}
 	}
 	
 	/**

@@ -38,7 +38,7 @@ public interface ManagementService {
 	public Account getAccount(String accountName) throws BaasPersistentException, BaasEntityNotFoundException;
 
 	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")
-	public Account createAccount(String accountName, String accountType, String accountSubType, String accountFullName) throws BaasPersistentException;
+	public Account createAccount(String accountName) throws BaasPersistentException;
 	
 	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")
 	public boolean deleteAccount(String accountName) throws BaasPersistentException,BaasEntityNotFoundException;
@@ -50,7 +50,7 @@ public interface ManagementService {
 	public Application getApplication(String accountName,String applicationName) throws BaasPersistentException, BaasEntityNotFoundException;
 
 	@PreAuthorize("hasAnyRole('ROLE_TENENT_ADMIN','ROLE_ACCOUNT_ADMIN')")
-	public Application createApplication(String accountName, String applicationName) throws BaasPersistentException;
+	public Application createApplication(String accountName, String applicationName, String applicationType, String applicationSubType, String applicationFullName) throws BaasPersistentException;
 	
 	@PreAuthorize("hasAnyRole('ROLE_TENENT_ADMIN','ROLE_ACCOUNT_ADMIN')")
 	public boolean deleteApplication(String accountName, String applicationName) throws BaasPersistentException,BaasEntityNotFoundException;
