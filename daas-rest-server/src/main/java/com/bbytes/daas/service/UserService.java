@@ -17,8 +17,8 @@ package com.bbytes.daas.service;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.domain.DaasUser;
 
 /**
  * 

@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bbytes.daas.rest.dao;
+package com.bbytes.daas.dao;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,9 +26,9 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.domain.DaasUser;
 import com.bbytes.daas.service.SecurityService;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -310,7 +310,8 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 			return result;
 		} finally {
-			db.close();
+			if (db != null)
+				db.close();
 		}
 	}
 

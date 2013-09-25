@@ -17,10 +17,10 @@ import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import com.bbytes.daas.domain.Account;
+import com.bbytes.daas.domain.Application;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.domain.Account;
-import com.bbytes.daas.rest.domain.Application;
 
 /**
  * 

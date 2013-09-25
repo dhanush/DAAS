@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bbytes.daas.rest.dao;
+package com.bbytes.daas.dao;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -23,9 +23,9 @@ import java.util.UUID;
 import org.apache.commons.collections.IteratorUtils;
 import org.springframework.stereotype.Repository;
 
+import com.bbytes.daas.domain.Account;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.domain.Account;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.id.ORID;
@@ -69,29 +69,32 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 						+ " is already taken ");
 			}
 		} finally {
+			if (db != null)
+				db.close();
+		}
+		return account;
+	}
+
+	@Override
+	public Account update(Account account) throws BaasPersistentException {
+		OObjectDatabaseTx db = (OObjectDatabaseTx) getObjectDataBase();
+		try {
+			account.setModificationDate(new Date());
+			db.save(account);
+			account = db.detach(account, true);
+		} finally {
 			db.close();
 		}
 		return account;
 	}
 
 	@Override
-	public Account update(Account entity) throws BaasPersistentException {
-		OObjectDatabaseTx db = (OObjectDatabaseTx) getObjectDataBase();
-		try {
-			entity.setModificationDate(new Date());
-			db.save(entity);
-			entity = db.detach(entity, true);
-		} finally {
-			db.close();
-		}
-		return entity;
-	}
-
-	@Override
-	public void remove(Account entity) throws BaasPersistentException {
+	public void remove(Account account) throws BaasPersistentException {
 		ODatabaseObject db = getObjectDataBase();
 		try {
-			db.delete(entity);
+			db.delete(account);
+			// Drop database after the account is delete . All the data in the tenent account db is deleted and the db is dropped.
+			orientDbTemplate.dropDatabase(account.getName());
 		} finally {
 			db.close();
 		}
@@ -161,7 +164,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 		}
 
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.bbytes.daas.rest.domain;
+package com.bbytes.daas.domain;
 
 /**
  * Java represenation of Account 

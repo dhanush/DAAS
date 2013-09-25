@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.
  */
-package com.bbytes.daas.rest.dao;
+package com.bbytes.daas.dao;
 
 import java.util.List;
 
+import com.bbytes.daas.domain.Application;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.domain.Application;
 
 
 /**

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -8,7 +7,7 @@
 		<relativePath>../pom.xml</relativePath>
 		<artifactId>daas</artifactId>
 		<groupId>com.bbytes</groupId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>daas-rest-server</artifactId>
 	<packaging>war</packaging>
@@ -107,6 +106,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 		</dependency>
@@ -151,8 +155,7 @@
 		</dependency>
 
 
-		<!-- INCLUDE THIS IF YOU'RE CONNECTING TO THE SERVER THROUGH THE REMOTE 
-			ENGINE -->
+		<!-- INCLUDE THIS IF YOU'RE CONNECTING TO THE SERVER THROUGH THE REMOTE ENGINE -->
 		<dependency>
 			<groupId>com.orientechnologies</groupId>
 			<artifactId>orientdb-client</artifactId>
@@ -198,20 +201,6 @@
 					<groupId>com.tinkerpop</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-
-		<!-- END REMOTE ENGINE DEPENDENCY -->
-
-		<dependency>
-			<groupId>com.bbytes</groupId>
-			<artifactId>daas-client</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.bbytes</groupId>
-			<artifactId>daas-client</artifactId>
-			<type>test-jar</type>
-			<scope>test</scope>
 		</dependency>
 
 	</dependencies>

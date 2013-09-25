@@ -34,7 +34,7 @@ public class OrientDbTemplate {
 	public OGraphDatabase getDatabase() {
 		OGraphDatabase db = getThreadLocalGraphDB();
 		// The database is valid and is open if its not null, so just return it
-		if (db != null  && !db.isClosed())
+		if (db != null && !db.isClosed())
 			return db;
 
 		db = connectionManager.getDatabase();
@@ -79,6 +79,10 @@ public class OrientDbTemplate {
 		}
 
 		return null;
+	}
+
+	public boolean dropDatabase(String databaseName) {
+		return connectionManager.dropDatabase(databaseName);
 	}
 
 }

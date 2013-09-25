@@ -18,9 +18,9 @@ package com.bbytes.daas.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.bbytes.daas.dao.UserDao;
+import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.dao.UserDao;
-import com.bbytes.daas.rest.domain.DaasUser;
 
 /**
  * 

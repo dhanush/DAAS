@@ -25,12 +25,12 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bbytes.daas.dao.AccountDao;
+import com.bbytes.daas.dao.ApplicationDao;
+import com.bbytes.daas.domain.Account;
+import com.bbytes.daas.domain.Application;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.dao.AccountDao;
-import com.bbytes.daas.rest.dao.ApplicationDao;
-import com.bbytes.daas.rest.domain.Account;
-import com.bbytes.daas.rest.domain.Application;
 
 /**
  * 

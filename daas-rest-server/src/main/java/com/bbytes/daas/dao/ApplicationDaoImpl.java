@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bbytes.daas.rest.dao;
+package com.bbytes.daas.dao;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,8 +20,8 @@ import java.util.Map;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bbytes.daas.domain.Application;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.domain.Application;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 

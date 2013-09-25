@@ -24,9 +24,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
-import com.bbytes.daas.rest.BaasException;
+import com.bbytes.daas.dao.AccountDao;
 import com.bbytes.daas.rest.BaasTenantCreationException;
-import com.bbytes.daas.rest.dao.AccountDao;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.reflection.OReflectionHelper;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
@@ -145,6 +144,43 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		// classes.
 		database.getEntityManager().registerEntityClasses(this.domainClassBasePackage);
 		database.close();
+	}
+
+	public boolean dropDatabase(String databaseName) {
+		if (databaseName == null || databaseName.equals(tenantManagementDBName))
+			return false;
+		OServerAdmin serverAdmin = null;
+		try {
+			String dbURL = databaseURL + "/" + databaseName;
+			serverAdmin = new OServerAdmin(dbURL).connect(username, password);
+			if (serverAdmin.existsDatabase("graph")) {
+				serverAdmin.dropDatabase(databaseName);
+				return true;
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		} finally {
+			if (serverAdmin != null)
+				serverAdmin.close();
+		}
+
+		return false;
+	}
+
+	public boolean databaseExist(String databaseName) {
+		OServerAdmin serverAdmin = null;
+		try {
+			String dbURL = databaseURL + "/" + databaseName;
+			serverAdmin = new OServerAdmin(dbURL).connect(username, password);
+			return serverAdmin.existsDatabase("graph");
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		} finally {
+			if (serverAdmin != null)
+				serverAdmin.close();
+		}
+
+		return false;
 	}
 
 	public ODatabaseObject getTenantManagementDatabase() {

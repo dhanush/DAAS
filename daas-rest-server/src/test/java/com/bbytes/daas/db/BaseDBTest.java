@@ -1,10 +1,7 @@
 
 package com.bbytes.daas.db;
 
-import static org.junit.Assert.assertTrue;
-
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -25,14 +22,11 @@ import com.bbytes.daas.rest.DAASTesting;
 @ContextConfiguration(locations = { "classpath:/spring/rest-daas-server-context.xml" })
 public class BaseDBTest extends DAASTesting{
 
+	protected static String DB_NAME="TEST";
 	
 	@BeforeClass
 	public static void setUpTenantInfo(){
-		TenantRouter.setTenantIdentifier("TEST");
+		TenantRouter.setTenantIdentifier(DB_NAME);
 	}
 	
-	@Test
-	public void dummyMethod(){
-		assertTrue(true);
-	}
 }

@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.
  */
-package com.bbytes.daas.rest.dao;
+package com.bbytes.daas.dao;
 
-import com.bbytes.daas.rest.domain.Entity;
+import com.bbytes.daas.domain.Account;
 
 
 /**
- * Entity DAO
+ * Account DAO
  *
  * @author Thanneer
  *
  * @version 1.0.0
  */
-public class EntityDao extends AbstractDao<Entity>{
 
-	
-	
+public interface AccountDao extends DaasDAO<Account>{
+
+
 }

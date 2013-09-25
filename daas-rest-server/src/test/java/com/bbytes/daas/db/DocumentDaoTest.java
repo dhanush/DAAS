@@ -22,11 +22,11 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bbytes.daas.dao.DaasDefaultFields;
+import com.bbytes.daas.dao.DocumentDao;
 import com.bbytes.daas.db.orientDb.OrientDbTemplate;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.dao.DaasDefaultFields;
-import com.bbytes.daas.rest.dao.DocumentDao;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;

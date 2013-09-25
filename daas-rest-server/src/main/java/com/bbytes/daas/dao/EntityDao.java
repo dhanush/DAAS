@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.
  */
-package com.bbytes.daas.rest.domain;
+package com.bbytes.daas.dao;
+
+import com.bbytes.daas.domain.Entity;
+
 
 /**
- * 
+ * Entity DAO
  *
  * @author Thanneer
  *
- * @version 
+ * @version 1.0.0
  */
-public enum Role {
+public class EntityDao extends AbstractDao<Entity>{
 
-	ROLE_TENENT_ADMIN,
-	ROLE_ACCOUNT_ADMIN,
-	ROLE_APPLICATION_USER
+	
 	
 }

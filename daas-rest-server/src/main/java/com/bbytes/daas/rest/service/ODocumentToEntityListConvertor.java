@@ -23,8 +23,8 @@ import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
 
-import com.bbytes.daas.rest.dao.DaasDefaultFields;
-import com.bbytes.daas.rest.domain.Entity;
+import com.bbytes.daas.dao.DaasDefaultFields;
+import com.bbytes.daas.domain.Entity;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**

@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.bbytes.daas.domain.Account;
+import com.bbytes.daas.domain.Application;
+import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.domain.Account;
-import com.bbytes.daas.rest.domain.Application;
-import com.bbytes.daas.rest.domain.DaasUser;
 import com.bbytes.daas.service.ManagementService;
 import com.bbytes.daas.service.UserService;
 

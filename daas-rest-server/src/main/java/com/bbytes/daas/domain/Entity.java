@@ -1,4 +1,4 @@
-package com.bbytes.daas.rest.domain;
+package com.bbytes.daas.domain;
 
 import java.io.Serializable;
 import java.util.Date;

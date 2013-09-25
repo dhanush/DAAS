@@ -1,6 +1,6 @@
 package com.bbytes.daas.service;
 
-import com.bbytes.daas.rest.domain.DaasUser;
+import com.bbytes.daas.domain.DaasUser;
 
 
 /**

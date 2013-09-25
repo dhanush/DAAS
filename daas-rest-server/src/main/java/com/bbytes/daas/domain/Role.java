@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.
  */
-package com.bbytes.daas.rest.dao;
-
-import com.bbytes.daas.rest.domain.Account;
-
+package com.bbytes.daas.domain;
 
 /**
- * Account DAO
+ * 
  *
  * @author Thanneer
  *
- * @version 1.0.0
+ * @version 
  */
+public enum Role {
 
-public interface AccountDao extends DaasDAO<Account>{
-
-
+	ROLE_TENENT_ADMIN,
+	ROLE_ACCOUNT_ADMIN,
+	ROLE_APPLICATION_USER
+	
 }

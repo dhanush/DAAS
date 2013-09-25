@@ -23,9 +23,9 @@ import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.NoSuchClientException;
 
+import com.bbytes.daas.dao.UserDao;
+import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.dao.UserDao;
-import com.bbytes.daas.rest.domain.DaasUser;
 
 /**
  * 

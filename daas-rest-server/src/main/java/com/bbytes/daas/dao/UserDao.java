@@ -11,11 +11,11 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.bbytes.daas.rest.dao;
+package com.bbytes.daas.dao;
 
+import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.domain.DaasUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**
