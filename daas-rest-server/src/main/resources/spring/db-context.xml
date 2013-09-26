@@ -28,7 +28,7 @@
 		<property name="username" value="root" />
 		<property name="password" value="root" />
 
-		<property name="domainClassBasePackage" value="com.bbytes.daas.rest.domain" />
+		<property name="domainClassBasePackage" value="com.bbytes.daas.domain" />
 	</bean>
 
 </beans>
