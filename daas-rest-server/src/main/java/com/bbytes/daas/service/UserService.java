@@ -15,6 +15,8 @@
  */
 package com.bbytes.daas.service;
 
+import java.util.List;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.bbytes.daas.domain.DaasUser;
@@ -31,6 +33,9 @@ public interface UserService {
 
 	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")
 	public DaasUser createAccountUser(String accountName, DaasUser user) throws BaasPersistentException;
+	
+	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")
+	public List<DaasUser> getAccountUsers(String accountName, String role) throws BaasPersistentException;
 	
 	@PreAuthorize("hasAnyRole('ROLE_TENENT_ADMIN','ROLE_ACCOUNT_ADMIN')")
 	public DaasUser createApplicationUser(String accountName, String applicationName,DaasUser user) throws BaasPersistentException;

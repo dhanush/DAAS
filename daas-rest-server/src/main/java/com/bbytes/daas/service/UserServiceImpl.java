@@ -15,6 +15,8 @@
  */
 package com.bbytes.daas.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,6 +60,12 @@ public class UserServiceImpl implements UserService{
 		user.setAccountName(accountName);
 		user.setApplicationName(applicationName);
 		return userDao.saveAppUser(user);
+	}
+
+	@Override
+	public List<DaasUser> getAccountUsers(String accountName, String role) throws BaasPersistentException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
