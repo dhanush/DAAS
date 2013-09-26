@@ -13,13 +13,14 @@
  */
 package com.bbytes.daas.dao;
 
+import java.util.List;
+
 import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**
- *  User DAO for all types of users like account user , application user . 
+ * User DAO for all types of users like account user , application user .
  * 
  * @author Thanneer
  * 
@@ -28,15 +29,19 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 
 public interface UserDao extends DaasDAO<DaasUser> {
 
-	public DaasUser saveAccountUser(DaasUser user) throws BaasPersistentException ;
-	
-	public DaasUser saveAppUser(DaasUser user) throws BaasPersistentException ;
-	
-	public DaasUser findUser(String userName) throws BaasEntityNotFoundException ;
-	
-	public DaasUser findUser(String accountName, String userName) throws BaasEntityNotFoundException ;
-	
-	public DaasUser findUser(String accountName, String appName, String userName) throws BaasEntityNotFoundException ;
-	
-	
+	public DaasUser saveAccountUser(DaasUser user) throws BaasPersistentException;
+
+	public DaasUser saveAppUser(DaasUser user) throws BaasPersistentException;
+
+	public DaasUser findUser(String userName) throws BaasEntityNotFoundException;
+
+	public DaasUser findUser(String accountName, String userName) throws BaasEntityNotFoundException;
+
+	public DaasUser findUser(String accountName, String appName, String userName) throws BaasEntityNotFoundException;
+
+	public List<DaasUser> findUserByRole(String accountName, String role) throws BaasEntityNotFoundException;
+
+	public List<DaasUser> findUserByRole(String accountName, String applicationName, String role)
+			throws BaasEntityNotFoundException;
+
 }

@@ -53,8 +53,11 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 
 		if (!findAny(emailPropValue) && !findAny(usernamePropValue)) {
 			List<Role> roles = new ArrayList<Role>();
-			roles.add(Role.ROLE_ACCOUNT_ADMIN);
-			roles.add(Role.ROLE_APPLICATION_USER);
+			Role adminRole = new Role(Role.ROLE_ACCOUNT_ADMIN);
+			roles.add(adminRole);
+			Role appRole = new Role(Role.ROLE_APPLICATION_USER);
+			roles.add(appRole);
+			roles.add(adminRole);
 			DaasUser accountUser = new DaasUser(roles);
 			accountUser = accountUser.copy(user);
 			user = super.save(accountUser);
@@ -82,7 +85,8 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 
 		if (!findAny(emailPropValue) && !findAny(usernamePropValue)) {
 			List<Role> roles = new ArrayList<Role>();
-			roles.add(Role.ROLE_APPLICATION_USER);
+			Role role = new Role(Role.ROLE_APPLICATION_USER);
+			roles.add(role);
 			DaasUser appUser = new DaasUser(roles);
 			appUser = appUser.copy(user);
 			user = super.save(appUser);
@@ -153,6 +157,46 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 			throw new BaasEntityNotFoundException("Entity not found of type DaasUser with Username " + userName);
 
 		return convertToEntity(result.get(0));
+		} finally {
+			db.close();
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see com.bbytes.daas.dao.UserDao#findUserByRole(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<DaasUser> findUserByRole(String accountName, String role) throws BaasEntityNotFoundException {
+		OGraphDatabase db = getDataBase();
+		try {
+		List<ODocument> result = db.query(
+				new OSQLSynchQuery<ODocument>("select * from DaasUser  where "+DaasDefaultFields.FIELD_ACCOUNT_NAME.toString() + " = '" + accountName + "' and "
+						+ "roles.value in ['"+role+"']"));
+
+		if (result == null || result.size() == 0)
+			throw new BaasEntityNotFoundException("Daas User with given role -  " + role + " and account name - "+ accountName);
+
+		return convertToEntity(result);
+		} finally {
+			db.close();
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.bbytes.daas.dao.UserDao#findUserByRole(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<DaasUser> findUserByRole(String accountName,String applicationName, String role) throws BaasEntityNotFoundException {
+		OGraphDatabase db = getDataBase();
+		try {
+		List<ODocument> result = db.query(
+				new OSQLSynchQuery<ODocument>("select * from DaasUser  where "+DaasDefaultFields.FIELD_ACCOUNT_NAME.toString() + " = '" + accountName + "' and "
+						+DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = '" + applicationName + "' and "+ "roles.value in ['"+role+"']"));
+
+		if (result == null || result.size() == 0)
+			throw new BaasEntityNotFoundException("Daas User with given role -  " + role + " and account name - "+ accountName);
+
+		return convertToEntity(result);
 		} finally {
 			db.close();
 		}

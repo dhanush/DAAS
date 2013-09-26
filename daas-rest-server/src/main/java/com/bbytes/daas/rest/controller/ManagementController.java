@@ -106,8 +106,8 @@ public class ManagementController {
 	@RequestMapping(value = "/accounts/{accountName}/user/{role}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	List<DaasUser> getAccountUsers(@PathVariable("accountName") String accountName, @PathVariable("role") String role)
-			throws BaasException, BaasPersistentException {
-		return userService.getAccountUsers(accountName, role);
+			throws BaasException, BaasEntityNotFoundException {
+		return userService.getAccountUsers(accountName);
 	}
 
 	/**

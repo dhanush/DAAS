@@ -22,10 +22,42 @@ package com.bbytes.daas.domain;
  *
  * @version 
  */
-public enum Role {
+public class Role extends Entity{
 
-	ROLE_TENENT_ADMIN,
-	ROLE_ACCOUNT_ADMIN,
-	ROLE_APPLICATION_USER
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5164891492488139181L;
+	public static final String ROLE_TENENT_ADMIN= "ROLE_TENENT_ADMIN";
+	public static final String ROLE_ACCOUNT_ADMIN= "ROLE_ACCOUNT_ADMIN";
+	public static final String ROLE_APPLICATION_USER= "ROLE_APPLICATION_USER";
+
+	private String value;
+
+	/**
+	 * @param roleApplicationUser
+	 */
+	public Role(String value) {
+		this.value=value;
+	}
+	
+	public Role(){
+		// jus for serialization
+	}
+
+	/**
+	 * @return the value
+	 */
+	public String getValue() {
+		return value;
+	}
+
+	/**
+	 * @param value the value to set
+	 */
+	public void setValue(String value) {
+		this.value = value;
+	}
+	
 	
 }
