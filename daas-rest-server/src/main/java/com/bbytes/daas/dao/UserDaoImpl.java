@@ -57,7 +57,6 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 			roles.add(adminRole);
 			Role appRole = new Role(Role.ROLE_APPLICATION_USER);
 			roles.add(appRole);
-			roles.add(adminRole);
 			DaasUser accountUser = new DaasUser(roles);
 			accountUser = accountUser.copy(user);
 			user = super.save(accountUser);

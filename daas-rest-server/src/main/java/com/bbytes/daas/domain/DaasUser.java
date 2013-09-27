@@ -175,7 +175,7 @@ public class DaasUser extends Entity {
 	public Set<GrantedAuthority> getAuthorities() {
 		Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
 		for (Role role : getRoles())
-			authorities.add(new SimpleGrantedAuthority(role.toString()));
+			authorities.add(new SimpleGrantedAuthority(role.getValue()));
 		return authorities;
 	}
 

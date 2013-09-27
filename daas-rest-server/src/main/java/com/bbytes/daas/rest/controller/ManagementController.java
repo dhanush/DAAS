@@ -103,9 +103,9 @@ public class ManagementController {
 		return userService.createAccountUser(accountName, user);
 	}
 	
-	@RequestMapping(value = "/accounts/{accountName}/user/{role}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/accounts/{accountName}/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	List<DaasUser> getAccountUsers(@PathVariable("accountName") String accountName, @PathVariable("role") String role)
+	List<DaasUser> getAccountUsers(@PathVariable("accountName") String accountName)
 			throws BaasException, BaasEntityNotFoundException {
 		return userService.getAccountUsers(accountName);
 	}
