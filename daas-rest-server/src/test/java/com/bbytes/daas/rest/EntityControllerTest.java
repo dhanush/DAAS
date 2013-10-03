@@ -81,10 +81,26 @@ public class EntityControllerTest extends DAASTesting {
 		password = "usertest";
 		username = password + date;
 		appName = "myapp";
-		accountName = "TestORG";
+		accountName = "TestORG" +date;
 		token = "token";
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
+		
+		String contextPath = "/management/accounts/" + accountName;
+
+		this.mockMvc
+				.perform(
+						post(contextPath).session(session).contentType(MediaType.APPLICATION_JSON)
+								.header("Authorization", "Bearer " + token).accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(print());
+		
+		contextPath = "/management/accounts/" + accountName + "/applications/" + appName;
 		TenantRouter.setTenantIdentifier(accountName);
+		this.mockMvc
+				.perform(
+						post(contextPath).session(session).contentType(MediaType.APPLICATION_JSON)
+								.header("Authorization", "Bearer " + token).accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(print());
+		
 		createEntity();
 	}
 	
@@ -116,6 +132,21 @@ public class EntityControllerTest extends DAASTesting {
 		String resultJson = customResultHandler.getJsonResult();
 		System.out.println(resultJson);
 	}
+	
+	
+	@Test
+	public void testGetEntitySize() throws Exception, IOException, JsonProcessingException {
+		String contextPath = "/" + accountName + "/" + appName + "/stores/size";
+		CustomResultHandlerImpl customResultHandler = new CustomResultHandlerImpl();
+		this.mockMvc
+				.perform(
+						get(contextPath).session(session).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(customResultHandler);
+		
+		String resultJson = customResultHandler.getJsonResult();
+		System.out.println(resultJson);
+	}
+	
 	
 	@Test
 	public void testGetEntityWithProperty() throws Exception, IOException, JsonProcessingException {

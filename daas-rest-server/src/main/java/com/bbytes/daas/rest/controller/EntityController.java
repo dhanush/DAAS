@@ -83,6 +83,15 @@ public class EntityController {
 		return document.toJSON();
 	}
 
+	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/size", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	String getEntitySize(@PathVariable String accountName, @PathVariable String applicationName,
+			@PathVariable String entityType, HttpServletRequest request)
+			throws BaasException, BaasEntityNotFoundException {
+		long size = documentDao.count(entityType, applicationName);
+		return "{\"size\" : "+ size+" }"; 
+	}
+	
 	/**
 	 * Returns all the related objects B of the entity A identified by entityId defined by the
 	 * relation R. A->B by R then return B
