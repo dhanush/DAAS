@@ -1,8 +1,11 @@
 package com.bbytes.daas.rest.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -102,6 +105,27 @@ public class ManagementController {
 			throws BaasException, BaasPersistentException {
 		return userService.createAccountUser(accountName, user);
 	}
+	
+	@RequestMapping(value = "/accounts/{accountName}/user/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE,  consumes = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	String changePassword(@PathVariable("accountName") String accountName, @PathVariable("id") String userUuid, @RequestBody String data)
+			throws BaasException, BaasPersistentException {
+		JsonNode node = null;
+		try {
+			node = new ObjectMapper().readTree(data);
+			String oldPassword = node.get("oldPassword").getTextValue();
+			String newPassword = node.get("newPassword").getTextValue();
+			DaasUser updated = userService.updateUserPassword(oldPassword, newPassword, userUuid);
+			boolean status = false;
+			if(updated!=null) {
+				status = true;
+			}
+			return "{\"status\" : "+ status+" }"; 
+		} catch (IOException | BaasEntityNotFoundException e) {
+			throw new BaasPersistentException(e);
+		}
+	}
+	
 	
 	@RequestMapping(value = "/accounts/{accountName}/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
