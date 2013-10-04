@@ -21,7 +21,7 @@ package com.bbytes.daas.service;
  * 
  * @version
  */
-public class EntitytServiceImpl implements EntitytService{
+public interface EntityService {
 
 	
 }
