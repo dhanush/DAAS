@@ -94,19 +94,19 @@ public class UserServiceImpl implements UserService {
 	 * java.lang.String, com.bbytes.daas.domain.DaasUser)
 	 */
 	@Override
-	public DaasUser updateUserPassword(String oldPassword, String newPassword, DaasUser user)
+	public DaasUser updateUserPassword(String oldPassword, String newPassword, String userId)
 			throws BaasPersistentException, BaasEntityNotFoundException, BaasException {
-		DaasUser dbUser = userDao.find(user.getUuid());
+		DaasUser dbUser = userDao.find(userId);
 		if (dbUser != null) {
-			if (dbUser.getPassword().equals(oldPassword)) {
+			if (dbUser.getPassword()==null || dbUser.getPassword().equals(oldPassword)) {
 				dbUser.setPassword(newPassword);
-				userDao.update(dbUser);
+				return userDao.update(dbUser);
 			} else {
-				throw new BaasException("Pasword update failed : Old Password incorrect");
+				throw new BaasException("Pasword update failed : Old Password incorrect or null");
 			}
-
+		}else{
+			throw new BaasEntityNotFoundException("User with user id : " + userId + "not found");
 		}
-		return null;
 	}
 
 }
