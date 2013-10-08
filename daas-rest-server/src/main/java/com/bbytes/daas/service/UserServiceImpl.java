@@ -17,7 +17,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.dao.UserDao;
 import com.bbytes.daas.domain.DaasUser;
@@ -95,20 +94,19 @@ public class UserServiceImpl implements UserService {
 	 * java.lang.String, com.bbytes.daas.domain.DaasUser)
 	 */
 	@Override
-	@Transactional
-	public DaasUser updateUserPassword(String oldPassword, String newPassword, String userUuid)
+	public DaasUser updateUserPassword(String oldPassword, String newPassword, String userId)
 			throws BaasPersistentException, BaasEntityNotFoundException, BaasException {
-		DaasUser dbUser = userDao.find(userUuid);
+		DaasUser dbUser = userDao.find(userId);
 		if (dbUser != null) {
-			if (dbUser.getPassword().equals(oldPassword)) {
+			if (dbUser.getPassword()==null || dbUser.getPassword().equals(oldPassword)) {
 				dbUser.setPassword(newPassword);
-				dbUser = userDao.update(dbUser);
-				return dbUser;
+				return userDao.update(dbUser);
 			} else {
-				throw new BaasException("Pasword update failed : Old Password incorrect");
+				throw new BaasException("Pasword update failed : Old Password incorrect or null");
 			}
+		}else{
+			throw new BaasEntityNotFoundException("User with user id : " + userId + "not found");
 		}
-		return null;
 	}
 
 }

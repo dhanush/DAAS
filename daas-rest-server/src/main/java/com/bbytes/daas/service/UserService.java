@@ -45,7 +45,8 @@ public interface UserService {
 	@PreAuthorize("hasAnyRole('ROLE_TENENT_ADMIN','ROLE_ACCOUNT_ADMIN')")
 	public List<DaasUser> getApplicationUsers(String accountName, String applicationName) throws BaasEntityNotFoundException;
 	
+	
 	@PreAuthorize("hasAnyRole('ROLE_TENENT_ADMIN','ROLE_ACCOUNT_ADMIN')")
-	public DaasUser updateUserPassword(String oldPassword,String newPassword, String userUuid) throws BaasPersistentException, BaasEntityNotFoundException, BaasException;
+	public DaasUser updateUserPassword(String oldPassword,String newPassword, String userId) throws BaasPersistentException, BaasEntityNotFoundException, BaasException;
 	
 }
