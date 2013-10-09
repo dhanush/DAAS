@@ -53,5 +53,8 @@ public interface ManagementService {
 	public Application createApplication(String accountName, String applicationName, String applicationType, String applicationSubType, String applicationFullName) throws BaasPersistentException;
 	
 	@PreAuthorize("hasAnyRole('ROLE_TENENT_ADMIN','ROLE_ACCOUNT_ADMIN')")
+	public Application editApplication(String accountName, String applicationName, String applicationType, String applicationSubType, String applicationFullName) throws BaasPersistentException;
+	
+	@PreAuthorize("hasAnyRole('ROLE_TENENT_ADMIN','ROLE_ACCOUNT_ADMIN')")
 	public boolean deleteApplication(String accountName, String applicationName) throws BaasPersistentException,BaasEntityNotFoundException;
 }

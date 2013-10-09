@@ -85,6 +85,29 @@ public class ManagementServiceImpl implements ManagementService {
 		return applicationDao.save(app);
 	}
 
+	
+	@Override
+	public Application editApplication(String accountName, String applicationName, String applicationType,
+			String applicationSubType, String applicationFullName) throws BaasPersistentException {
+		List<Application> apps;
+		try {
+			apps = applicationDao.find("name", applicationName);
+			if (apps != null && apps.size() > 0) {
+				// account name is unique so get the only one in the list
+				Application app = apps.get(0);
+				app.setApplicationSubType(applicationSubType);
+				app.setApplicationType(applicationType);
+				app.setFullName(applicationFullName);
+				return applicationDao.update(app);
+			}
+		} catch (BaasEntityNotFoundException e) {
+			throw new BaasPersistentException(e);
+		}
+		return null;
+	}
+
+	
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -164,7 +187,7 @@ public class ManagementServiceImpl implements ManagementService {
 	@Override
 	public Application getApplication(String accountName, String applicationName) throws BaasPersistentException,
 			BaasEntityNotFoundException {
-		List<Application> apps = applicationDao.find("name", accountName);
+		List<Application> apps = applicationDao.find("name", applicationName);
 		if (apps != null && apps.size() > 0) {
 			// app name is unique so get the only one in the list
 			return apps.get(0);

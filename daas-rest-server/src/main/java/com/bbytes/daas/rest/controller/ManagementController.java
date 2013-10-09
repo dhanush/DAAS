@@ -172,6 +172,29 @@ public class ManagementController {
 		}
 	}
 	
+	
+	/**
+	 * Edits the application type and subtype
+	 * 
+	 * @param accountName
+	 * @param applicationName
+	 * @param application
+	 * @return
+	 * @throws BaasException
+	 * @throws BaasPersistentException
+	 */
+	@RequestMapping(value = "/accounts/{accountName}/applications/{applicationName}/edit", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	Application editApplication(@PathVariable String accountName,
+			@PathVariable("applicationName") String applicationName, @RequestBody Application application)
+			throws BaasException, BaasPersistentException {
+		if (application != null) {
+			return managementService.editApplication(accountName, applicationName, application.getApplicationType(),
+					application.getApplicationSubType(), application.getFullName());
+		}
+		return application;
+	}
+	
 	/**
 	 * Get App 
 	 * 
