@@ -57,12 +57,6 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Autowired
 	private SecurityService securityService;
 
-	@Autowired
-	private ConversionService conversionService;
-	
-	@Autowired
-	private UserDao userDao;
-
 	private Logger log = Logger.getLogger(DocumentDaoImpl.class);
 
 	/*
