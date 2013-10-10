@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,12 +55,6 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 	@Autowired
 	private SecurityService securityService;
-
-	@Autowired
-	private ConversionService conversionService;
-	
-	@Autowired
-	private UserDao userDao;
 
 	private Logger log = Logger.getLogger(DocumentDaoImpl.class);
 
