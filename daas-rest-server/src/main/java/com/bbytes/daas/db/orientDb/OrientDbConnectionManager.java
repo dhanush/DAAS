@@ -50,6 +50,8 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 	private static final Logger logger = Logger.getLogger(OrientDbConnectionManager.class);
 
 	private Map<String, OGraphDatabasePool> tenantToGraphDbConnPoolMap = new HashMap<String, OGraphDatabasePool>();
+	
+	private Map<String, OObjectDatabasePool> tenantToObjectDbConnPoolMap = new HashMap<String, OObjectDatabasePool>();
 
 	private OObjectDatabasePool defaultTenantManageDbPool;
 
@@ -146,47 +148,57 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		database.close();
 	}
 
-	public boolean dropDatabase(String databaseName) {
-		if (databaseName == null || databaseName.equals(tenantManagementDBName))
-			return false;
-		OServerAdmin serverAdmin = null;
-		try {
-			String dbURL = databaseURL + "/" + databaseName;
-			serverAdmin = new OServerAdmin(dbURL).connect(username, password);
-			if (serverAdmin.existsDatabase("graph")) {
-				serverAdmin.dropDatabase(databaseName);
-				return true;
-			}
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		} finally {
-			if (serverAdmin != null)
-				serverAdmin.close();
-		}
-
-		return false;
-	}
-
-	public boolean databaseExist(String databaseName) {
-		OServerAdmin serverAdmin = null;
-		try {
-			String dbURL = databaseURL + "/" + databaseName;
-			serverAdmin = new OServerAdmin(dbURL).connect(username, password);
-			return serverAdmin.existsDatabase("graph");
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		} finally {
-			if (serverAdmin != null)
-				serverAdmin.close();
-		}
-
-		return false;
-	}
+	
 
 	public ODatabaseObject getTenantManagementDatabase() {
 		return defaultTenantManageDbPool.acquire();
 	}
 
+	
+	public ODatabaseObject getObjectDatabase() {
+		boolean tenantDBNew = false;
+		ODatabaseObject objectDatabase = null;
+		String tenantDbName = TenantRouter.getTenantIdentifier();
+
+		if (tenantDbName == null)
+			throw new IllegalArgumentException(
+					"Account information missing in HTTP parameter or URL for tenant identification");
+
+		OObjectDatabasePool tenantObjectDatabasePool = tenantToObjectDbConnPoolMap.get(tenantDbName);
+		// if accn does not exist then throw cannot create new tenant db
+
+		if (tenantObjectDatabasePool == null) {
+			if (!accountDao.findAny("name", tenantDbName)) {
+				throw new BaasTenantCreationException("Failed to create tenant DB " + tenantDbName
+						+ " as there is no account created with name " + tenantDbName);
+			}
+			try {
+				logger.debug("Creating Object database for tenant - " + tenantDbName);
+				tenantObjectDatabasePool = new OObjectDatabasePool(databaseURL + "/" + tenantDbName, username, password);
+				tenantObjectDatabasePool.setup(minConnections, maxConnections);
+				tenantToObjectDbConnPoolMap.put(tenantDbName, tenantObjectDatabasePool);
+				objectDatabase = tenantObjectDatabasePool.acquire();
+				return objectDatabase;
+			} catch (OConfigurationException e) {
+				try {
+					tenantDBNew = true;
+					OServerAdmin serverAdmin = new OServerAdmin(databaseURL).connect(username, password);
+					if (!serverAdmin.listDatabases().keySet().contains(tenantDbName)) {
+						serverAdmin.createDatabase(tenantDbName, "graph", "local");
+					}
+				} catch (IOException ex) {
+					logger.error(ex);
+				}
+			}
+		}
+		objectDatabase = tenantObjectDatabasePool.acquire();
+		if (tenantDBNew)
+			objectDatabase.getEntityManager().registerEntityClasses(domainClassBasePackage);
+
+
+		return objectDatabase;
+	}
+	
 	/**
 	 * Acquire new database connection from database pool.
 	 * 
@@ -251,6 +263,44 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		}
 	}
 
+	
+	public boolean dropDatabase(String databaseName) {
+		if (databaseName == null || databaseName.equals(tenantManagementDBName))
+			return false;
+		OServerAdmin serverAdmin = null;
+		try {
+			String dbURL = databaseURL + "/" + databaseName;
+			serverAdmin = new OServerAdmin(dbURL).connect(username, password);
+			if (serverAdmin.existsDatabase("graph")) {
+				serverAdmin.dropDatabase(databaseName);
+				return true;
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		} finally {
+			if (serverAdmin != null)
+				serverAdmin.close();
+		}
+
+		return false;
+	}
+
+	public boolean databaseExist(String databaseName) {
+		OServerAdmin serverAdmin = null;
+		try {
+			String dbURL = databaseURL + "/" + databaseName;
+			serverAdmin = new OServerAdmin(dbURL).connect(username, password);
+			return serverAdmin.existsDatabase("graph");
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		} finally {
+			if (serverAdmin != null)
+				serverAdmin.close();
+		}
+
+		return false;
+	}
+	
 	@Override
 	public void destroy() throws Exception {
 		this.defaultTenantManageDbPool.close();

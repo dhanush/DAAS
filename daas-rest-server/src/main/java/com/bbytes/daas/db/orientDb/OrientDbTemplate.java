@@ -24,6 +24,8 @@ public class OrientDbTemplate {
 	static ThreadLocal<ODatabaseObject> TENANT_MANAGE_DB_INSTANCE = new ThreadLocal<ODatabaseObject>();
 
 	static ThreadLocal<OGraphDatabase> THREAD_LOCAL_DB_INSTANCE = new ThreadLocal<OGraphDatabase>();
+	
+	static ThreadLocal<ODatabaseObject> THREAD_LOCAL_OBJECT_DB_INSTANCE = new ThreadLocal<ODatabaseObject>();
 
 	@Autowired
 	private OrientDbConnectionManager connectionManager;
@@ -48,6 +50,7 @@ public class OrientDbTemplate {
 		return getDatabase();
 	}
 
+
 	public ODatabaseObject getTenantManagementDatabase() {
 
 		ODatabaseObject db = getThreadLocalTenantManagementDB();
@@ -71,6 +74,15 @@ public class OrientDbTemplate {
 
 		return null;
 	}
+	
+	protected ODatabaseObject getThreadLocalObjectDB() {
+		ODatabaseObject db = THREAD_LOCAL_OBJECT_DB_INSTANCE.get();
+		if (db != null && !db.isClosed()) {
+			return db;
+		}
+
+		return null;
+	}
 
 	protected ODatabaseObject getThreadLocalTenantManagementDB() {
 		ODatabaseObject db = TENANT_MANAGE_DB_INSTANCE.get();
@@ -83,6 +95,22 @@ public class OrientDbTemplate {
 
 	public boolean dropDatabase(String databaseName) {
 		return connectionManager.dropDatabase(databaseName);
+	}
+
+	/**
+	 * @return
+	 */
+	public ODatabaseObject getObjectDatabase() {
+		ODatabaseObject db = getThreadLocalObjectDB();
+		// The database is valid and is open if its not null, so just return it
+		if (db != null && !db.isClosed())
+			return db;
+
+		db = connectionManager.getObjectDatabase();
+
+		THREAD_LOCAL_OBJECT_DB_INSTANCE.set(db);
+
+		return db;
 	}
 
 }

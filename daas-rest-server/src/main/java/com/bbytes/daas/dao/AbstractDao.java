@@ -21,22 +21,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.commons.collections.IteratorUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.domain.Entity;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.bbytes.daas.rest.service.DaasGenericList;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
-import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
+import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
@@ -67,12 +63,12 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	@Transactional
 	public E save(E entity) throws BaasPersistentException {
 		
-		ODatabaseRecord db = getDocumentDatabase();
+		ODatabaseObject db = getObjectDatabase();
 		try {
 			entity.setUuid(UUID.randomUUID().toString());
 			entity.setCreationDate(new Date());
 			entity.setModificationDate(new Date());
-			return convertToEntity((ODocument) db.save(convert(entity)));
+			return db.save(entity);
 		} finally {
 			db.close();
 		}
@@ -81,10 +77,10 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	@Override
 	@Transactional
 	public E update(E entity) throws BaasPersistentException {
-		ODatabaseRecord db = getDocumentDatabase();
+		ODatabaseObject db = getObjectDatabase();
 		try {
 			entity.setModificationDate(new Date());
-			return convertToEntity((ODocument) db.save(convert(entity)));
+			return db.save(entity);
 		} finally {
 			db.close();
 		}
@@ -95,9 +91,9 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	@Override
 	@Transactional
 	public void remove(E entity) throws BaasPersistentException {
-		ODatabaseRecord db = getDocumentDatabase();
+		ODatabaseObject db = getObjectDatabase();
 		try {
-			db.delete(convert(entity));
+			db.delete(entity);
 		} finally {
 			db.close();
 		}
@@ -107,7 +103,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	@Override
 	@SuppressWarnings("unchecked")
 	public E find(ORID id) throws BaasPersistentException, BaasEntityNotFoundException {
-		ODatabaseRecord db = getDocumentDatabase();
+		ODatabaseObject db = getObjectDatabase();
 		try {
 			return (E) db.load(id);
 		} finally {
@@ -116,16 +112,15 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<E> findAll() throws BaasPersistentException, BaasEntityNotFoundException {
-		OGraphDatabase db = getDataBase();
+		ODatabaseObject db = getObjectDatabase();
 		try {
-			ORecordIteratorClass<ODocument> listItr = db.browseClass(this.entityType.getSimpleName());
-			List<ODocument> result = IteratorUtils.toList(listItr);
+			List<E> result =  db.query(
+				    new OSQLSynchQuery<E>("select * from " + this.entityType.getSimpleName()));
 			if (result == null || result.size() == 0)
 				throw new BaasEntityNotFoundException();
 
-			return convertToEntity(result);
+			return result;
 		} finally {
 			db.close();
 		}
@@ -139,7 +134,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 */
 	@Override
 	public long count() throws BaasPersistentException {
-		OGraphDatabase db = getDataBase();
+		ODatabaseObject db = getObjectDatabase();
 		try {
 			long count = db.countClass(this.entityType.getSimpleName());
 			return count;
@@ -155,15 +150,15 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 */
 	@Override
 	public E find(String uuid) throws BaasPersistentException, BaasEntityNotFoundException {
-		OGraphDatabase db = getDataBase();
+		ODatabaseObject db = getObjectDatabase();
 		try {
-			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>("select * from "
+			List<E> result = db.query(new OSQLSynchQuery<E>("select * from "
 					+ this.entityType.getSimpleName() + " where uuid = '" + uuid + "'"));
 
 			if (result == null || result.size() == 0)
 				throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 
-			return convertToEntity(result.get(0));
+			return result.get(0);
 		} finally {
 			db.close();
 		}
@@ -230,47 +225,20 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 */
 	@Override
 	public List<E> find(String property, String value) throws BaasEntityNotFoundException {
-		OGraphDatabase db = getDataBase();
+		ODatabaseObject db = getObjectDatabase();
 		try {
-			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>("select * from "
+			List<E> result = db.query(new OSQLSynchQuery<E>("select * from "
 					+ this.entityType.getSimpleName() + " where " + property + " = " + "'" + value + "'"));
 
 			if (result == null || result.size() == 0)
 				throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 
-			return convertToEntity(result);
+			return result;
 		} finally {
 			db.close();
 		}
 	}
 
-	/**
-	 * @param entity
-	 * @return
-	 */
-	protected ODocument convert(E entity) {
-		return (ODocument) conversionService.convert(entity, TypeDescriptor.valueOf(Entity.class),
-				TypeDescriptor.valueOf(ODocument.class));
-	}
-
-	/**
-	 * @param entity
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	protected E convertToEntity(ODocument entity) {
-		return (E) conversionService.convert(entity, TypeDescriptor.valueOf(ODocument.class),
-				TypeDescriptor.valueOf(Entity.class));
-	}
-
-	/**
-	 * @param entity
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	protected List<E> convertToEntity(List<ODocument> entityList) {
-		return (List<E>) conversionService.convert(entityList, DaasGenericList.class).getData();
-	}
 
 	protected List<E> detach(List<E> entityList, OObjectDatabaseTx db) {
 		List<E> result = new ArrayList<>();
