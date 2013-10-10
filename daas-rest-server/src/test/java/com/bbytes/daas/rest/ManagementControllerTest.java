@@ -74,6 +74,7 @@ public class ManagementControllerTest extends DAASTesting{
 		token = "token";
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 
+		
 	}
 
 	@Test

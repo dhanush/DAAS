@@ -34,6 +34,8 @@ import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasException;
 import com.bbytes.daas.rest.BaasPersistentException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 
@@ -66,7 +68,7 @@ public class UserServiceTest extends BaseDBTest {
 	}
 
 	@Before
-	public void SetUp() throws BaasPersistentException {
+	public void SetUp() throws BaasPersistentException, BaasEntityNotFoundException, JsonProcessingException {
 
 		Account org = new Account();
 		org.setName(UUID.randomUUID().toString());
@@ -84,6 +86,10 @@ public class UserServiceTest extends BaseDBTest {
 		user.setEmail("test1@test1.com");
 		user.setAccountName(app1.getAccountName());
 		user = userDao.saveAccountUser(user);
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		String userAsString = objectMapper.writeValueAsString(user);
+		Assert.assertNotNull(userAsString);
 		uuid = user.getUuid();
 
 		setAuthObjectForTest("ROLE_TENENT_ADMIN");
@@ -101,8 +107,15 @@ public class UserServiceTest extends BaseDBTest {
 
 	@After
 	@Transactional
-	public void cleanUp() throws BaasPersistentException, BaasEntityNotFoundException {
-		DaasUser dbUser = userDao.find(uuid);
-		userDao.remove(dbUser);
+	public void cleanUp() {
+		DaasUser dbUser;
+		try {
+			dbUser = userDao.find(uuid);
+			if (dbUser != null)
+				userDao.remove(dbUser);
+		} catch (BaasPersistentException | BaasEntityNotFoundException e) {
+			e.printStackTrace();
+		}
+		
 	}
 }

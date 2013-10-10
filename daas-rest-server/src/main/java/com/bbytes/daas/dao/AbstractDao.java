@@ -41,7 +41,6 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
  * 
  * 
  * @author Thanneer
- * 
  * @version 1.0.0
  */
 public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements DaasDAO<E> {
@@ -62,35 +61,33 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	@Override
 	@Transactional
 	public E save(E entity) throws BaasPersistentException {
-		
-		ODatabaseObject db = getObjectDatabase();
+
+		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
 		try {
 			entity.setUuid(UUID.randomUUID().toString());
 			entity.setCreationDate(new Date());
 			entity.setModificationDate(new Date());
-			OObjectDatabaseTx dbTx = (OObjectDatabaseTx) db;
-			E e = db.save(entity);;
-			return  dbTx.detach(e, true);
-			
+			E e = dbTx.save(entity);
+			;
+			return detach(e, dbTx);
+
 		} finally {
-			db.close();
+			dbTx.close();
 		}
 	}
 
 	@Override
 	@Transactional
 	public E update(E entity) throws BaasPersistentException {
-		ODatabaseObject db = getObjectDatabase();
+		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
 		try {
 			entity.setModificationDate(new Date());
-			OObjectDatabaseTx dbTx = (OObjectDatabaseTx) db;
-			E e = db.save(entity);;
-			return  dbTx.detach(e, true);
+			E e = dbTx.save(entity);
+			return detach(e, dbTx);
 		} finally {
-			db.close();
+			dbTx.close();
 		}
-		
-		
+
 	}
 
 	@Override
@@ -102,32 +99,31 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 		} finally {
 			db.close();
 		}
-		
+
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public E find(ORID id) throws BaasPersistentException, BaasEntityNotFoundException {
-		ODatabaseObject db = getObjectDatabase();
+		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
 		try {
-			return (E) db.load(id);
+			E e = dbTx.load(id);
+			return detach(e, dbTx);
 		} finally {
-			db.close();
+			dbTx.close();
 		}
 	}
 
 	@Override
 	public List<E> findAll() throws BaasPersistentException, BaasEntityNotFoundException {
-		ODatabaseObject db = getObjectDatabase();
+		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
 		try {
-			List<E> result =  db.query(
-				    new OSQLSynchQuery<E>("select * from " + this.entityType.getSimpleName()));
+			List<E> result = dbTx.query(new OSQLSynchQuery<E>("select * from " + this.entityType.getSimpleName()));
 			if (result == null || result.size() == 0)
 				throw new BaasEntityNotFoundException();
 
-			return result;
+			return detach(result, dbTx);
 		} finally {
-			db.close();
+			dbTx.close();
 		}
 
 	}
@@ -155,17 +151,17 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 */
 	@Override
 	public E find(String uuid) throws BaasPersistentException, BaasEntityNotFoundException {
-		ODatabaseObject db = getObjectDatabase();
+		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
 		try {
-			List<E> result = db.query(new OSQLSynchQuery<E>("select * from "
-					+ this.entityType.getSimpleName() + " where uuid = '" + uuid + "'"));
+			List<E> result = dbTx.query(new OSQLSynchQuery<E>("select * from " + this.entityType.getSimpleName()
+					+ " where uuid = '" + uuid + "'"));
 
 			if (result == null || result.size() == 0)
 				throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 
-			return result.get(0);
+			return detach(result.get(0), dbTx);
 		} finally {
-			db.close();
+			dbTx.close();
 		}
 
 	}
@@ -230,29 +226,33 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 */
 	@Override
 	public List<E> find(String property, String value) throws BaasEntityNotFoundException {
-		ODatabaseObject db = getObjectDatabase();
+		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
 		try {
-			List<E> result = db.query(new OSQLSynchQuery<E>("select * from "
-					+ this.entityType.getSimpleName() + " where " + property + " = " + "'" + value + "'"));
+			List<E> result = dbTx.query(new OSQLSynchQuery<E>("select * from " + this.entityType.getSimpleName()
+					+ " where " + property + " = " + "'" + value + "'"));
 
 			if (result == null || result.size() == 0)
 				throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 
-			return result;
+			return detach(result, dbTx);
 		} finally {
-			db.close();
+			dbTx.close();
 		}
 	}
-
 
 	protected List<E> detach(List<E> entityList, OObjectDatabaseTx db) {
 		List<E> result = new ArrayList<>();
 		for (E e : entityList) {
-			e = db.detach(e, true);
+			e = detach(e, db);
 			result.add(e);
 		}
-
 		return result;
+		
+//		return db.detachAll(entityList, true);
+	}
+	
+	protected E detach(E entity, OObjectDatabaseTx db) {
+		return db.detachAll(entity, true);
 	}
 
 }

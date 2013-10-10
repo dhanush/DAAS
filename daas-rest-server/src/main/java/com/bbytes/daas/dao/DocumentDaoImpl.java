@@ -16,6 +16,7 @@ package com.bbytes.daas.dao;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,9 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 	@Autowired
 	private ConversionService conversionService;
+	
+	@Autowired
+	private UserDao userDao;
 
 	private Logger log = Logger.getLogger(DocumentDaoImpl.class);
 
@@ -144,9 +148,16 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 				// fix for close db conn , this will reopen the conn
 				db = getDataBase();
 
-				ODocument currentUser = conversionService.convert(currentDaasUser, ODocument.class);
-				ODocument createdEdge = db.createEdge(currentUser, entityVertex,
+				// add entity owner as a vertex with edge as 'created'
+				Map<String, Object> ownerPropertyMap  = new HashMap<String, Object>();
+				ownerPropertyMap.put(DaasDefaultFields.ENTITY_TYPE.toString(), DaasUser.class.getSimpleName());
+				ownerPropertyMap.put("owner_uuid", currentDaasUser.getUuid());
+				ownerPropertyMap.put("owner_username", currentDaasUser.getUserName());
+				ODocument entityOwnerVertex = db.createVertex(entityType, ownerPropertyMap);
+				
+				ODocument createdEdge = db.createEdge(entityOwnerVertex, entityVertex,
 						DaasDefaultFields.ENTITY_CREATED.toString());
+				entityOwnerVertex.save();
 				entityVertex.save();
 				createdEdge.save();
 
@@ -158,7 +169,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 				// getGraphDataBase().getInEdges(entityVertex.getIdentity()));
 				return entityVertex;
 			} catch (Exception e) {
-				log.error(e.getMessage());
+				log.error(e.getMessage(),e);
 				throw new BaasPersistentException(e);
 			}
 		} finally {

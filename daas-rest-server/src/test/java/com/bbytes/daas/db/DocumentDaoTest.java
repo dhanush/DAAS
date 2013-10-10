@@ -56,13 +56,18 @@ public class DocumentDaoTest extends BaseDBTest {
 	private ODocument doc3;
 
 	@Before
-	public void setup() throws BaasPersistentException {
+	public void setup() throws BaasPersistentException, BaasEntityNotFoundException {
+		
+		setAuthObjectForTest("ROLE_TENENT_ADMIN");
+		
 		String nullString = null;
 		doc1 = documentDao.create("doc1", nullString, "accnName", "appName");
 
 		doc2 = documentDao.create("doc2", nullString, "accName", "appName");
 
 		doc3 = documentDao.create("doc3", nullString, "accName", "appName");
+		
+		
 	}
 
 	@Test

@@ -18,6 +18,7 @@ import java.util.List;
 import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**
  * User DAO for all types of users like account user , application user .
@@ -34,6 +35,8 @@ public interface UserDao extends DaasDAO<DaasUser> {
 	public DaasUser saveAppUser(DaasUser user) throws BaasPersistentException;
 
 	public DaasUser findUser(String userName) throws BaasEntityNotFoundException;
+	
+	public ODocument findUserAsRecord(String userName) throws BaasEntityNotFoundException;
 
 	public DaasUser findUser(String accountName, String userName) throws BaasEntityNotFoundException;
 

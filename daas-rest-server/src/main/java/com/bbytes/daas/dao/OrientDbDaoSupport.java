@@ -19,7 +19,6 @@ import org.springframework.dao.support.DaoSupport;
 import com.bbytes.daas.db.orientDb.OrientDbTemplate;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
-import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
 
 /**
  * Orient DB DAO support
