@@ -68,7 +68,10 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 			entity.setUuid(UUID.randomUUID().toString());
 			entity.setCreationDate(new Date());
 			entity.setModificationDate(new Date());
-			return db.save(entity);
+			OObjectDatabaseTx dbTx = (OObjectDatabaseTx) db;
+			E e = db.save(entity);;
+			return  dbTx.detach(e, true);
+			
 		} finally {
 			db.close();
 		}
@@ -80,7 +83,9 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 		ODatabaseObject db = getObjectDatabase();
 		try {
 			entity.setModificationDate(new Date());
-			return db.save(entity);
+			OObjectDatabaseTx dbTx = (OObjectDatabaseTx) db;
+			E e = db.save(entity);;
+			return  dbTx.detach(e, true);
 		} finally {
 			db.close();
 		}
