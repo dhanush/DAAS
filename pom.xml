@@ -355,5 +355,6 @@
 
 	<modules>
 		<module>daas-rest-server</module>
+		<module>daas-client</module>
 	</modules>
 </project>
