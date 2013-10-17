@@ -27,6 +27,8 @@ import org.springframework.security.oauth2.provider.BaseClientDetails;
  */
 public class DaasBaseClientDetails extends BaseClientDetails implements InitializingBean{
 
+	private static final long serialVersionUID = 1354147829831729979L;
+
 	/* (non-Javadoc)
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
 	 */

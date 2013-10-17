@@ -55,6 +55,14 @@ public class ManagementServiceImpl implements ManagementService {
 			return new ArrayList<Account>();
 		}
 	}
+	
+	/* (non-Javadoc)
+	 * @see com.bbytes.daas.service.ManagementService#getAccountCount()
+	 */
+	@Override
+	public long getAccountCount() throws BaasPersistentException {
+		return accountDao.count();
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -194,5 +202,7 @@ public class ManagementServiceImpl implements ManagementService {
 		}
 		return null;
 	}
+
+
 
 }

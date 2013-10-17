@@ -35,6 +35,9 @@ public interface ManagementService {
 	public List<Account> getAllAccounts() throws BaasPersistentException, BaasEntityNotFoundException;
 	
 	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")
+	public long getAccountCount() throws BaasPersistentException;
+	
+	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")
 	public Account getAccount(String accountName) throws BaasPersistentException, BaasEntityNotFoundException;
 
 	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")

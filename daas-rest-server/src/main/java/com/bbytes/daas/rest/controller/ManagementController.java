@@ -61,6 +61,20 @@ public class ManagementController {
 	}
 	
 	/**
+	 * Get account count
+	 * 
+	 * @param accountName
+	 * @return
+	 * @throws BaasException
+	 * @throws BaasPersistentException
+	 */
+	@RequestMapping(value = "/accounts/count", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	Long createAccount() throws BaasPersistentException {
+		return managementService.getAccountCount();
+	}
+	
+	/**
 	 * Get account
 	 * 
 	 * @param accountName
