@@ -55,7 +55,7 @@ public class DaasClientDetailsService implements ClientDetailsService {
 		if(clientDetails!=null)
 			return clientDetails;
 		} catch (NoSuchClientException e) {
-			LOG.warn("Logged in User is not configured user " + e.getMessage());
+			LOG.warn("Logged in User is not configured user " + e.getMessage(),e);
 		}
 		
 		try {
