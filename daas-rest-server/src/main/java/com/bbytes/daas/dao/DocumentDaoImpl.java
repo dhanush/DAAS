@@ -142,12 +142,12 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 				db = getDataBase();
 
 				// add entity owner as a vertex with edge as 'created'
-				Map<String, Object> ownerPropertyMap  = new HashMap<String, Object>();
+				Map<String, Object> ownerPropertyMap = new HashMap<String, Object>();
 				ownerPropertyMap.put(DaasDefaultFields.ENTITY_TYPE.toString(), DaasUser.class.getSimpleName());
 				ownerPropertyMap.put("owner_uuid", currentDaasUser.getUuid());
 				ownerPropertyMap.put("owner_username", currentDaasUser.getUserName());
 				ODocument entityOwnerVertex = db.createVertex(entityType, ownerPropertyMap);
-				
+
 				ODocument createdEdge = db.createEdge(entityOwnerVertex, entityVertex,
 						DaasDefaultFields.ENTITY_CREATED.toString());
 				entityOwnerVertex.save();
@@ -162,7 +162,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 				// getGraphDataBase().getInEdges(entityVertex.getIdentity()));
 				return entityVertex;
 			} catch (Exception e) {
-				log.error(e.getMessage(),e);
+				log.error(e.getMessage(), e);
 				throw new BaasPersistentException(e);
 			}
 		} finally {
@@ -218,15 +218,21 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 		try {
 			ODocument primaryEntity = findById(primartyEntityType, primaryEntityId);
-			// ODocument secondaryEntity = findById(secondaryEntityType, secondaryEntityId);
+			ODocument secondaryEntity = findById(secondaryEntityType, secondaryEntityId);
+			if(primaryEntity ==null || secondaryEntity==null)
+				return false;
 
 			db = getDataBase();
 			OrientGraph graph = new OrientGraph(db);
 
-			Vertex vertex = graph.getVertex(primaryEntity.getIdentity());
-
-			for (Edge e : vertex.getEdges(Direction.OUT, relationName)) {
-				graph.removeEdge(e);
+			Vertex vertex = graph.getVertex(primaryEntity.getIdentity()); 
+			Vertex secondartyVertex = graph.getVertex(secondaryEntity.getIdentity());
+			
+			for(Edge e : vertex.getEdges(Direction.OUT, relationName)) {
+				Vertex secondary = e.getVertex(Direction.IN);
+				if(secondartyVertex !=null && secondary !=null && secondartyVertex.getId().equals(secondary.getId())){
+					graph.removeEdge(e);
+				}
 			}
 			graph.commit();
 			return true;
