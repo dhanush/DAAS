@@ -88,7 +88,7 @@
 	</bean>
 
 	<oauth:client-details-service id="adminClientDetails">
-		<oauth:client client-id="admin" secret="admin" authorized-grant-types="client_credentials" authorities="ROLE_TENENT_ADMIN"
+		<oauth:client client-id="admin" secret="password" authorized-grant-types="client_credentials" authorities="ROLE_TENENT_ADMIN"
 			scope="read,write,trust" access-token-validity="3600" />
 	</oauth:client-details-service>
 
