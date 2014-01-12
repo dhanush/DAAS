@@ -1,6 +1,9 @@
 package com.bbytes.daas.rest.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -49,17 +52,47 @@ public class EntityController {
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	String getEntities(@PathVariable String accountName, @PathVariable String applicationName,
-			@PathVariable String entityType, String pName, String pValue, HttpServletRequest request)
+			@PathVariable String entityType, HttpServletRequest request)
 			throws BaasException, BaasPersistentException, BaasEntityNotFoundException {
 		List<ODocument> documents = null;
-		if (pName != null && pValue != null) {
-			documents = documentDao.findByProperty(applicationName, entityType, pName, pValue);
+		Map<String, String[]> parameterMap = request.getParameterMap();
+		if (parameterMap!=null && !parameterMap.isEmpty()) {
+			documents = findByProperties(applicationName, entityType, parameterMap);
 		} else {
 			documents = documentDao.list(entityType, applicationName);
 		}
-
 		return OJSONWriter.listToJSON(documents, null);
+	}
 
+	/**
+	 * Finds the entity by properties value
+	 * @param applicationName
+	 * @param entityType
+	 * @param parameterMap
+	 * @return
+	 * @throws BaasEntityNotFoundException
+	 */
+	private List<ODocument> findByProperties(String applicationName, String entityType,
+			Map<String, String[]> parameterMap) throws BaasEntityNotFoundException {
+		List<ODocument> documents = new ArrayList<>();
+		for(Entry<String, String[]> parameter : parameterMap.entrySet()) {
+			List<ODocument> docs = new ArrayList<>();
+			if(parameter.getValue().length == 1){
+				String paramValue = parameter.getValue()[0];
+				docs = documentDao.findByProperty(applicationName, entityType, parameter.getKey(), paramValue);
+			}
+			else {
+				for(String paramValue : parameter.getValue() ){
+					List<ODocument> docsForEachPropValue = documentDao.findByProperty(applicationName, entityType, parameter.getKey(), paramValue);
+					if(docsForEachPropValue!=null && !docsForEachPropValue.isEmpty()){
+						docs.addAll(docsForEachPropValue);
+					}
+				}
+			}
+			if(docs!=null && !docs.isEmpty())
+				documents.addAll(docs);
+		}
+		return documents;
 	}
 
 	/**
@@ -82,6 +115,7 @@ public class EntityController {
 		ODocument document = documentDao.findById(entityType, entityUuid);
 		return document.toJSON();
 	}
+	
 
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/size", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
