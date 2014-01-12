@@ -15,27 +15,17 @@
 package com.bbytes.daas;
 
 import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimerTask;
 
-import org.jets3t.service.S3Service;
-import org.jets3t.service.S3ServiceException;
-import org.jets3t.service.ServiceException;
 import org.jets3t.service.impl.rest.httpclient.RestS3Service;
 import org.jets3t.service.model.S3Bucket;
-import org.jets3t.service.model.S3Object;
 import org.jets3t.service.security.AWSCredentials;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
 
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
@@ -59,7 +49,7 @@ import com.orientechnologies.orient.server.handler.OServerHandlerAbstract;
  * 
  * @version
  */
-public class DaasS3Backup extends OServerHandlerAbstract {
+public class OrientDbS3Backup extends OServerHandlerAbstract {
 	public enum VARIABLES {
 		DBNAME, DATE
 	}
@@ -72,7 +62,9 @@ public class DaasS3Backup extends OServerHandlerAbstract {
 	private Set<String> excludeDatabases = new HashSet<String>();
 	private OServer serverInstance;
 
-	private String bucketName = "endure_backup";
+	private String bucketName = "orientdb_backup";
+	private Boolean deleteBackupOld = true;
+	private Integer deleteBackupOldByDays = 60;
 
 	@Override
 	public void config(final OServer iServer, final OServerParameterConfiguration[] iParams) {
@@ -83,6 +75,10 @@ public class DaasS3Backup extends OServerHandlerAbstract {
 				if (!Boolean.parseBoolean(param.value))
 					// DISABLE IT
 					return;
+			} else if (param.name.equalsIgnoreCase("delete.backup.old")) {
+				deleteBackupOld = Boolean.parseBoolean(param.value);
+			} else if (param.name.equalsIgnoreCase("delete.backup.old.by.days")) {
+				deleteBackupOldByDays = Integer.parseInt(param.value);
 			} else if (param.name.equalsIgnoreCase("delay"))
 				delay = OIOUtils.getTimeAsMillisecs(param.value);
 			else if (param.name.equalsIgnoreCase("firsttime")) {
@@ -91,6 +87,8 @@ public class DaasS3Backup extends OServerHandlerAbstract {
 				} catch (ParseException e) {
 					throw new OConfigurationException("Parameter 'firstTime' has invalid format, expected: HH:mm:ss", e);
 				}
+			} else if (param.name.equalsIgnoreCase("bucket.name")) {
+				bucketName = param.value;
 			} else if (param.name.equalsIgnoreCase("target.directory"))
 				targetDirectory = param.value;
 			else if (param.name.equalsIgnoreCase("db.include") && param.value.trim().length() > 0)
@@ -110,7 +108,7 @@ public class DaasS3Backup extends OServerHandlerAbstract {
 
 		// add a folder with date to the target directory
 
-		final String todayDate = getTodaysDateAsString();
+		final String todayDate = Utils.getTodaysDateAsString();
 		targetDirectory = targetDirectory + "/" + todayDate + "/";
 
 		final File filePath = new File(targetDirectory);
@@ -221,9 +219,18 @@ public class DaasS3Backup extends OServerHandlerAbstract {
 
 					File targetDir = new File(targetDirectory);
 
-					uploadFolder(s3Service, targetDir, bucketName + "-" + todayDate);
+					S3Bucket s3Bucket = s3Service.getOrCreateBucket(bucketName);
 
-					deleteDirectory(targetDir);
+					OLogManager.instance().info(this, "Created Bucket : " + s3Bucket.getName());
+
+					S3Utils.uploadFolder(s3Service, targetDir, bucketName + "/" + bucketName + "-" + todayDate);
+
+					// after upload delete dir , the next backup will create a new folder
+					Utils.deleteDirectory(targetDir);
+
+					if (deleteBackupOld) {
+						S3Utils.deleteOldData(s3Service, s3Bucket.getName(), deleteBackupOldByDays);
+					}
 
 				} catch (Exception e) {
 					OLogManager.instance().error(this, "[OAutomaticBackup-S3] - Error on uploading to S3  '" + e);
@@ -239,78 +246,7 @@ public class DaasS3Backup extends OServerHandlerAbstract {
 	}
 
 	public String getName() {
-		return "automaticBackup";
+		return "Automatic-S3-Backup";
 	}
 
-	public static boolean deleteDirectory(File directory) {
-		if (directory.exists()) {
-			File[] files = directory.listFiles();
-			if (null != files) {
-				for (int i = 0; i < files.length; i++) {
-					if (files[i].isDirectory()) {
-						deleteDirectory(files[i]);
-					} else {
-						files[i].delete();
-					}
-				}
-			}
-		}
-		return (directory.delete());
-	}
-
-	public S3Object[][] listAllfiles(S3Service s3Service) throws S3ServiceException {
-		// List all your buckets.
-		S3Bucket[] buckets = s3Service.listAllBuckets();
-		S3Object[][] objects = new S3Object[buckets.length][];
-		int i = 0;
-		// List the object contents of each bucket.
-		for (int b = 0; b < buckets.length; b++) {
-			System.out.println("Bucket '" + buckets[b].getName() + "' contains:");
-			// List the objects in this bucket.
-			objects[i] = s3Service.listObjects(buckets[b].getName());
-		}
-		return objects;
-
-	}
-
-	private void uploadFolder(S3Service s3Service, File folder, String bucketName) throws NoSuchAlgorithmException,
-			IOException, S3ServiceException {
-		uploadFolderContents(s3Service, folder, bucketName);
-	}
-
-	private void uploadFolderContents(S3Service s3Service, File folder, String bucketName) throws S3ServiceException,
-			NoSuchAlgorithmException, IOException {
-		for (File child : folder.listFiles()) {
-			uploadData(s3Service, child, bucketName);
-		}
-	}
-
-	public void uploadData(S3Service s3Service, File fileData, String bucketName) throws NoSuchAlgorithmException,
-			IOException, S3ServiceException {
-		S3Object fileObject = new S3Object(fileData);
-		S3Bucket bucket = s3Service.getOrCreateBucket(bucketName);
-		s3Service.putObject(bucketName, fileObject);
-	}
-
-	public void deleteOldData(S3Service s3Service, S3Object s3Object, int daysOlder) throws ServiceException {
-		int days = Days.daysBetween(new DateTime(s3Object.getLastModifiedDate()), new DateTime(new Date())).getDays();
-
-		if (days >= daysOlder) {
-			// Delete all the objects in the bucket
-			s3Service.deleteObject(s3Object.getBucketName(), s3Object.getKey());
-		}
-	}
-
-	public String getTodaysDateAsString() {
-
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-
-		// Get the date today using Calendar object.
-		Date today = Calendar.getInstance().getTime();
-		// Using DateFormat format method we can create a string
-		// representation of a date with the defined format.
-		String todaysDate = df.format(today);
-
-		return todaysDate;
-	}
 }
