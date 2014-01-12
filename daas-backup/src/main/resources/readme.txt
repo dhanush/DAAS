@@ -15,7 +15,7 @@ ii) Modify 'orientdb-server-config.xml' with the following xml snippet
             <parameters>
                 <parameter value="true" name="enabled"/>
                 <parameter value="24h" name="delay"/>
-                <parameter value="orientdb_backup" name=" bucket.name"/>
+                <parameter value="orientdb_backup" name="bucket.name"/>
                 <parameter value="true" name="delete.backup.old"/>
                 <parameter value="60" name="delete.backup.old.by.days"/>
                 <parameter value="./../backup" name="target.directory"/>
