@@ -11,6 +11,8 @@ package com.bbytes.daas.db.orientDb;
  * @version
  */
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +26,7 @@ public class OrientDbTemplate {
 	static ThreadLocal<ODatabaseObject> TENANT_MANAGE_DB_INSTANCE = new ThreadLocal<ODatabaseObject>();
 
 	static ThreadLocal<OGraphDatabase> THREAD_LOCAL_DB_INSTANCE = new ThreadLocal<OGraphDatabase>();
-	
+
 	static ThreadLocal<ODatabaseObject> THREAD_LOCAL_OBJECT_DB_INSTANCE = new ThreadLocal<ODatabaseObject>();
 
 	@Autowired
@@ -50,7 +52,6 @@ public class OrientDbTemplate {
 		return getDatabase();
 	}
 
-
 	public ODatabaseObject getTenantManagementDatabase() {
 
 		ODatabaseObject db = getThreadLocalTenantManagementDB();
@@ -74,7 +75,7 @@ public class OrientDbTemplate {
 
 		return null;
 	}
-	
+
 	protected ODatabaseObject getThreadLocalObjectDB() {
 		ODatabaseObject db = THREAD_LOCAL_OBJECT_DB_INSTANCE.get();
 		if (db != null && !db.isClosed()) {
@@ -111,6 +112,19 @@ public class OrientDbTemplate {
 		THREAD_LOCAL_OBJECT_DB_INSTANCE.set(db);
 
 		return db;
+	}
+
+	/**
+	 * The method to create new database
+	 * 
+	 * @param dbName
+	 *            the db name
+	 * @param dbType
+	 *            value can be 'graph' or 'object'
+	 * @throws IOException 
+	 */
+	public void createDatabase(String dbName, String dbType) {
+		connectionManager.createDatabase(dbName, dbType);
 	}
 
 }

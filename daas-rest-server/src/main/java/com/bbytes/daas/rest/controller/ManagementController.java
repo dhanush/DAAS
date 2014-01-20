@@ -58,6 +58,7 @@ public class ManagementController {
 	Account createAccount(@PathVariable("accountName") String accountName) throws BaasPersistentException {
 		LOG.debug("Request to create account : " + accountName);
 		return managementService.createAccount(accountName);
+//		TODO: create db right away dont do lazy
 	}
 	
 	/**

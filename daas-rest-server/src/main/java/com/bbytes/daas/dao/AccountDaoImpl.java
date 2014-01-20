@@ -63,6 +63,9 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 				account.setModificationDate(new Date());
 				db.save(account);
 				account = db.detach(account, true);
+				if (account != null) {
+					orientDbTemplate.createDatabase(account.getName(), "object");
+				}
 			} else {
 				throw new BaasPersistentException("Account name has to be unique,  " + account.getName()
 						+ " is already taken ");
@@ -92,7 +95,8 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 		ODatabaseObject db = getObjectDataBase();
 		try {
 			db.delete(account);
-			// Drop database after the account is delete . All the data in the tenent account db is deleted and the db is dropped.
+			// Drop database after the account is delete . All the data in the tenant account db is
+			// deleted and the db is dropped.
 			orientDbTemplate.dropDatabase(account.getName());
 		} finally {
 			db.close();
@@ -177,7 +181,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 					+ Account.class.getSimpleName() + " where " + property + " = " + "'" + value + "'"));
 
 			if (result == null || result.size() == 0)
-				throw new BaasEntityNotFoundException("Account not found " + Account.class.getSimpleName());
+				throw new BaasEntityNotFoundException("Account not found " + value);
 			result = detach(result, db);
 			return result;
 		} finally {

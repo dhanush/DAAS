@@ -34,7 +34,4 @@
 	<!-- Enables the Spring MVC @Controller programming model -->
 	<mvc:annotation-driven />
 
-	<util:properties id="props"
-		location="classpath:META-INF/rest-config.properties" />
-
 </beans>

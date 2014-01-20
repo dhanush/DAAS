@@ -68,7 +68,6 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 			entity.setCreationDate(new Date());
 			entity.setModificationDate(new Date());
 			E e = dbTx.save(entity);
-			;
 			return detach(e, dbTx);
 
 		} finally {
@@ -122,10 +121,13 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 				throw new BaasEntityNotFoundException();
 
 			return detach(result, dbTx);
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
 		} finally {
 			dbTx.close();
 		}
 
+		return new ArrayList<E>();
 	}
 
 	/*
@@ -160,6 +162,9 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 				throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 
 			return detach(result.get(0), dbTx);
+			
+		} catch (Exception e) {
+			throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 		} finally {
 			dbTx.close();
 		}
@@ -211,12 +216,16 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 			LOG.debug("SQL Result : " + sql + "  - Result - " + count);
 			if (count == 0)
 				return false;
-
-			return true;
-
+			else
+				return true;
+			
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
 		} finally {
 			db.close();
 		}
+		
+		return false;
 	}
 
 	/*
@@ -235,9 +244,14 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 				throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 
 			return detach(result, dbTx);
+			
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
 		} finally {
 			dbTx.close();
 		}
+		
+		return new ArrayList<E>();
 	}
 
 	protected List<E> detach(List<E> entityList, OObjectDatabaseTx db) {
@@ -247,10 +261,10 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 			result.add(e);
 		}
 		return result;
-		
-//		return db.detachAll(entityList, true);
+
+		// return db.detachAll(entityList, true);
 	}
-	
+
 	protected E detach(E entity, OObjectDatabaseTx db) {
 		return db.detachAll(entity, true);
 	}

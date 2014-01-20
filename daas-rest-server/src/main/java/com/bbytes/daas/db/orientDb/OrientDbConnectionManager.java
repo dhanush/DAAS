@@ -30,11 +30,11 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.reflection.OReflectionHelper;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabasePoolBase;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.db.graph.OGraphDatabasePool;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
-import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.object.db.OObjectDatabasePool;
 
 /**
@@ -50,7 +50,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 	private static final Logger logger = Logger.getLogger(OrientDbConnectionManager.class);
 
 	private Map<String, OGraphDatabasePool> tenantToGraphDbConnPoolMap = new HashMap<String, OGraphDatabasePool>();
-	
+
 	private Map<String, OObjectDatabasePool> tenantToObjectDbConnPoolMap = new HashMap<String, OObjectDatabasePool>();
 
 	private OObjectDatabasePool defaultTenantManageDbPool;
@@ -148,13 +148,10 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		database.close();
 	}
 
-	
-
 	public ODatabaseObject getTenantManagementDatabase() {
 		return defaultTenantManageDbPool.acquire();
 	}
 
-	
 	public ODatabaseObject getObjectDatabase() {
 		boolean tenantDBNew = false;
 		ODatabaseObject objectDatabase = null;
@@ -165,40 +162,43 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 					"Account information missing in HTTP parameter or URL for tenant identification");
 
 		OObjectDatabasePool tenantObjectDatabasePool = tenantToObjectDbConnPoolMap.get(tenantDbName);
-		// if accn does not exist then throw cannot create new tenant db
 
+		// if accn does not exist then throw cannot create new tenant db
 		if (tenantObjectDatabasePool == null) {
 			if (!accountDao.findAny("name", tenantDbName)) {
 				throw new BaasTenantCreationException("Failed to create tenant DB " + tenantDbName
 						+ " as there is no account created with name " + tenantDbName);
 			}
-			try {
-				logger.debug("Creating Object database for tenant - " + tenantDbName);
-				tenantObjectDatabasePool = new OObjectDatabasePool(databaseURL + "/" + tenantDbName, username, password);
-				tenantObjectDatabasePool.setup(minConnections, maxConnections);
-				tenantToObjectDbConnPoolMap.put(tenantDbName, tenantObjectDatabasePool);
-				objectDatabase = tenantObjectDatabasePool.acquire();
-				return objectDatabase;
-			} catch (OConfigurationException e) {
-				try {
-					tenantDBNew = true;
-					OServerAdmin serverAdmin = new OServerAdmin(databaseURL).connect(username, password);
-					if (!serverAdmin.listDatabases().keySet().contains(tenantDbName)) {
-						serverAdmin.createDatabase(tenantDbName, "graph", "local");
-					}
-				} catch (IOException ex) {
-					logger.error(ex);
-				}
-			}
+			// try {
+			// logger.debug("Creating Object database for tenant - " + tenantDbName);
+			// tenantObjectDatabasePool = new OObjectDatabasePool(databaseURL + "/" + tenantDbName,
+			// username, password);
+			// tenantObjectDatabasePool.setup(minConnections, maxConnections);
+			// tenantToObjectDbConnPoolMap.put(tenantDbName, tenantObjectDatabasePool);
+			// objectDatabase = tenantObjectDatabasePool.acquire();
+			// return objectDatabase;
+			// } catch (OConfigurationException e) {
+			// try {
+			// tenantDBNew = true;
+			// OServerAdmin serverAdmin = new OServerAdmin(databaseURL).connect(username, password);
+			// if (!serverAdmin.listDatabases().keySet().contains(tenantDbName)) {
+			// serverAdmin.createDatabase(tenantDbName, "graph", "local");
+			// }
+			// } catch (IOException ex) {
+			// logger.error(ex);
+			// }
+			// }
+
+			tenantObjectDatabasePool = (OObjectDatabasePool) createDatabase(tenantDbName, "object");
+
 		}
 		objectDatabase = tenantObjectDatabasePool.acquire();
 		if (tenantDBNew)
 			objectDatabase.getEntityManager().registerEntityClasses(domainClassBasePackage);
 
-
 		return objectDatabase;
 	}
-	
+
 	/**
 	 * Acquire new database connection from database pool.
 	 * 
@@ -221,30 +221,65 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 				throw new BaasTenantCreationException("Failed to create tenant DB " + tenantDbName
 						+ " as there is no account created with name " + tenantDbName);
 			}
-			try {
-				logger.debug("Creating Graph database for tenant - " + tenantDbName);
-				tenantGraphDatabasePool = new OGraphDatabasePool(databaseURL + "/" + tenantDbName, username, password);
-				tenantGraphDatabasePool.setup(minConnections, maxConnections);
-				tenantToGraphDbConnPoolMap.put(tenantDbName, tenantGraphDatabasePool);
-				graphDatabase = tenantGraphDatabasePool.acquire();
-				return graphDatabase;
-			} catch (OConfigurationException e) {
-				try {
-					tenantDBNew = true;
-					OServerAdmin serverAdmin = new OServerAdmin(databaseURL).connect(username, password);
-					if (!serverAdmin.listDatabases().keySet().contains(tenantDbName)) {
-						serverAdmin.createDatabase(tenantDbName, "graph", "local");
-					}
-				} catch (IOException ex) {
-					logger.error(ex);
-				}
-			}
+			// try {
+			// logger.debug("Creating Graph database for tenant - " + tenantDbName);
+			// tenantGraphDatabasePool = new OGraphDatabasePool(databaseURL + "/" + tenantDbName,
+			// username, password);
+			// tenantGraphDatabasePool.setup(minConnections, maxConnections);
+			// tenantToGraphDbConnPoolMap.put(tenantDbName, tenantGraphDatabasePool);
+			// graphDatabase = tenantGraphDatabasePool.acquire();
+			// return graphDatabase;
+			// } catch (OConfigurationException e) {
+			// try {
+			// tenantDBNew = true;
+			// OServerAdmin serverAdmin = new OServerAdmin(databaseURL).connect(username, password);
+			// if (!serverAdmin.listDatabases().keySet().contains(tenantDbName)) {
+			// serverAdmin.createDatabase(tenantDbName, "graph", "local");
+			// }
+			// } catch (IOException ex) {
+			// logger.error(ex);
+			// }
+			// }
+
+			tenantGraphDatabasePool= (OGraphDatabasePool) createDatabase(tenantDbName, "graph");
+
 		}
 		graphDatabase = tenantGraphDatabasePool.acquire();
 		if (tenantDBNew)
 			registerClassUnderPackageToDb(graphDatabase, domainClassBasePackage);
 
 		return graphDatabase;
+	}
+
+	public ODatabasePoolBase<?> createDatabase(String databaseName, String dbType) {
+		OServerAdmin serverAdmin;
+		try {
+			serverAdmin = new OServerAdmin(databaseURL).connect(username, password);
+			if (!serverAdmin.listDatabases().keySet().contains(databaseName)) {
+				serverAdmin.createDatabase(databaseName, "graph", "local");
+			}
+		} catch (IOException e) {
+			logger.error(e);
+		}
+
+		if (dbType.equals("graph")) {
+			OGraphDatabasePool tenantGraphDatabasePool = new OGraphDatabasePool(databaseURL + "/" + databaseName,
+					username, password);
+			tenantGraphDatabasePool.setup(minConnections, maxConnections);
+			tenantToGraphDbConnPoolMap.put(databaseName, tenantGraphDatabasePool);
+			OGraphDatabase graphDatabase = tenantGraphDatabasePool.acquire();
+			registerClassUnderPackageToDb(graphDatabase, domainClassBasePackage);
+			return tenantGraphDatabasePool;
+		} else {
+			OObjectDatabasePool tenantObjectDatabasePool = new OObjectDatabasePool(databaseURL + "/" + databaseName,
+					username, password);
+			tenantObjectDatabasePool.setup(minConnections, maxConnections);
+			tenantToObjectDbConnPoolMap.put(databaseName, tenantObjectDatabasePool);
+			ODatabaseObject objectDatabase = tenantObjectDatabasePool.acquire();
+			objectDatabase.getEntityManager().registerEntityClasses(domainClassBasePackage);
+			return tenantObjectDatabasePool;
+		}
+
 	}
 
 	private void registerClassUnderPackageToDb(ODatabaseRecord graphDatabase, final String classPackage) {
@@ -263,7 +298,6 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		}
 	}
 
-	
 	public boolean dropDatabase(String databaseName) {
 		if (databaseName == null || databaseName.equals(tenantManagementDBName))
 			return false;
@@ -300,7 +334,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 
 		return false;
 	}
-	
+
 	@Override
 	public void destroy() throws Exception {
 		this.defaultTenantManageDbPool.close();

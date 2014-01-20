@@ -35,14 +35,19 @@ public class TenantFilter implements Filter {
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		String uri = httpRequest.getRequestURI();
 		String contextPath = httpRequest.getContextPath();
-		String pathAfterUrlContext = uri.substring(contextPath.length() + 1);
 		String accountName = null;
-		if (TenantUtils.isOAuthRequestURL(uri)) {
-			accountName = TenantUtils.getAccountFromRequest(httpRequest);
-		} else {
-			accountName = TenantUtils.getAccountFromURL(pathAfterUrlContext);
-		}
-
+		
+//		// do length check to avoid out of bound error in substring
+//		if(contextPath.length() < uri.length()){
+			String pathAfterUrlContext = uri.substring(contextPath.length() + 1);
+			
+			if (TenantUtils.isOAuthRequestURL(uri)) {
+				accountName = TenantUtils.getAccountFromRequest(httpRequest);
+			} else {
+				accountName = TenantUtils.getAccountFromURL(pathAfterUrlContext);
+			}
+//		}
+		
 		if (accountName != null)
 			TenantRouter.setTenantIdentifier(accountName);
 		chain.doFilter(httpRequest, httpResponse);
