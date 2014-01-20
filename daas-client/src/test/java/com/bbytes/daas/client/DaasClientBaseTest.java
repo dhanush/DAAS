@@ -14,17 +14,12 @@
 package com.bbytes.daas.client;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import com.bbytes.daas.domain.Account;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 
@@ -37,18 +32,11 @@ import com.ning.http.client.Response;
  */
 public class DaasClientBaseTest {
 
-	private AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
-	
-	private String host="203.196.144.235";
-	
-	private String port="8089";
-	
-	
-	
-	@Before
-	public void SetUp() {
-	
-	}
+	protected AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+
+	protected String host = "localhost";
+
+	protected String port = "8080";
 
 	@Test
 	public void testHttpClient() throws IOException, InterruptedException, ExecutionException  {
@@ -57,31 +45,25 @@ public class DaasClientBaseTest {
 		Assert.assertEquals(response.getStatusCode(), 200);
 	}
 	
-	@Test
-	public void daasClientTest() throws DaasClientException  {
+	protected DaasClient getDaasClient() throws DaasClientException {
 		DaasClient daasClient = new DaasClient(host, port);
-		boolean success = daasClient.login("testAccn","testApp","admin", "admin");
+		boolean success = daasClient.login("testAccn", "testApp", "admin", "admin");
+		if(success)
+			return daasClient;
+		
+		return null;
 	}
-	
-	
-	@Test
-	public void daasMgmtClientTest() throws DaasClientException  {
+
+	protected DaasManagementClient getDaasMgmtClient() throws DaasClientException {
 		DaasManagementClient daasManagementClient = new DaasManagementClient(host, port);
 		boolean success = daasManagementClient.login("admin", "admin");
+		if(success)
+			return daasManagementClient;
 		
-		List<Account> accounts = daasManagementClient.getAccounts();
-		int size = accounts.size();
-		Assert.assertTrue(size > 0);
-		
-		daasManagementClient.createAccount("new-accn-" + UUID.randomUUID().toString());
-		accounts = daasManagementClient.getAccounts();
-		int newsize=accounts.size();
-		Assert.assertTrue(size+1 == newsize);
+		return null;
 	}
-	
 
-	@After
-	public void cleanUp() {
-		asyncHttpClient.close();
-	}
+
+	
+	
 }
