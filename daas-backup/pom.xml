@@ -58,11 +58,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.tinkerpop.blueprints</groupId>
-			<artifactId>blueprints-orient-graph</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>com.tinkerpop.gremlin</groupId>
 			<artifactId>gremlin-groovy</artifactId>
 		</dependency>

@@ -34,7 +34,7 @@ import com.bbytes.daas.domain.DaasUser;
  */
 public class DaasClientRepeatAccountCreationTest extends DaasClientBaseTest {
 
-	private String accnName = "new-accn-same";
+	private String accnName = "new-accn-same"+ UUID.randomUUID().toString();
 	private String appName = "new-app-" + UUID.randomUUID().toString();
 
 	@Before
