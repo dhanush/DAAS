@@ -20,7 +20,7 @@
 		<compiler.target.version>1.7</compiler.target.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jackson.version>1.9.12</jackson.version>
-		<orientdb.version>1.5.1</orientdb.version>
+		<orientdb.version>1.6.4</orientdb.version>
 		<tinkerpop.version>2.4.0</tinkerpop.version>
 	</properties>
 
@@ -289,6 +289,12 @@
 			<dependency>
 				<groupId>com.tinkerpop.blueprints</groupId>
 				<artifactId>blueprints-core</artifactId>
+				<version>${tinkerpop.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.tinkerpop.blueprints</groupId>
+				<artifactId>blueprints-test</artifactId>
 				<version>${tinkerpop.version}</version>
 			</dependency>
 

@@ -285,7 +285,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 	private void registerClassUnderPackageToDb(ODatabaseRecord graphDatabase, final String classPackage) {
 		List<Class<?>> classes = null;
 		try {
-			classes = OReflectionHelper.getClassesForPackage(classPackage, Thread.currentThread()
+			classes = OReflectionHelper.getClassesFor(classPackage, Thread.currentThread()
 					.getContextClassLoader());
 		} catch (ClassNotFoundException e) {
 			throw new OException(e);
