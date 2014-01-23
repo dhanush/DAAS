@@ -50,7 +50,7 @@ public enum DataType {
 	/*
 	 * If nothing matches it will return string type
 	 */
-	public DataType getForLabel(String label) {
+	public static DataType getForLabel(String label) {
 		for (DataType dt : DataType.values()) {
 			if (dt.getLabel().equals(label)) {
 				return dt;

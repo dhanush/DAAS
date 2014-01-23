@@ -247,7 +247,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			if (docToBeRemoved == null)
 				throw new BaasPersistentException("Document to be deleted doesnt exist in DB");
 			db = getDataBase();
-			
+
 			OrientGraph graph = new OrientGraph(db);
 			Vertex vertex = graph.getVertex(docToBeRemoved.getIdentity());
 			graph.removeVertex(vertex);
@@ -624,17 +624,52 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.bbytes.daas.rest.dao.DocumentDao#findByProperty(java.lang.String, java.lang.String,
-	 * java.lang.String, java.lang.String)
+	 * @see
+	 * com.bbytes.daas.rest.dao.DocumentDao#findByPropertyRange(java.lang.String,java.lang.String,
+	 * java.lang.String,com.bbytes.daas.domain.DataType, java.lang.String, java.lang.String)
 	 */
 	@Override
 	public List<ODocument> findByPropertyRange(String applicationName, String entityType, String propertyName,
 			DataType propertyDataType, String startRange, String endRange) throws BaasEntityNotFoundException {
 		OGraphDatabase db = getDataBase();
+		switch (propertyDataType) {
+		case DATE:
+			propertyName = propertyName + ".asDate()";
+			break;
+		case DATETIME:
+			propertyName = propertyName + ".asDateTime()";
+			break;
+		case BOOLEAN:
+			propertyName = propertyName + ".asBoolean()";
+			break;
+		case FLOAT:
+			propertyName = propertyName + ".asFloat()";
+			break;
+		case INTEGER:
+			propertyName = propertyName + ".asInteger()";
+			break;
+		case LONG:
+			propertyName = propertyName + ".asLong()";
+			break;
+		default:
+			propertyName = propertyName + ".asString()";
+			break;
+		}
 		try {
-			String sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " >= " + "'" + startRange + "'"
-					+ " and " + propertyName + " <= " + "'" + endRange + "'" + " and "
-					+ DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName + "'";
+			String sql = "";
+			if (startRange == null) {
+				sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " <= " + "'" + endRange + "'"
+						+ " and " + DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName
+						+ "'";
+			} else if (endRange == null) {
+				sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " >= " + "'" + startRange + "'"
+						+ " and " + DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName
+						+ "'";
+			} else {
+				sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " >= " + "'" + startRange + "'"
+						+ " and " + propertyName + " <= " + "'" + endRange + "'" + " and "
+						+ DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName + "'";
+			}
 
 			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
 

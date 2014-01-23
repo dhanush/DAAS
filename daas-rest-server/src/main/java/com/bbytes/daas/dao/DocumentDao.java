@@ -79,7 +79,7 @@ public interface DocumentDao {
 	public List<ODocument> findByProperty(String applicationName, String entityType, String propertyName, String propertyValue) throws BaasEntityNotFoundException;
 
 	public List<ODocument> findByPropertyRange(String applicationName, String entityType, String propertyName,
-			DataType propertyDataType, String startRange, String endRange) throws BaasEntityNotFoundException ;
+			DataType propertyDataType, String startRange, String endRange) throws BaasEntityNotFoundException;
 			
 	public List<ODocument> list(String entityType, String appName) throws BaasPersistentException;
 

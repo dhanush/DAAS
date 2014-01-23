@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.bbytes.daas.dao.DocumentDao;
+import com.bbytes.daas.domain.DataType;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasException;
 import com.bbytes.daas.rest.BaasPersistentException;
@@ -52,11 +53,11 @@ public class EntityController {
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	String getEntities(@PathVariable String accountName, @PathVariable String applicationName,
-			@PathVariable String entityType, HttpServletRequest request)
-			throws BaasException, BaasPersistentException, BaasEntityNotFoundException {
+			@PathVariable String entityType, HttpServletRequest request) throws BaasException, BaasPersistentException,
+			BaasEntityNotFoundException {
 		List<ODocument> documents = null;
 		Map<String, String[]> parameterMap = request.getParameterMap();
-		if (parameterMap!=null && !parameterMap.isEmpty()) {
+		if (parameterMap != null && !parameterMap.isEmpty()) {
 			documents = findByProperties(applicationName, entityType, parameterMap);
 		} else {
 			documents = documentDao.list(entityType, applicationName);
@@ -66,6 +67,7 @@ public class EntityController {
 
 	/**
 	 * Finds the entity by properties value
+	 * 
 	 * @param applicationName
 	 * @param entityType
 	 * @param parameterMap
@@ -75,24 +77,52 @@ public class EntityController {
 	private List<ODocument> findByProperties(String applicationName, String entityType,
 			Map<String, String[]> parameterMap) throws BaasEntityNotFoundException {
 		List<ODocument> documents = new ArrayList<>();
-		for(Entry<String, String[]> parameter : parameterMap.entrySet()) {
+		for (Entry<String, String[]> parameter : parameterMap.entrySet()) {
 			List<ODocument> docs = new ArrayList<>();
-			if(parameter.getValue().length == 1){
+			if (parameter.getValue().length == 1) {
 				String paramValue = parameter.getValue()[0];
 				docs = documentDao.findByProperty(applicationName, entityType, parameter.getKey(), paramValue);
-			}
-			else {
-				for(String paramValue : parameter.getValue() ){
-					List<ODocument> docsForEachPropValue = documentDao.findByProperty(applicationName, entityType, parameter.getKey(), paramValue);
-					if(docsForEachPropValue!=null && !docsForEachPropValue.isEmpty()){
+			} else {
+				for (String paramValue : parameter.getValue()) {
+					List<ODocument> docsForEachPropValue = documentDao.findByProperty(applicationName, entityType,
+							parameter.getKey(), paramValue);
+					if (docsForEachPropValue != null && !docsForEachPropValue.isEmpty()) {
 						docs.addAll(docsForEachPropValue);
 					}
 				}
 			}
-			if(docs!=null && !docs.isEmpty())
+			if (docs != null && !docs.isEmpty())
 				documents.addAll(docs);
 		}
 		return documents;
+	}
+
+	/**
+	 * Find the entities by range query , the start range , end range has to be given along with the datatype.
+	 * Query like  startdate <=  date >= enddate etc  
+	 * 
+	 * @param accountName
+	 * @param applicationName
+	 * @param entityType
+	 * @param propertyName
+	 * @param propertyDataType Possible values : date,datetime,long,float,integer,string and boolean
+	 * @param startRange the start range , the check is greater than or equals to would be applied
+	 * @param endRange the end range ,the check is less than or equals to would be applied
+	 * @param request
+	 * @return
+	 * @throws BaasException
+	 * @throws BaasEntityNotFoundException
+	 */
+	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/range", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	String getEntityByRange(@PathVariable String accountName, @PathVariable String applicationName,
+			@PathVariable String entityType, @PathVariable String propertyName, String propertyDataType,
+			String startRange, String endRange, HttpServletRequest request) throws BaasException,
+			BaasEntityNotFoundException {
+		List<ODocument> documents = null;
+		documents = documentDao.findByPropertyRange(applicationName, entityType, propertyName, DataType.getForLabel(propertyDataType),
+				startRange, endRange);
+		return OJSONWriter.listToJSON(documents, null);
 	}
 
 	/**
@@ -115,17 +145,16 @@ public class EntityController {
 		ODocument document = documentDao.findById(entityType, entityUuid);
 		return document.toJSON();
 	}
-	
 
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/size", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	String getEntitySize(@PathVariable String accountName, @PathVariable String applicationName,
-			@PathVariable String entityType, HttpServletRequest request)
-			throws BaasException, BaasEntityNotFoundException {
+			@PathVariable String entityType, HttpServletRequest request) throws BaasException,
+			BaasEntityNotFoundException {
 		long size = documentDao.count(entityType, applicationName);
-		return "{\"size\" : "+ size+" }"; 
+		return "{\"size\" : " + size + " }";
 	}
-	
+
 	/**
 	 * Returns all the related objects B of the entity A identified by entityId defined by the
 	 * relation R. A->B by R then return B
