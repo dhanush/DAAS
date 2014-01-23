@@ -27,6 +27,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.domain.DaasUser;
+import com.bbytes.daas.domain.DataType;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.bbytes.daas.service.SecurityService;
@@ -207,6 +208,61 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see
+	 * com.bbytes.daas.rest.dao.DocumentDao#remove(com.orientechnologies.orient.core.record.impl
+	 * .ODocument, java.lang.String, java.lang.String)
+	 */
+	@Override
+	@Transactional
+	public void remove(ODocument entity, String accountName, String appName) throws BaasPersistentException {
+
+		OGraphDatabase db = getDataBase();
+		try {
+			ODocument docToBeRemoved = db.load(entity.getIdentity());
+			if (docToBeRemoved == null)
+				throw new BaasPersistentException("Document to be deleted doesnt exist in DB");
+
+			db.removeVertex(entity.getIdentity());
+			db.commit();
+		} finally {
+			db.close();
+		}
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.rest.dao.DocumentDao#remove(java.lang.String, java.lang.String,
+	 * java.lang.String)
+	 */
+	@Override
+	@Transactional
+	public void remove(String uuid, String entityType, String accountName, String appName)
+			throws BaasPersistentException {
+		OGraphDatabase db = null;
+		ODocument docToBeRemoved;
+		try {
+			docToBeRemoved = findById(entityType, uuid);
+			if (docToBeRemoved == null)
+				throw new BaasPersistentException("Document to be deleted doesnt exist in DB");
+			db = getDataBase();
+			
+			OrientGraph graph = new OrientGraph(db);
+			Vertex vertex = graph.getVertex(docToBeRemoved.getIdentity());
+			graph.removeVertex(vertex);
+			graph.commit();
+		} catch (BaasEntityNotFoundException e) {
+			throw new BaasPersistentException(e);
+		} finally {
+			if (db != null)
+				db.close();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#removeRelation(java.lang.String, java.lang.String,
 	 * java.lang.String, java.lang.String, java.lang.String)
 	 */
@@ -219,18 +275,18 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		try {
 			ODocument primaryEntity = findById(primartyEntityType, primaryEntityId);
 			ODocument secondaryEntity = findById(secondaryEntityType, secondaryEntityId);
-			if(primaryEntity ==null || secondaryEntity==null)
+			if (primaryEntity == null || secondaryEntity == null)
 				return false;
 
 			db = getDataBase();
 			OrientGraph graph = new OrientGraph(db);
 
-			Vertex vertex = graph.getVertex(primaryEntity.getIdentity()); 
+			Vertex vertex = graph.getVertex(primaryEntity.getIdentity());
 			Vertex secondartyVertex = graph.getVertex(secondaryEntity.getIdentity());
-			
-			for(Edge e : vertex.getEdges(Direction.OUT, relationName)) {
+
+			for (Edge e : vertex.getEdges(Direction.OUT, relationName)) {
 				Vertex secondary = e.getVertex(Direction.IN);
-				if(secondartyVertex !=null && secondary !=null && secondartyVertex.getId().equals(secondary.getId())){
+				if (secondartyVertex != null && secondary != null && secondartyVertex.getId().equals(secondary.getId())) {
 					graph.removeEdge(e);
 				}
 			}
@@ -472,57 +528,6 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.bbytes.daas.rest.dao.DocumentDao#remove(com.orientechnologies.orient.core.record.impl
-	 * .ODocument, java.lang.String, java.lang.String)
-	 */
-	@Override
-	@Transactional
-	public void remove(ODocument entity, String accountName, String appName) throws BaasPersistentException {
-
-		OGraphDatabase db = getDataBase();
-		try {
-			ODocument docToBeRemoved = db.load(entity.getIdentity());
-			if (docToBeRemoved == null)
-				throw new BaasPersistentException("Document to be deleted doesnt exist in DB");
-
-			db.removeVertex(entity.getIdentity());
-
-		} finally {
-			db.close();
-		}
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.bbytes.daas.rest.dao.DocumentDao#remove(java.lang.String, java.lang.String,
-	 * java.lang.String)
-	 */
-	@Override
-	@Transactional
-	public void remove(String uuid, String entityType, String accountName, String appName)
-			throws BaasPersistentException {
-		OGraphDatabase db = null;
-		ODocument docToBeRemoved;
-		try {
-			docToBeRemoved = findById(entityType, uuid);
-			if (docToBeRemoved == null)
-				throw new BaasPersistentException("Document to be deleted doesnt exist in DB");
-			db = getDataBase();
-			db.removeVertex(docToBeRemoved.getIdentity());
-		} catch (BaasEntityNotFoundException e) {
-			throw new BaasPersistentException(e);
-		} finally {
-			if (db != null)
-				db.close();
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#find(com.orientechnologies.orient.core.id.ORID)
 	 */
 	@Override
@@ -609,6 +614,34 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			if (result == null || result.size() == 0)
 				throw new BaasEntityNotFoundException("No entity found for given property name " + propertyName
 						+ " and value " + propertyValue + "for entity type " + entityType);
+
+			return result;
+		} finally {
+			db.close();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.rest.dao.DocumentDao#findByProperty(java.lang.String, java.lang.String,
+	 * java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<ODocument> findByPropertyRange(String applicationName, String entityType, String propertyName,
+			DataType propertyDataType, String startRange, String endRange) throws BaasEntityNotFoundException {
+		OGraphDatabase db = getDataBase();
+		try {
+			String sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " >= " + "'" + startRange + "'"
+					+ " and " + propertyName + " <= " + "'" + endRange + "'" + " and "
+					+ DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName + "'";
+
+			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
+
+			if (result == null || result.size() == 0)
+				throw new BaasEntityNotFoundException("No entity found for given property name " + propertyName
+						+ " in range query with start range as " + startRange + " and end range as " + endRange
+						+ " for entity type " + entityType);
 
 			return result;
 		} finally {

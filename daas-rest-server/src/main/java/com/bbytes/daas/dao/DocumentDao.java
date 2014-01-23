@@ -16,6 +16,7 @@ package com.bbytes.daas.dao;
 import java.util.List;
 import java.util.Map;
 
+import com.bbytes.daas.domain.DataType;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -77,6 +78,9 @@ public interface DocumentDao {
 	
 	public List<ODocument> findByProperty(String applicationName, String entityType, String propertyName, String propertyValue) throws BaasEntityNotFoundException;
 
+	public List<ODocument> findByPropertyRange(String applicationName, String entityType, String propertyName,
+			DataType propertyDataType, String startRange, String endRange) throws BaasEntityNotFoundException ;
+			
 	public List<ODocument> list(String entityType, String appName) throws BaasPersistentException;
 
 	public long count(String entityType, String appName);
