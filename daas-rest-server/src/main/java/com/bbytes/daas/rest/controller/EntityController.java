@@ -118,7 +118,7 @@ public class EntityController {
 	public @ResponseBody
 	String getEntityByRange(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @RequestParam String propertyName, @RequestParam String propertyDataType,
-			@RequestParam String startRange, @RequestParam String endRange, HttpServletRequest request) throws BaasException,
+			@RequestParam(required=false) String startRange, @RequestParam(required=false) String endRange, HttpServletRequest request) throws BaasException,
 			BaasEntityNotFoundException {
 		List<ODocument> documents = null;
 		documents = documentDao.findByPropertyRange(applicationName, entityType, propertyName, DataType.getForLabel(propertyDataType),
