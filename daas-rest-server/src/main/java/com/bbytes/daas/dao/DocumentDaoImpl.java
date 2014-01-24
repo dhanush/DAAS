@@ -631,6 +631,9 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Override
 	public List<ODocument> findByPropertyRange(String applicationName, String entityType, String propertyName,
 			DataType propertyDataType, String startRange, String endRange) throws BaasEntityNotFoundException {
+		if (startRange == null && endRange == null) {
+			throw new IllegalArgumentException("Start range and End range cannot be null. Any one range must be valid");
+		}
 		OGraphDatabase db = getDataBase();
 		switch (propertyDataType) {
 		case DATE:
