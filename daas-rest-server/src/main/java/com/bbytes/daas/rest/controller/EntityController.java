@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.bbytes.daas.dao.DocumentDao;
@@ -116,8 +117,8 @@ public class EntityController {
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/range", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	String getEntityByRange(@PathVariable String accountName, @PathVariable String applicationName,
-			@PathVariable String entityType, @PathVariable String propertyName, String propertyDataType,
-			String startRange, String endRange, HttpServletRequest request) throws BaasException,
+			@PathVariable String entityType, @RequestParam String propertyName, @RequestParam String propertyDataType,
+			@RequestParam String startRange, @RequestParam String endRange, HttpServletRequest request) throws BaasException,
 			BaasEntityNotFoundException {
 		List<ODocument> documents = null;
 		documents = documentDao.findByPropertyRange(applicationName, entityType, propertyName, DataType.getForLabel(propertyDataType),
