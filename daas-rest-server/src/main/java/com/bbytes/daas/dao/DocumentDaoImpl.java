@@ -584,10 +584,6 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			String sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " = " + "'" + propertyValue + "'";
 			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
 
-			if (result == null || result.size() == 0)
-				throw new BaasEntityNotFoundException("No entity found for given property name " + propertyName
-						+ " and value " + propertyValue + "for entity type " + entityType);
-
 			return result;
 		} finally {
 			db.close();
@@ -611,10 +607,6 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
 
-			if (result == null || result.size() == 0)
-				throw new BaasEntityNotFoundException("No entity found for given property name " + propertyName
-						+ " and value " + propertyValue + "for entity type " + entityType);
-
 			return result;
 		} finally {
 			db.close();
@@ -632,7 +624,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	public List<ODocument> findByPropertyRange(String applicationName, String entityType, String propertyName,
 			DataType propertyDataType, String startRange, String endRange) throws BaasEntityNotFoundException {
 		if (startRange == null && endRange == null) {
-			throw new IllegalArgumentException("Start range and End range cannot be null. Any one range must be valid");
+			throw new IllegalArgumentException("Start range and End range cannot be null");
 		}
 		OGraphDatabase db = getDataBase();
 		switch (propertyDataType) {
@@ -675,11 +667,6 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			}
 
 			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
-
-			if (result == null || result.size() == 0)
-				throw new BaasEntityNotFoundException("No entity found for given property name " + propertyName
-						+ " in range query with start range as " + startRange + " and end range as " + endRange
-						+ " for entity type " + entityType);
 
 			return result;
 		} finally {
