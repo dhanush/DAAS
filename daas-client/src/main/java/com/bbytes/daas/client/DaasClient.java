@@ -150,6 +150,7 @@ public class DaasClient {
 			if (!HttpStatusUtil.isSuccess(r))
 				throw new DaasClientException("Application creation failed : " + r.getResponseBody());
 
+			@SuppressWarnings("unchecked")
 			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(entityClassType, 0).getClass());
 
 			return Arrays.asList(result);
@@ -192,6 +193,7 @@ public class DaasClient {
 			if (!HttpStatusUtil.isSuccess(r))
 				throw new DaasClientException("Application creation failed : " + r.getResponseBody());
 
+			@SuppressWarnings("unchecked")
 			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(entityClassType, 0).getClass());
 
 			return Arrays.asList(result);

@@ -204,7 +204,7 @@ public class DaasClientCRUDTest extends DaasClientBaseTest {
 		DaasClient daasClient = new DaasClient(host, port);
 		boolean success = daasClient.login("testAccn", "testApp", "accnUser", "accnPassword");
 		Assert.assertTrue(success);
-		List<TestPojo> testPojos = daasClient.getEntitesByRange(TestPojo.class, "field2", "integer", "7", "8");
+		List<TestPojo> testPojos = daasClient.getEntitiesByRange(TestPojo.class, "field2", "integer", "7", "8");
 		Assert.assertTrue(testPojos.size() > 0);
 		System.out.println(testPojos.size());
 
