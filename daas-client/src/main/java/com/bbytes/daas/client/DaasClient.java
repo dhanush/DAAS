@@ -818,7 +818,7 @@ public class DaasClient {
 					@SuppressWarnings("unchecked")
 					T toBeDeletedEntity = (T) toBeDeletedEntityField.get(entity);
 
-					if (toBeDeletedEntity.getUuid() == null)
+					if (toBeDeletedEntity==null || toBeDeletedEntity.getUuid() == null)
 						continue;
 
 					// remove relation before deleting

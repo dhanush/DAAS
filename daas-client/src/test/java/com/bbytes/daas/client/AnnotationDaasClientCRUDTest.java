@@ -96,14 +96,14 @@ public class AnnotationDaasClientCRUDTest extends DaasClientBaseTest {
 		annotationTestPojo = daasClient.createEntity(annotationTestPojo);
 
 		// it will be null as the cascade is delete
-		Assert.assertNull(annotationTestPojo.getTestPojoOnlyDelete().getUuid());
+		Assert.assertNull(annotationTestPojo.getTestPojoOnlyDelete());
 		// it will not be null as the cascade is create|delete
 		Assert.assertNotNull(annotationTestPojo.getTestPojoCreateDelete().getUuid());
 		// it will be created as the cascade is missing so it is considered as CascadeType.ALL
 		Assert.assertNotNull(annotationTestPojo.getTestPojoRelated().getUuid());
 
 		// it will be null as the cascade is update|delete
-		Assert.assertNull(annotationTestPojo.getTestPojoRelatedUpdateDelete().getUuid());
+		Assert.assertNull(annotationTestPojo.getTestPojoRelatedUpdateDelete());
 
 	}
 
@@ -128,9 +128,9 @@ public class AnnotationDaasClientCRUDTest extends DaasClientBaseTest {
 
 		annotationTestPojo = daasClient.updateEntity(annotationTestPojo);
 		// it will be null as the cascade is delete
-		Assert.assertNull(annotationTestPojo.getTestPojoOnlyDelete().getUuid());
+		Assert.assertNull(annotationTestPojo.getTestPojoOnlyDelete());
 		// it will be null as the cascade is create|delete
-		Assert.assertNull(annotationTestPojo.getTestPojoCreateDelete().getUuid());
+		Assert.assertNull(annotationTestPojo.getTestPojoCreateDelete());
 		// it will be created as the cascade is missing so it is considered as CascadeType.ALL
 		Assert.assertNotNull(annotationTestPojo.getTestPojoRelated().getUuid());
 		Assert.assertNotNull(annotationTestPojo.getTestPojoRelatedUpdateDelete().getUuid());
@@ -159,12 +159,10 @@ public class AnnotationDaasClientCRUDTest extends DaasClientBaseTest {
 		annotationTestPojo.setTestPojoRelatedUpdate(testPojoRelatedUpdate);
 
 		annotationTestPojo = daasClient.updateEntity(annotationTestPojo);
+		annotationTestPojo =daasClient.loadLazyRelation(annotationTestPojo);
 
 		String annotationTestPojoId = annotationTestPojo.getUuid();
-
 		String testPojoRelatedId = annotationTestPojo.getTestPojoRelated().getUuid();
-		String testPojoCreateDeleteId = annotationTestPojo.getTestPojoCreateDelete().getUuid();
-		String testPojoOnlyDeleteId = annotationTestPojo.getTestPojoOnlyDelete().getUuid();
 		String testPojoRelatedUpdateDeleteId = annotationTestPojo.getTestPojoRelatedUpdateDelete().getUuid();
 		String testPojoRelatedUpdateId = annotationTestPojo.getTestPojoRelatedUpdate().getUuid();
 
