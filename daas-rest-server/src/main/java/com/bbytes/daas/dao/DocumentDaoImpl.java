@@ -129,43 +129,43 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 			entityVertex = DocumentUtils.applyDefaultFields(entityVertex, entityType, accountName, appName);
 
-			// ODocument currentUser = (ODocument) getObjectDataBase().getRecordByUserObject(
-			// sessionStore.getSessionUser() ,false);
+			// // logic to relate the current user to this entity using edge CREATED . Mainly for
+			// audit purpose.
+			// DaasUser currentDaasUser = null;
+			// try {
+			// currentDaasUser = securityService.getLoggedInUser();
+			// if (currentDaasUser == null) {
+			// throw new BaasPersistentException("User is not Logged in");
+			// }
+			//
+			// // fix for close db conn , this will reopen the conn
+			// db = getDataBase();
+			//
+			// // add entity owner as a vertex with edge as 'created'
+			// Map<String, Object> ownerPropertyMap = new HashMap<String, Object>();
+			// ownerPropertyMap.put(DaasDefaultFields.ENTITY_TYPE.toString(),
+			// DaasUser.class.getSimpleName());
+			// ownerPropertyMap.put("owner_uuid", currentDaasUser.getUuid());
+			// ownerPropertyMap.put("owner_username", currentDaasUser.getUserName());
+			// ODocument entityOwnerVertex = db.createVertex(entityType, ownerPropertyMap);
+			//
+			// ODocument createdEdge = db.createEdge(entityOwnerVertex, entityVertex,
+			// DaasDefaultFields.ENTITY_CREATED.toString());
+			// entityOwnerVertex.save();
+			entityVertex.save();
+			// createdEdge.save();
 
-			DaasUser currentDaasUser = null;
-			try {
-				currentDaasUser = securityService.getLoggedInUser();
-				if (currentDaasUser == null) {
-					throw new BaasPersistentException("User is not Logged in");
-				}
-
-				// fix for close db conn , this will reopen the conn
-				db = getDataBase();
-
-				// add entity owner as a vertex with edge as 'created'
-				Map<String, Object> ownerPropertyMap = new HashMap<String, Object>();
-				ownerPropertyMap.put(DaasDefaultFields.ENTITY_TYPE.toString(), DaasUser.class.getSimpleName());
-				ownerPropertyMap.put("owner_uuid", currentDaasUser.getUuid());
-				ownerPropertyMap.put("owner_username", currentDaasUser.getUserName());
-				ODocument entityOwnerVertex = db.createVertex(entityType, ownerPropertyMap);
-
-				ODocument createdEdge = db.createEdge(entityOwnerVertex, entityVertex,
-						DaasDefaultFields.ENTITY_CREATED.toString());
-				entityOwnerVertex.save();
-				entityVertex.save();
-				createdEdge.save();
-
-				// need to have another rest like /entity/connections
-				// in connections and out connections to be displayed
-				// System.out.println("out " +
-				// getGraphDataBase().getOutEdges(entityVertex.getIdentity()));
-				// System.out.println("in "+
-				// getGraphDataBase().getInEdges(entityVertex.getIdentity()));
-				return entityVertex;
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-				throw new BaasPersistentException(e);
-			}
+			/*
+			 * // need to have another rest like /entity/connections // in connections and out
+			 * connections to be displayed // System.out.println("out " + //
+			 * getGraphDataBase().getOutEdges(entityVertex.getIdentity())); //
+			 * System.out.println("in "+ //
+			 * getGraphDataBase().getInEdges(entityVertex.getIdentity()));
+			 */
+			return entityVertex;
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new BaasPersistentException(e);
 		} finally {
 			if (db != null)
 				db.close();
