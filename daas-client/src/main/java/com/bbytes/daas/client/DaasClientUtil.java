@@ -57,15 +57,29 @@ public class DaasClientUtil {
 
 	public static OAuthToken loginHelper(String clientId, String clientSecret, String baseURL,
 			AsyncHttpClient asyncHttpClient, Gson gson) throws DaasClientException {
+		return loginHelper(null, clientId, clientSecret, baseURL, asyncHttpClient, gson);
+	}
+
+	public static OAuthToken loginHelper(String accountName, String clientId, String clientSecret, String baseURL,
+			AsyncHttpClient asyncHttpClient, Gson gson) throws DaasClientException {
 
 		OAuthToken token = null;
 		try {
-			Future<Response> f = asyncHttpClient.prepareGet(baseURL + URLConstants.LOGIN_OAUTH)
-					.addQueryParameter("grant_type", "client_credentials").addQueryParameter("client_id", clientId)
-					.addQueryParameter("client_secret", clientSecret).execute();
+			Future<Response> f = null;
+			if (accountName == null) {
+				f = asyncHttpClient.prepareGet(baseURL + URLConstants.LOGIN_OAUTH)
+						.addQueryParameter("grant_type", "client_credentials").addQueryParameter("client_id", clientId)
+						.addQueryParameter("client_secret", clientSecret).execute();
+			} else {
+				f = asyncHttpClient.prepareGet(baseURL + URLConstants.LOGIN_OAUTH)
+						.addQueryParameter("grant_type", "client_credentials").addQueryParameter("client_id", clientId)
+						.addQueryParameter("client_secret", clientSecret).addQueryParameter("account", accountName)
+						.execute();
+			}
+
 			Response r = f.get();
 			if (!HttpStatusUtil.isSuccess(r))
-				throw new DaasClientException("Not able to login to daas server on" + baseURL);
+				throw new DaasClientException("Not able to login to daas server on " + baseURL);
 
 			token = gson.fromJson(r.getResponseBody(), OAuthToken.class);
 

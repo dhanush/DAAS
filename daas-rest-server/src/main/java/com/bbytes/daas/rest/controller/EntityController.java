@@ -189,7 +189,7 @@ public class EntityController {
 	 * This is the reverse of
 	 * {@link #getRelatedEntities(String, String, String, String, String, String, String)}
 	 * 
-	 * Returns the relating (connecting) objects A from the related Entity B defned by relation R.
+	 * Returns the relating (connecting) objects A from the related Entity B defined by relation R.
 	 * A->B by R then return A
 	 * 
 	 * @param accountName
@@ -210,6 +210,34 @@ public class EntityController {
 			@PathVariable String relation, HttpServletRequest request) throws BaasException,
 			BaasEntityNotFoundException {
 		List<ODocument> documents = documentDao.findRelatedReverse(relatedEntityType, relatedEntityId, relation);
+		return OJSONWriter.listToJSON(documents, null);
+	}
+	
+	/**
+	 * This is the reverse of
+	 * {@link #getRelatedEntities(String, String, String, String, String, String, String)}
+	 * 
+	 * Returns the relating (connecting) objects A from the related Entity B defined by relation R.
+	 * A->B by R then return A
+	 * 
+	 * @param accountName
+	 * @param applicationName
+	 * @param entityType
+	 * @param entityId
+	 * @param relation
+	 * @param relatedEntityType
+	 * @param accessToken
+	 * @return
+	 * @throws BaasException
+	 * @throws BaasEntityNotFoundException
+	 */
+	@RequestMapping(value = "/{accountName}/{applicationName}/{relatedEntityType}/{relatedEntityId}/connecting/{relation}/{primaryEntityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody
+	String getConnectingEntities(@PathVariable String accountName, @PathVariable String applicationName,
+			@PathVariable String relatedEntityType, @PathVariable String relatedEntityId,
+			@PathVariable String relation,@PathVariable String primaryEntityType, HttpServletRequest request) throws BaasException,
+			BaasEntityNotFoundException {
+		List<ODocument> documents = documentDao.findRelatedReverse(relatedEntityType, relatedEntityId,primaryEntityType, relation);
 		return OJSONWriter.listToJSON(documents, null);
 	}
 
