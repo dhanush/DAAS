@@ -16,6 +16,7 @@ import java.util.concurrent.Future;
 
 import com.bbytes.daas.client.annotation.Relation;
 import com.bbytes.daas.client.annotation.RelationAnnotationProcessor;
+import com.bbytes.daas.client.annotation.RelationAnnotationExclStrat;
 import com.bbytes.daas.domain.Entity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -87,7 +88,8 @@ public class DaasClient {
 		asyncHttpClient = new AsyncHttpClient(builder.build());
 
 		gson = new GsonBuilder().registerTypeAdapter(Date.class, SerializerUtil.getSerializerForDate())
-				.registerTypeAdapter(Date.class, SerializerUtil.getDeSerializerForDate()).create();
+				.registerTypeAdapter(Date.class, SerializerUtil.getDeSerializerForDate())
+				.setExclusionStrategies(new RelationAnnotationExclStrat()).create();
 
 	}
 
@@ -509,7 +511,7 @@ public class DaasClient {
 				t = loadRelation(t);
 				resultListWithRelationLoaded.add(t);
 			}
-			
+
 			return resultListWithRelationLoaded;
 
 		} catch (Exception e) {
@@ -679,10 +681,10 @@ public class DaasClient {
 			throw new IllegalArgumentException("Entity cannot be null");
 		}
 
-		entity = createOrUpdateSingleEntity(entity, action);
-
 		try {
 			Map<String, Field> relationNameAndEntity = RelationAnnotationProcessor.getRelationAndEntity(entity);
+			Map<String, T> relationToEntity = new HashMap<String, T>();
+
 			for (Iterator<String> iterator = relationNameAndEntity.keySet().iterator(); iterator.hasNext();) {
 				boolean applyCascading = true;
 				String relation = iterator.next();
@@ -703,18 +705,31 @@ public class DaasClient {
 					// based on relation name
 					@SuppressWarnings("unchecked")
 					T toBeRelatedEntity = (T) toBeRelatedEntityField.get(entity);
-					toBeRelatedEntity = updateEntity(toBeRelatedEntity);
-					toBeRelatedEntityField.set(entity, toBeRelatedEntity);
+					if (toBeRelatedEntity == null)
+						continue;
 
-					boolean success = addRelation(entity, toBeRelatedEntity, relation);
-					if (!success)
-						throw new DaasClientException("Failed while creating relation between entities of type "
-								+ entity.getClass().getSimpleName() + " and "
-								+ toBeRelatedEntity.getClass().getSimpleName() + " with ids " + entity.getUuid()
-								+ " and " + toBeRelatedEntity.getUuid() + " respectively");
+					toBeRelatedEntity = updateEntity(toBeRelatedEntity);
+					relationToEntity.put(relation, toBeRelatedEntity);
 
 				}
 
+			}
+
+			entity = createOrUpdateSingleEntity(entity, action);
+
+			for (Iterator<String> iterator = relationToEntity.keySet().iterator(); iterator.hasNext();) {
+				String relation = iterator.next();
+
+				Field toBeRelatedEntityField = relationNameAndEntity.get(relation);
+				T toBeRelatedEntity = relationToEntity.get(relation);
+				toBeRelatedEntityField.set(entity, toBeRelatedEntity);
+
+				boolean success = addRelation(entity, toBeRelatedEntity, relation);
+				if (!success)
+					throw new DaasClientException("Failed while creating relation between entities of type "
+							+ entity.getClass().getSimpleName() + " and "
+							+ toBeRelatedEntity.getClass().getSimpleName() + " with ids " + entity.getUuid() + " and "
+							+ toBeRelatedEntity.getUuid() + " respectively");
 			}
 
 		} catch (IllegalArgumentException | IllegalAccessException e) {

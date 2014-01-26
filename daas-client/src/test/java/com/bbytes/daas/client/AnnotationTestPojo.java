@@ -37,13 +37,13 @@ public class AnnotationTestPojo extends Entity {
 
 	private Integer field2Related;
 	
-	@Relation(name="testPojoOnlyDelete", lazy=false,cascadeTypes=CascadeType.DELETE)
+	@Relation(name="testPojoOnlyDelete", lazy=true,cascadeTypes=CascadeType.DELETE)
 	private TestPojo testPojoOnlyDelete;
 	
 	@Relation(name="testPojoRelated")
 	private TestPojoRelated testPojoRelated;
 	
-	@Relation(name="testPojoCreateDelete", lazy=false,cascadeTypes={
+	@Relation(name="testPojoCreateDelete", lazy=true,cascadeTypes={
 	        CascadeType.CREATE,CascadeType.DELETE })
 	private TestPojo testPojoCreateDelete;
 	

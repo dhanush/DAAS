@@ -16,7 +16,6 @@ package com.bbytes.daas.dao;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.domain.DataType;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
@@ -56,6 +54,8 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 	@Autowired
 	private SecurityService securityService;
+	
+	protected String fetchPlan=":0";
 
 	private Logger log = Logger.getLogger(DocumentDaoImpl.class);
 
@@ -267,6 +267,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public boolean removeRelation(String primartyEntityType, String primaryEntityId, String secondaryEntityType,
 			String secondaryEntityId, String relationName) throws BaasPersistentException {
 
@@ -320,6 +321,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public List<ODocument> findRelated(String primartyEntityType, String primaryEntityId, String secondaryEntityType,
 			String relationName) throws BaasEntityNotFoundException {
 		List<ODocument> result = new ArrayList<>();
@@ -356,6 +358,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public List<ODocument> findRelatedReverse(String secondaryEntityType, String secondaryEntityId,
 			String primartyEntityType, String relationName) throws BaasEntityNotFoundException {
 		List<ODocument> result = new ArrayList<>();
@@ -400,6 +403,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public boolean findAny(String entityType, String property, String value) throws BaasPersistentException {
 		OGraphDatabase db = getDataBase();
 		try {
@@ -425,6 +429,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#findAny(java.lang.String, java.util.Map)
 	 */
 	@Override
+	@Transactional
 	public boolean findAny(String entityType, Map<String, String> propertyToValue) throws BaasPersistentException {
 
 		if (propertyToValue == null)
@@ -447,7 +452,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			}
 
 			String sql = "SELECT COUNT(*) as count FROM " + entityType + "  WHERE " + whereCondition;
-			long count = ((ODocument) getDataBase().query(new OSQLSynchQuery<ODocument>(sql)).get(0)).field("count");
+			long count = ((ODocument) getDataBase().query(new OSQLSynchQuery<ODocument>(sql).setFetchPlan(fetchPlan)).get(0)).field("count");
 
 			if (count == 0)
 				return false;
@@ -531,6 +536,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#find(com.orientechnologies.orient.core.id.ORID)
 	 */
 	@Override
+	@Transactional
 	public ODocument find(ORID id) throws BaasEntityNotFoundException {
 		OGraphDatabase db = getDataBase();
 		try {
@@ -553,12 +559,18 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#find(java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public ODocument findById(String entityType, String uuid) throws BaasEntityNotFoundException {
 		OGraphDatabase db = getDataBase();
+	
 		try {
 			String sql = "SELECT * FROM " + entityType + "  WHERE " + DaasDefaultFields.FIELD_UUID + " = " + "'" + uuid
 					+ "'";
-			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
+			OSQLSynchQuery<ODocument>  synchQuery = new OSQLSynchQuery<ODocument>(sql);
+			synchQuery.setFetchPlan(fetchPlan);
+			synchQuery.setLimit(1);
+			synchQuery.setUseCache(false);
+			List<ODocument> result = db.query(synchQuery);
 
 			if (result == null || result.size() == 0)
 				throw new BaasEntityNotFoundException();
@@ -576,13 +588,14 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public List<ODocument> findByProperty(String entityType, String propertyName, String propertyValue)
 			throws BaasEntityNotFoundException {
 
 		OGraphDatabase db = getDataBase();
 		try {
 			String sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " = " + "'" + propertyValue + "'";
-			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
+			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql).setFetchPlan(fetchPlan));
 
 			return result;
 		} finally {
@@ -597,6 +610,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public List<ODocument> findByProperty(String applicationName, String entityType, String propertyName,
 			String propertyValue) throws BaasEntityNotFoundException {
 		OGraphDatabase db = getDataBase();
@@ -605,7 +619,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 					+ " and " + DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName
 					+ "'";
 
-			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
+			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql).setFetchPlan(fetchPlan));
 
 			return result;
 		} finally {
@@ -621,6 +635,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String,com.bbytes.daas.domain.DataType, java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public List<ODocument> findByPropertyRange(String applicationName, String entityType, String propertyName,
 			DataType propertyDataType, String startRange, String endRange) throws BaasEntityNotFoundException {
 		if (startRange == null && endRange == null) {
@@ -666,7 +681,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 						+ DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName + "'";
 			}
 
-			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
+			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql).setFetchPlan(fetchPlan));
 
 			return result;
 		} finally {
@@ -680,12 +695,13 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#list(java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public List<ODocument> list(String entityType, String appName) throws BaasPersistentException {
 		OGraphDatabase db = getDataBase();
 		try {
 			String sql = "SELECT * FROM " + entityType + "  WHERE " + DaasDefaultFields.FIELD_APPLICATION_NAME + " = "
 					+ "'" + appName + "'";
-			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
+			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql).setFetchPlan(fetchPlan));
 			return result;
 		} finally {
 			db.close();
@@ -698,13 +714,14 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#count(java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public long count(String entityType, String appName) {
 
 		OGraphDatabase db = getDataBase();
 		try {
 			String sql = "SELECT COUNT(*) as count FROM " + entityType + "  WHERE "
 					+ DaasDefaultFields.FIELD_APPLICATION_NAME + " = " + "'" + appName + "'";
-			long count = ((ODocument) db.query(new OSQLSynchQuery<ODocument>(sql)).get(0)).field("count");
+			long count = ((ODocument) db.query(new OSQLSynchQuery<ODocument>(sql).setFetchPlan(fetchPlan)).get(0)).field("count");
 			return count;
 		} finally {
 			db.close();

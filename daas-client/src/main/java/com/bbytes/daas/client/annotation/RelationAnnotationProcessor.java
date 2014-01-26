@@ -15,10 +15,12 @@ package com.bbytes.daas.client.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.bbytes.daas.domain.Entity;
+import com.google.gson.FieldAttributes;
 
 /**
  * The class that is used to process the {@link Relation} annotation.
@@ -38,9 +40,7 @@ public class RelationAnnotationProcessor {
 			for (Annotation annotation : annotations) {
 				if (annotation instanceof Relation) {
 					field.setAccessible(true);
-					if (field.get(entity) != null) {
-						relationNameAndEntity.put("REL_"+((Relation) annotation).name(), field);
-					}
+					relationNameAndEntity.put("REL_" + ((Relation) annotation).name(), field);
 				}
 			}
 		}
@@ -48,7 +48,6 @@ public class RelationAnnotationProcessor {
 
 	}
 
-	
 	public static boolean isCascadeCreate(Field field) {
 		Annotation[] annotations = field.getDeclaredAnnotations();
 		for (Annotation annotation : annotations) {
@@ -62,7 +61,7 @@ public class RelationAnnotationProcessor {
 		}
 		return false;
 	}
-	
+
 	public static boolean isCascadeUpdate(Field field) {
 		Annotation[] annotations = field.getDeclaredAnnotations();
 		for (Annotation annotation : annotations) {
@@ -76,7 +75,7 @@ public class RelationAnnotationProcessor {
 		}
 		return false;
 	}
-	
+
 	public static boolean isCascadeDelete(Field field) {
 		Annotation[] annotations = field.getDeclaredAnnotations();
 		for (Annotation annotation : annotations) {
@@ -90,7 +89,7 @@ public class RelationAnnotationProcessor {
 		}
 		return false;
 	}
-	
+
 	public static boolean islazy(Field field) {
 		Annotation[] annotations = field.getDeclaredAnnotations();
 		for (Annotation annotation : annotations) {
@@ -100,4 +99,15 @@ public class RelationAnnotationProcessor {
 		}
 		return false;
 	}
+
+	public static boolean isRelationField(FieldAttributes fieldAttr) {
+		Collection<Annotation> annotations = fieldAttr.getAnnotations();
+		for (Annotation annotation : annotations) {
+			if (annotation instanceof Relation) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
