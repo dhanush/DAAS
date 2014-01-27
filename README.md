@@ -25,9 +25,9 @@ DaasClient : It is a java rest client for DAAS rest server apis
 ### Login:
 
 	DaasManagementClient daasManagementClient = new DaasManagementClient(host, port);
-    boolean success = daasManagementClient.login("admin", "password");
+    boolean success = daasClient.login("accnName", "appName", "accnUser", "accnPassword");
     
-###
+### Save Entity
 
 
     
