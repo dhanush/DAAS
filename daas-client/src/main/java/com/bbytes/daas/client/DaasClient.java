@@ -93,6 +93,16 @@ public class DaasClient {
 
 	}
 
+	/**
+	 * To verify if the Daas client login session is available and still valid . If the returned
+	 * value is false then re-login is required.
+	 * 
+	 * @return If false then re-login
+	 */
+	public boolean isLoggedIn() {
+		return DaasClientUtil.isLoggedIn(token);
+	}
+
 	protected boolean pingSuccess() {
 		try {
 			Future<Response> f = asyncHttpClient.prepareGet(baseURL + "/ping").execute();
@@ -109,6 +119,7 @@ public class DaasClient {
 
 	/**
 	 * Login to your tenant account
+	 * 
 	 * @param accountName
 	 * @param applicationName
 	 * @param clientId
@@ -295,6 +306,7 @@ public class DaasClient {
 
 	/**
 	 * Get the entity given UUID
+	 * 
 	 * @param entityClassType
 	 * @param UUID
 	 * @return
@@ -834,7 +846,7 @@ public class DaasClient {
 					@SuppressWarnings("unchecked")
 					T toBeDeletedEntity = (T) toBeDeletedEntityField.get(entity);
 
-					if (toBeDeletedEntity==null || toBeDeletedEntity.getUuid() == null)
+					if (toBeDeletedEntity == null || toBeDeletedEntity.getUuid() == null)
 						continue;
 
 					// remove relation before deleting
