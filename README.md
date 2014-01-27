@@ -67,6 +67,8 @@ For eg: To get all 'A' entities with given relation name to B   Entity A ----rel
 ## Query
 
 ### Get count of a entity type : 
+To get the count of entity type A
+	Long size = daasClient.getEntitySize(A.class);
     
     
     
