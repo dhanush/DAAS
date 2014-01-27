@@ -107,6 +107,15 @@ public class DaasClient {
 		return true;
 	}
 
+	/**
+	 * Login to your tenant account
+	 * @param accountName
+	 * @param applicationName
+	 * @param clientId
+	 * @param clientSecret
+	 * @return
+	 * @throws DaasClientException
+	 */
 	public boolean login(String accountName, String applicationName, String clientId, String clientSecret)
 			throws DaasClientException {
 		this.accountName = accountName;
@@ -284,6 +293,13 @@ public class DaasClient {
 		}
 	}
 
+	/**
+	 * Get the entity given UUID
+	 * @param entityClassType
+	 * @param UUID
+	 * @return
+	 * @throws DaasClientException
+	 */
 	public <T extends Entity> T getEntityById(Class<T> entityClassType, String UUID) throws DaasClientException {
 		if (entityClassType == null || UUID == null)
 			throw new IllegalArgumentException("The entity class type or UUID cannot be null");
