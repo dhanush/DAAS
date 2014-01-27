@@ -57,6 +57,12 @@ For eg: To get all 'B' entities with given relation name to A   Entity A ----rel
 
 	List<T extends Entity> rightSideRelatedEntityList = daasClient.getRightSideRelatedEntities(A, "relation-name",
 				B.class);
+                
+### Get left side entities in a relation :   
+For eg: To get all 'A' entities with given relation name to B   Entity A ----relation-name----> Entity B 
+
+	List<T extends Entity> rightSideRelatedEntityList = daasClient.getLeftSideRelatedEntities(B, "relation-name",
+				A.class);
     
     
     
