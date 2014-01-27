@@ -75,6 +75,9 @@ To get the count of entity type A
 		Map<String, String> propertyMap = new HashMap<String, String>();
 		propertyMap.put("field", "value");
 		List<T extends Entity> resultList = daasClient.getEntitiesByProperty(A.class, propertyMap);
+        
+ ### Get entity list that match range condition : 
+ List<T extends Entity> resultList = daasClient.getEntitiesByRange(A.class, "field", "integer", "startRange", "endRange");
     
     
 
