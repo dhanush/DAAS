@@ -63,7 +63,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 	private String username;
 	private String password;
 	private int minConnections = 1;
-	private int maxConnections = 10;
+	private int maxConnections = 20;
 	private String domainClassBasePackage;
 
 	public void setDatabaseURL(String databaseURL) {
@@ -126,6 +126,11 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 
 		OGlobalConfiguration.TX_USE_LOG.setValue(false);
 		OGlobalConfiguration.MVRBTREE_NODE_PAGE_SIZE.setValue(2048);
+		OGlobalConfiguration.CLIENT_CHANNEL_MAX_POOL.setValue(100);
+		OGlobalConfiguration.MVRBTREE_TIMEOUT.setValue(30000);
+		OGlobalConfiguration.STORAGE_RECORD_LOCK_TIMEOUT.setValue(30000);
+        OGlobalConfiguration.STORAGE_LOCK_TIMEOUT.setValue(30000);
+        OGlobalConfiguration.CLIENT_CONNECT_POOL_WAIT_TIMEOUT.setValue(40000);
 	}
 
 	/**
