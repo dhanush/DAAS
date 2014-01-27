@@ -52,8 +52,11 @@ For eg: To remove only the relation  Entity A ----relation-name----> Entity B
 
     boolean status = daasClient.removeRelation(A, B, "relation-name");
    
-    
-    
+### Get right side entities in a relation :   
+For eg: To get all 'B' entities with given relation name to A   Entity A ----relation-name----> Entity B 
+
+List<T extends Entity> rightSideRelatedEntityList = daasClient.getRightSideRelatedEntities(A, "relation-name",
+				B.class);
     
     
     
