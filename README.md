@@ -29,9 +29,9 @@ DaasClient : It is a java rest client for DAAS rest server apis
     
 ### Save/update Entity
 
-	daasClient.createEntity(entity);
+	entityFromDB = daasClient.createEntity(entity);
     or
-	daasClient.updateEntity(entity);
+	updatedEntityFromDB = daasClient.updateEntity(entity);
     
 Entity passed should extend DAAS Entity class : com.bbytes.daas.domain.Entity   
 
