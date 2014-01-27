@@ -64,7 +64,9 @@ For eg: To get all 'A' entities with given relation name to B   Entity A ----rel
 	List<T extends Entity> rightSideRelatedEntityList = daasClient.getLeftSideRelatedEntities(B, "relation-name",
 				A.class);
     
-    
+## Query
+
+### Get count of a entity type : 
     
     
     
