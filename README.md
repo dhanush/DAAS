@@ -13,3 +13,27 @@ The OrientDB v1.6 is used to store data
 
 1. https://github.com/orientechnologies/orientdb/wiki/Distributed-Configuration
 2. https://github.com/orientechnologies/orientdb/wiki/Replication
+
+
+Usage : 
+
+DaasClient : It is a java rest client for DAAS rest server apis
+
+Login:
+	DaasManagementClient daasManagementClient = new DaasManagementClient(host, port);
+    boolean success = daasManagementClient.login("admin", "password");
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
