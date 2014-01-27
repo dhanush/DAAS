@@ -35,7 +35,7 @@ DaasClient : It is a java rest client for DAAS rest server apis
     
 Entity passed should extend DAAS Entity class : com.bbytes.daas.domain.Entity   
 
-    
+### Delete Entity
     
     
     
