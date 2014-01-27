@@ -41,7 +41,9 @@ Entity passed should extend DAAS Entity class : 'com.bbytes.daas.domain.Entity'
     
 Entity passed should extend DAAS Entity class : 'com.bbytes.daas.domain.Entity' 
     
-    
+### Relate Entities : For eg:  Entity A ----relation-name----> Entity B
+
+	boolean status = daasClient.addRelation(A, B, "relation-name");
     
     
     
