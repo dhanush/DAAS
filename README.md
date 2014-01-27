@@ -33,13 +33,13 @@ DaasClient : It is a java rest client for DAAS rest server apis
     or
 	updatedEntityFromDB = daasClient.updateEntity(entity);
     
-Entity passed should extend DAAS Entity class : com.bbytes.daas.domain.Entity   
+Entity passed should extend DAAS Entity class : 'com.bbytes.daas.domain.Entity'  
 
 ### Delete Entity
 
 	String status = daasClient.deleteEntity(entityToBeDeleted);
     
-Entity passed should extend DAAS Entity class : com.bbytes.daas.domain.Entity  
+Entity passed should extend DAAS Entity class : 'com.bbytes.daas.domain.Entity' 
     
     
     
