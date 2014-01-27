@@ -23,7 +23,7 @@ The OrientDB v1.6 is used to store data
 DaasClient : It is a java rest client for DAAS rest server apis
 
 ### Login:
-
+The host and port on which 'DAAS Rest Server' is running
 	DaasClient daasClient = new DaasClient(host, port);
     boolean success = daasClient.login("accnName", "appName", "accnUser", "accnPassword");
     
