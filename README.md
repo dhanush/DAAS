@@ -71,6 +71,9 @@ To get the count of entity type A
 	Long size = daasClient.getEntitySize(A.class);
     
 ### Get entity list that match property condition : 
+		Map<String, String> propertyMap = new HashMap<String, String>();
+		propertyMap.put("field", "value");
+		List<T extends Entity> resultList = daasClient.getEntitiesByProperty(A.class, propertyMap);
     
     
 
