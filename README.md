@@ -15,11 +15,13 @@ The OrientDB v1.6 is used to store data
 2. https://github.com/orientechnologies/orientdb/wiki/Replication
 
 
-Usage : 
+Usage : ##
+
+
 
 DaasClient : It is a java rest client for DAAS rest server apis
 
-Login:
+Login:## 
 	DaasManagementClient daasManagementClient = new DaasManagementClient(host, port);
     boolean success = daasManagementClient.login("admin", "password");
     
