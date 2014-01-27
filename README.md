@@ -68,7 +68,8 @@ For eg: To get all 'A' entities with given relation name to B   Entity A ----rel
 
 ### Get count of a entity type : 
 To get the count of entity type A
-	Long size = daasClient.getEntitySize(A.class);
+
+		Long size = daasClient.getEntitySize(A.class);
     
 ### Get entity list that match property condition : 
 		Map<String, String> propertyMap = new HashMap<String, String>();
