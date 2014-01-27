@@ -46,6 +46,8 @@ Entity passed should extend DAAS Entity class : 'com.bbytes.daas.domain.Entity'
 	boolean status = daasClient.addRelation(A, B, "relation-name");
     
     
+### Delete Relation between Entities : For eg:  Entity A ----relation-name----> Entity B 
+    
     
     
     
