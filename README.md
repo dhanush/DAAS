@@ -48,8 +48,10 @@ For eg:  Entity A ----relation-name----> Entity B
     
     
 ### Delete Relation between Entities : 
-For eg: To remove the relation  Entity A ----relation-name----> Entity B 
-    
+For eg: To remove only the relation  Entity A ----relation-name----> Entity B 
+
+    boolean status = daasClient.removeRelation(A, B, "relation-name");
+   
     
     
     
