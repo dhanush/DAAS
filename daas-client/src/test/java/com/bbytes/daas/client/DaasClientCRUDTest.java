@@ -128,7 +128,7 @@ public class DaasClientCRUDTest extends DaasClientBaseTest {
 		boolean success = daasClient.login("testAccn", "testApp", "accnUser", "accnPassword");
 		Assert.assertTrue(success);
 		testPojoRelated = daasClient.updateEntity(testPojoRelated);
-		boolean status = daasClient.addRelation(test, testPojoRelated, "testRelation");
+		boolean status = daasClient.removeRelation(test, testPojoRelated, "testRelation");
 		System.out.println(status);
 		Assert.assertTrue(status);
 
