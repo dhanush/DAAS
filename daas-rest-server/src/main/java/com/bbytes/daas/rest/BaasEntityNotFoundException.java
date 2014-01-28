@@ -15,6 +15,9 @@
  */
 package com.bbytes.daas.rest;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
 /**
  * Any exception related to Baas calls will be wrapped in this
  *
@@ -22,7 +25,9 @@ package com.bbytes.daas.rest;
  *
  * @version 1.0.0
  */
-public class BaasEntityNotFoundException extends Exception {
+
+@ResponseStatus(value=HttpStatus.NOT_FOUND, reason="No Such Entity Found")  // 404
+public class BaasEntityNotFoundException extends RuntimeException  {
 
 	private static final long serialVersionUID = 6289917997937599218L;
 

@@ -232,8 +232,7 @@ public class DaasClient {
 					.setQueryParameters(new FluentStringsMap(parameters)).execute();
 
 			Response r = f.get();
-			if (!HttpStatusUtil.isSuccess(r))
-				throw new DaasClientException("Application creation failed : " + r.getResponseBody());
+			checkResponse(r);
 
 			@SuppressWarnings("unchecked")
 			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(entityClassType, 0).getClass());
@@ -283,8 +282,8 @@ public class DaasClient {
 					.addQueryParameter("startRange", startRange).addQueryParameter("endRange", endRange).execute();
 
 			Response r = f.get();
-			if (!HttpStatusUtil.isSuccess(r))
-				throw new DaasClientException("Application creation failed : " + r.getResponseBody());
+
+			checkResponse(r);
 
 			@SuppressWarnings("unchecked")
 			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(entityClassType, 0).getClass());
@@ -324,8 +323,8 @@ public class DaasClient {
 			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json").execute();
 
 			Response r = f.get();
-			if (!HttpStatusUtil.isSuccess(r))
-				throw new DaasClientException("Application creation failed : " + r.getResponseBody());
+
+			checkResponse(r);
 
 			T t = gson.fromJson(r.getResponseBody(), entityClassType);
 
@@ -334,6 +333,22 @@ public class DaasClient {
 		} catch (Exception e) {
 			throw new DaasClientException(e);
 		}
+	}
+
+	/**
+	 * @param r
+	 * @throws DaasClientException
+	 * @throws IOException
+	 */
+	private void checkResponse(Response r) throws DaasClientException, IOException {
+		if (!HttpStatusUtil.isSuccess(r)) {
+
+			if (r.getStatusCode() == HttpStatusUtil.NOT_FOUND)
+				throw new DaasClientEntityNotFoundException("Entity Not Found");
+			else
+				throw new DaasClientException("Daas server error : " + r.getResponseBody());
+		}
+
 	}
 
 	/**
@@ -352,8 +367,8 @@ public class DaasClient {
 			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json").execute();
 
 			Response r = f.get();
-			if (!HttpStatusUtil.isSuccess(r))
-				throw new DaasClientException("Application creation failed : " + r.getResponseBody());
+
+			checkResponse(r);
 
 			JsonObject obj = (JsonObject) new JsonParser().parse(r.getResponseBody());
 			JsonElement size = obj.get("size");
@@ -391,8 +406,8 @@ public class DaasClient {
 			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json").execute();
 
 			Response r = f.get();
-			if (!HttpStatusUtil.isSuccess(r))
-				throw new DaasClientException("Application creation failed : " + r.getResponseBody());
+
+			checkResponse(r);
 
 			@SuppressWarnings("unchecked")
 			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(expectedClassType, 0).getClass());
@@ -427,8 +442,8 @@ public class DaasClient {
 			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json").execute();
 
 			Response r = f.get();
-			if (!HttpStatusUtil.isSuccess(r))
-				throw new DaasClientException("Application creation failed : " + r.getResponseBody());
+
+			checkResponse(r);
 
 			@SuppressWarnings("unchecked")
 			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(expectedClassType, 0).getClass());
@@ -490,8 +505,8 @@ public class DaasClient {
 			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json").execute();
 
 			Response r = f.get();
-			if (!HttpStatusUtil.isSuccess(r))
-				throw new DaasClientException("Application creation failed : " + r.getResponseBody());
+
+			checkResponse(r);
 
 			@SuppressWarnings("unchecked")
 			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(expectedClassType, 0).getClass());
@@ -526,8 +541,8 @@ public class DaasClient {
 			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json").execute();
 
 			Response r = f.get();
-			if (!HttpStatusUtil.isSuccess(r))
-				throw new DaasClientException("Application creation failed : " + r.getResponseBody());
+
+			checkResponse(r);
 
 			@SuppressWarnings("unchecked")
 			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(expectedClassType, 0).getClass());
@@ -617,8 +632,8 @@ public class DaasClient {
 			}
 
 			Response r = f.get();
-			if (!HttpStatusUtil.isSuccess(r))
-				throw new DaasClientException("Application creation failed : " + r.getResponseBody());
+			
+			checkResponse(r);
 
 			return true;
 
@@ -647,6 +662,9 @@ public class DaasClient {
 	 * @throws DaasClientException
 	 */
 	public <T extends Entity> T updateEntity(T entity) throws DaasClientException {
+		if (entity == null) {
+			throw new IllegalArgumentException("Entity cannot be null");
+		}
 		if (entity.getUuid() == null || entity.getUuid().isEmpty())
 			return createOrUpdateEntityFullGraph(entity, "create");
 
@@ -684,9 +702,9 @@ public class DaasClient {
 						.execute();
 			}
 			Response r = f.get();
-			if (!HttpStatusUtil.isSuccess(r))
-				throw new DaasClientException("Application creation failed : " + r.getResponseBody());
-
+			
+			checkResponse(r);
+			
 			return (T) gson.fromJson(r.getResponseBody(), entity.getClass());
 
 		} catch (Exception e) {
@@ -807,8 +825,8 @@ public class DaasClient {
 			Future<Response> f = buildRequest("delete", url).setHeader("Content-Type", "application/json").execute();
 
 			Response r = f.get();
-			if (!HttpStatusUtil.isSuccess(r))
-				throw new DaasClientException("Application creation failed : " + r.getResponseBody());
+			
+			checkResponse(r);
 
 			return r.getResponseBody();
 
