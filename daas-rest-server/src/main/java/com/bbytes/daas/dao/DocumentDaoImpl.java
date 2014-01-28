@@ -55,8 +55,6 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Autowired
 	private SecurityService securityService;
 	
-	protected String fetchPlan=":0";
-
 	private Logger log = Logger.getLogger(DocumentDaoImpl.class);
 
 	/*
@@ -452,7 +450,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			}
 
 			String sql = "SELECT COUNT(*) as count FROM " + entityType + "  WHERE " + whereCondition;
-			long count = ((ODocument) getDataBase().query(new OSQLSynchQuery<ODocument>(sql).setFetchPlan(fetchPlan)).get(0)).field("count");
+			long count = ((ODocument) getDataBase().query(new OSQLSynchQuery<ODocument>(sql)).get(0)).field("count");
 
 			if (count == 0)
 				return false;
@@ -567,7 +565,6 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			String sql = "SELECT * FROM " + entityType + "  WHERE " + DaasDefaultFields.FIELD_UUID + " = " + "'" + uuid
 					+ "'";
 			OSQLSynchQuery<ODocument>  synchQuery = new OSQLSynchQuery<ODocument>(sql);
-			synchQuery.setFetchPlan(fetchPlan);
 			synchQuery.setLimit(1);
 			synchQuery.setUseCache(false);
 			List<ODocument> result = db.query(synchQuery);
@@ -595,7 +592,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		OGraphDatabase db = getDataBase();
 		try {
 			String sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " = " + "'" + propertyValue + "'";
-			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql).setFetchPlan(fetchPlan));
+			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
 
 			return result;
 		} finally {
@@ -619,7 +616,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 					+ " and " + DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName
 					+ "'";
 
-			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql).setFetchPlan(fetchPlan));
+			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
 
 			return result;
 		} finally {
@@ -681,7 +678,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 						+ DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName + "'";
 			}
 
-			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql).setFetchPlan(fetchPlan));
+			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
 
 			return result;
 		} finally {
@@ -701,7 +698,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		try {
 			String sql = "SELECT * FROM " + entityType + "  WHERE " + DaasDefaultFields.FIELD_APPLICATION_NAME + " = "
 					+ "'" + appName + "'";
-			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql).setFetchPlan(fetchPlan));
+			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
 			return result;
 		} finally {
 			db.close();
@@ -721,7 +718,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		try {
 			String sql = "SELECT COUNT(*) as count FROM " + entityType + "  WHERE "
 					+ DaasDefaultFields.FIELD_APPLICATION_NAME + " = " + "'" + appName + "'";
-			long count = ((ODocument) db.query(new OSQLSynchQuery<ODocument>(sql).setFetchPlan(fetchPlan)).get(0)).field("count");
+			long count = ((ODocument) db.query(new OSQLSynchQuery<ODocument>(sql)).get(0)).field("count");
 			return count;
 		} finally {
 			db.close();
