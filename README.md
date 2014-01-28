@@ -82,5 +82,9 @@ To get the count of entity type A
  
  	List<T extends Entity> resultList = daasClient.getEntitiesByRange(A.class, "field", "integer", "startRange", "endRange");
     
+### Get entity by UUID  :   
+
+    Entity entity = daasClient.getEntityById(A.class, a.getUuid());
+    
     
 
