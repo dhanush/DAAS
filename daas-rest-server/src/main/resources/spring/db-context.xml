@@ -24,7 +24,7 @@
 		<property name="databaseURL" value="remote:localhost" />
 		<property name="tenantManagementDBName" value="daas" />
 		<property name="minConnections" value="1" />
-		<property name="maxConnections" value="5" />
+		<property name="maxConnections" value="25" />
 		<property name="username" value="root" />
 		<property name="password" value="root" />
 
