@@ -86,5 +86,6 @@ To get the count of entity type A
 
     Entity entity = daasClient.getEntityById(A.class, a.getUuid());
     
-    
+
+For more documentation go to [WIKI](https://github.com/bbytes/DAAS/wiki) 
 
