@@ -76,7 +76,7 @@ To get the count of entity type A
 		propertyMap.put("field", "value");
 		List<T extends Entity> resultList = daasClient.getEntitiesByProperty(A.class, propertyMap);
         
- ### Get entity list that match range condition :
+### Get entity list that match range condition :
  
  Pass the entity type usually the class simple name , then the field to check the range , the field type , start range and end range.
  
