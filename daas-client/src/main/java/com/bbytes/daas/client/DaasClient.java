@@ -15,8 +15,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import com.bbytes.daas.client.annotation.Relation;
-import com.bbytes.daas.client.annotation.RelationAnnotationProcessor;
 import com.bbytes.daas.client.annotation.RelationAnnotationExclStrat;
+import com.bbytes.daas.client.annotation.RelationAnnotationProcessor;
 import com.bbytes.daas.domain.Entity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -208,16 +208,19 @@ public class DaasClient {
 	 * Find entity given the property map , the property check is done with OR query. If any one
 	 * property name and value match then it is added to result set.
 	 * 
+	 * @param entitytype
+	 *            table name
 	 * @param entityClassType
+	 *            json to class type conversion
 	 * @param propertyMap
 	 *            contains property name and value
 	 * @return
 	 * @throws DaasClientException
 	 */
-	public <T extends Entity> List<T> getEntitiesByProperty(Class<T> entityClassType, Map<String, String> propertyMap)
-			throws DaasClientException {
+	public <T extends Entity> List<T> getEntitiesByProperty(String entitytype, Class<T> entityClassType,
+			Map<String, String> propertyMap) throws DaasClientException {
 		try {
-			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entityClassType.getSimpleName();
+			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entitytype;
 
 			// create parameter map from propertyMap
 			Map<String, Collection<String>> parameters = new HashMap<String, Collection<String>>();
@@ -232,7 +235,76 @@ public class DaasClient {
 					.setQueryParameters(new FluentStringsMap(parameters)).execute();
 
 			Response r = f.get();
-			checkResponse(r);
+
+			DaasClientUtil.checkResponse(r);
+
+			@SuppressWarnings("unchecked")
+			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(entityClassType, 0).getClass());
+
+			// load the relation member field and return.
+			List<T> resultList = Arrays.asList(result);
+			List<T> resultListWithRelationLoaded = new ArrayList<>();
+			for (T t : resultList) {
+				t = loadRelation(t);
+				resultListWithRelationLoaded.add(t);
+			}
+
+			return resultListWithRelationLoaded;
+
+		} catch (Exception e) {
+			throw new DaasClientException(e);
+		}
+	}
+
+	/**
+	 * Find entity given the property map , the property check is done with OR query. If any one
+	 * property name and value match then it is added to result set.
+	 * 
+	 * @param entityClassType
+	 * @param propertyMap
+	 *            contains property name and value
+	 * @return
+	 * @throws DaasClientException
+	 */
+	public <T extends Entity> List<T> getEntitiesByProperty(Class<T> entityClassType, Map<String, String> propertyMap)
+			throws DaasClientException {
+		return getEntitiesByProperty(entityClassType.getSimpleName(), entityClassType, propertyMap);
+	}
+
+	/**
+	 * It is the range query where it checks if greater than or equal to start range and smaller
+	 * than or equal to end range. Any one range is required. Datatype will say what data type to be
+	 * used while checking the range condition
+	 * 
+	 * @param entitytype
+	 *            table name
+	 * @param entityClassType
+	 * @param propertyName
+	 * @param propertyDataType
+	 *            Possible values : date,datetime,long,float,integer,string and boolean
+	 * @param startRange
+	 *            the start range , the check is greater than or equals to would be applied
+	 *            (optional - can be null)
+	 * @param endRange
+	 *            the end range ,the check is less than or equals to would be applied (optional -
+	 *            can be null)
+	 * @return
+	 * @throws DaasClientException
+	 */
+	public <T extends Entity> List<T> getEntitiesByRange(String entitytype, Class<T> entityClassType,
+			String propertyName, String propertyDataType, String startRange, String endRange)
+			throws DaasClientException {
+		try {
+			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entitytype + "/range";
+
+			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json")
+					.addQueryParameter("propertyName", propertyName)
+					.addQueryParameter("propertyDataType", propertyDataType)
+					.addQueryParameter("startRange", startRange).addQueryParameter("endRange", endRange).execute();
+
+			Response r = f.get();
+
+			DaasClientUtil.checkResponse(r);
 
 			@SuppressWarnings("unchecked")
 			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(entityClassType, 0).getClass());
@@ -272,31 +344,38 @@ public class DaasClient {
 	 */
 	public <T extends Entity> List<T> getEntitiesByRange(Class<T> entityClassType, String propertyName,
 			String propertyDataType, String startRange, String endRange) throws DaasClientException {
-		try {
-			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entityClassType.getSimpleName()
-					+ "/range";
+		return getEntitiesByRange(entityClassType.getSimpleName(), entityClassType, propertyName, propertyDataType,
+				startRange, endRange);
+	}
 
-			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json")
-					.addQueryParameter("propertyName", propertyName)
-					.addQueryParameter("propertyDataType", propertyDataType)
-					.addQueryParameter("startRange", startRange).addQueryParameter("endRange", endRange).execute();
+	/**
+	 * Get the entity given UUID
+	 * 
+	 * @param entityType
+	 *            table name
+	 * @param entityClassType
+	 * @param UUID
+	 * @return
+	 * @throws DaasClientException
+	 */
+	public <T extends Entity> T getEntityById(String entityType, Class<T> entityClassType, String UUID)
+			throws DaasClientException {
+		if (entityClassType == null || UUID == null)
+			throw new IllegalArgumentException("The entity class type or UUID cannot be null");
+
+		try {
+
+			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entityType + "/" + UUID;
+
+			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json").execute();
 
 			Response r = f.get();
 
-			checkResponse(r);
+			DaasClientUtil.checkResponse(r);
 
-			@SuppressWarnings("unchecked")
-			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(entityClassType, 0).getClass());
+			T t = gson.fromJson(r.getResponseBody(), entityClassType);
 
-			// load the relation member field and return.
-			List<T> resultList = Arrays.asList(result);
-			List<T> resultListWithRelationLoaded = new ArrayList<>();
-			for (T t : resultList) {
-				t = loadRelation(t);
-				resultListWithRelationLoaded.add(t);
-			}
-
-			return resultListWithRelationLoaded;
+			return loadRelation(t);
 
 		} catch (Exception e) {
 			throw new DaasClientException(e);
@@ -312,63 +391,27 @@ public class DaasClient {
 	 * @throws DaasClientException
 	 */
 	public <T extends Entity> T getEntityById(Class<T> entityClassType, String UUID) throws DaasClientException {
-		if (entityClassType == null || UUID == null)
-			throw new IllegalArgumentException("The entity class type or UUID cannot be null");
-
-		try {
-
-			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entityClassType.getSimpleName()
-					+ "/" + UUID;
-
-			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json").execute();
-
-			Response r = f.get();
-
-			checkResponse(r);
-
-			T t = gson.fromJson(r.getResponseBody(), entityClassType);
-
-			return loadRelation(t);
-
-		} catch (Exception e) {
-			throw new DaasClientException(e);
-		}
-	}
-
-	/**
-	 * @param r
-	 * @throws DaasClientException
-	 * @throws IOException
-	 */
-	private void checkResponse(Response r) throws DaasClientException, IOException {
-		if (!HttpStatusUtil.isSuccess(r)) {
-
-			if (r.getStatusCode() == HttpStatusUtil.NOT_FOUND)
-				throw new DaasClientEntityNotFoundException("Entity Not Found");
-			else
-				throw new DaasClientException("Daas server error : " + r.getResponseBody());
-		}
-
+		return getEntityById(entityClassType.getSimpleName(), entityClassType, UUID);
 	}
 
 	/**
 	 * Returns the size of the given entity type
 	 * 
-	 * @param entity
+	 * @param entityType
+	 *            table name
 	 * @return
 	 * @throws DaasClientException
 	 */
-	public <T extends Entity> long getEntitySize(Class<T> entityClassType) throws DaasClientException {
+	public <T extends Entity> long getEntitySize(String entityType) throws DaasClientException {
 
 		try {
-			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entityClassType.getSimpleName()
-					+ "/size";
+			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entityType + "/size";
 
 			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json").execute();
 
 			Response r = f.get();
 
-			checkResponse(r);
+			DaasClientUtil.checkResponse(r);
 
 			JsonObject obj = (JsonObject) new JsonParser().parse(r.getResponseBody());
 			JsonElement size = obj.get("size");
@@ -381,6 +424,56 @@ public class DaasClient {
 		} catch (Exception e) {
 			throw new DaasClientException(e);
 		}
+	}
+
+	/**
+	 * Returns the size of the given entity type
+	 * 
+	 * @param entityClassType
+	 * @return
+	 * @throws DaasClientException
+	 */
+	public <T extends Entity> long getEntitySize(Class<T> entityClassType) throws DaasClientException {
+		return getEntitySize(entityClassType.getSimpleName());
+	}
+
+	/**
+	 * This will return all right side entities in a relationship . The object mapping looks like :
+	 * A ---relation----> B then return all B entities that has the given relationship name. This
+	 * method does not load the member field, just fetches the main entities
+	 * 
+	 * @param entity
+	 *            Denotes entity A
+	 * @param relation
+	 *            Relationship name
+	 * @param entityType
+	 *            table name
+	 * @param expectedClassType
+	 *            mention the class type expected for entity B
+	 * @return List of entities of type B
+	 * @throws DaasClientException
+	 */
+	private <T extends Entity> List<T> getRightSideRelatedEntitiesWithOutGraph(Entity entity, String relation,
+			String entityType, Class<?> expectedClassType) throws DaasClientException {
+		try {
+			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entity.getClass().getSimpleName()
+					+ "/" + entity.getUuid() + "/" + relation + "/" + entityType;
+
+			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json").execute();
+
+			Response r = f.get();
+
+			DaasClientUtil.checkResponse(r);
+
+			@SuppressWarnings("unchecked")
+			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(expectedClassType, 0).getClass());
+
+			return Arrays.asList(result);
+
+		} catch (Exception e) {
+			throw new DaasClientException(e);
+		}
+
 	}
 
 	/**
@@ -399,20 +492,49 @@ public class DaasClient {
 	 */
 	private <T extends Entity> List<T> getRightSideRelatedEntitiesWithOutGraph(Entity entity, String relation,
 			Class<?> expectedClassType) throws DaasClientException {
+		return getRightSideRelatedEntitiesWithOutGraph(entity, relation, expectedClassType.getSimpleName(),
+				expectedClassType);
+	}
+
+	/**
+	 * This will return all right side entities in a relationship . The object mapping looks like :
+	 * A ---relation----> B then return all B entities that has the given relationship name.
+	 * 
+	 * @param entity
+	 *            Denotes entity A
+	 * @param relation
+	 *            Relationship name
+	 * @param entitytype
+	 *            table name
+	 * @param expectedClassType
+	 *            mention the class type expected for entity B
+	 * @return List of entities of type B
+	 * @throws DaasClientException
+	 */
+	private <T extends Entity> List<T> getRightSideRelatedEntitiesWithGraph(Entity entity, String relation,
+			String entityType, Class<?> expectedClassType) throws DaasClientException {
 		try {
 			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entity.getClass().getSimpleName()
-					+ "/" + entity.getUuid() + "/" + relation + "/" + expectedClassType.getSimpleName();
+					+ "/" + entity.getUuid() + "/" + relation + "/" + entityType;
 
 			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json").execute();
 
 			Response r = f.get();
 
-			checkResponse(r);
+			DaasClientUtil.checkResponse(r);
 
 			@SuppressWarnings("unchecked")
 			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(expectedClassType, 0).getClass());
 
-			return Arrays.asList(result);
+			// load the relation member field and return. The graph loading logic
+			List<T> resultList = Arrays.asList(result);
+			List<T> resultListWithRelationLoaded = new ArrayList<>();
+			for (T t : resultList) {
+				t = loadRelation(t);
+				resultListWithRelationLoaded.add(t);
+			}
+
+			return resultListWithRelationLoaded;
 
 		} catch (Exception e) {
 			throw new DaasClientException(e);
@@ -435,33 +557,29 @@ public class DaasClient {
 	 */
 	private <T extends Entity> List<T> getRightSideRelatedEntitiesWithGraph(Entity entity, String relation,
 			Class<?> expectedClassType) throws DaasClientException {
-		try {
-			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entity.getClass().getSimpleName()
-					+ "/" + entity.getUuid() + "/" + relation + "/" + expectedClassType.getSimpleName();
+		return getRightSideRelatedEntitiesWithGraph(entity, relation, expectedClassType.getSimpleName(),
+				expectedClassType);
 
-			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json").execute();
+	}
 
-			Response r = f.get();
-
-			checkResponse(r);
-
-			@SuppressWarnings("unchecked")
-			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(expectedClassType, 0).getClass());
-
-			// load the relation member field and return. The graph loading logic
-			List<T> resultList = Arrays.asList(result);
-			List<T> resultListWithRelationLoaded = new ArrayList<>();
-			for (T t : resultList) {
-				t = loadRelation(t);
-				resultListWithRelationLoaded.add(t);
-			}
-
-			return resultListWithRelationLoaded;
-
-		} catch (Exception e) {
-			throw new DaasClientException(e);
-		}
-
+	/**
+	 * This will return all right side entities in a relationship . The object mapping looks like :
+	 * A ---relation----> B then return all B entities that has the given relationship name.
+	 * 
+	 * @param entity
+	 *            Denotes entity A
+	 * @param relation
+	 *            Relationship name
+	 * @param entitytype
+	 *            table name
+	 * @param expectedClassType
+	 *            mention the class type expected for entity B
+	 * @return List of entities of type B
+	 * @throws DaasClientException
+	 */
+	public <T extends Entity> List<T> getRightSideRelatedEntities(Entity entity, String relation, String entityType,
+			Class<?> expectedClassType) throws DaasClientException {
+		return getRightSideRelatedEntitiesWithGraph(entity, relation, entityType, expectedClassType);
 	}
 
 	/**
@@ -491,22 +609,25 @@ public class DaasClient {
 	 *            Denotes entity B
 	 * @param relation
 	 *            Relationship name
+	 * @param entitytype
+	 *            table name
 	 * @param expectedClassType
 	 *            mention the class type expected for entity A
 	 * @return List of entities of type A
 	 * @throws DaasClientException
 	 */
 	public <T extends Entity> List<T> getLeftSideRelatedEntitiesWithOutGraph(Entity entity, String relation,
-			Class<?> expectedClassType) throws DaasClientException {
+			String entityType, Class<?> expectedClassType) throws DaasClientException {
 
 		try {
 			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entity.getClass().getSimpleName()
-					+ "/" + entity.getUuid() + "/connecting/" + relation;
+					+ "/" + entity.getUuid() + "/connecting/" + relation + "/" + entityType;
+
 			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json").execute();
 
 			Response r = f.get();
 
-			checkResponse(r);
+			DaasClientUtil.checkResponse(r);
 
 			@SuppressWarnings("unchecked")
 			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(expectedClassType, 0).getClass());
@@ -521,7 +642,8 @@ public class DaasClient {
 
 	/**
 	 * This will return all left side entities in a relationship . The object mapping looks like : A
-	 * ---relation----> B then return all A entities that has the given relationship name.
+	 * ---relation----> B then return all A entities that has the given relationship name.This
+	 * method does not load the member field, just fetches the main entities
 	 * 
 	 * @param entity
 	 *            Denotes entity B
@@ -532,17 +654,40 @@ public class DaasClient {
 	 * @return List of entities of type A
 	 * @throws DaasClientException
 	 */
-	public <T extends Entity> List<T> getLeftSideRelatedEntitiesWithGraph(Entity entity, String relation,
+	public <T extends Entity> List<T> getLeftSideRelatedEntitiesWithOutGraph(Entity entity, String relation,
 			Class<?> expectedClassType) throws DaasClientException {
+		return getLeftSideRelatedEntitiesWithOutGraph(entity, relation, expectedClassType.getSimpleName(),
+				expectedClassType);
+
+	}
+
+	/**
+	 * This will return all left side entities in a relationship . The object mapping looks like : A
+	 * ---relation----> B then return all A entities that has the given relationship name.
+	 * 
+	 * @param entity
+	 *            Denotes entity B
+	 * @param relation
+	 *            Relationship name
+	 * @param entitytype
+	 *            table name
+	 * @param expectedClassType
+	 *            mention the class type expected for entity A
+	 * @return List of entities of type A
+	 * @throws DaasClientException
+	 */
+	public <T extends Entity> List<T> getLeftSideRelatedEntitiesWithGraph(Entity entity, String relation,
+			String entityType, Class<?> expectedClassType) throws DaasClientException {
 
 		try {
 			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entity.getClass().getSimpleName()
-					+ "/" + entity.getUuid() + "/connecting/" + relation;
+					+ "/" + entity.getUuid() + "/connecting/" + relation + "/" + entityType;
+
 			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json").execute();
 
 			Response r = f.get();
 
-			checkResponse(r);
+			DaasClientUtil.checkResponse(r);
 
 			@SuppressWarnings("unchecked")
 			T[] result = (T[]) gson.fromJson(r.getResponseBody(), Array.newInstance(expectedClassType, 0).getClass());
@@ -576,9 +721,48 @@ public class DaasClient {
 	 * @return List of entities of type A
 	 * @throws DaasClientException
 	 */
+	public <T extends Entity> List<T> getLeftSideRelatedEntitiesWithGraph(Entity entity, String relation,
+			Class<?> expectedClassType) throws DaasClientException {
+		return getLeftSideRelatedEntitiesWithGraph(entity, relation, expectedClassType.getSimpleName(),
+				expectedClassType);
+	}
+
+	/**
+	 * This will return all left side entities in a relationship . The object mapping looks like : A
+	 * ---relation----> B then return all A entities that has the given relationship name.
+	 * 
+	 * @param entity
+	 *            Denotes entity B
+	 * @param relation
+	 *            Relationship name
+	 * @param expectedClassType
+	 *            mention the class type expected for entity A
+	 * @return List of entities of type A
+	 * @throws DaasClientException
+	 */
 	public <T extends Entity> List<T> getLeftSideRelatedEntities(Entity entity, String relation,
 			Class<?> expectedClassType) throws DaasClientException {
 		return getLeftSideRelatedEntitiesWithGraph(entity, relation, expectedClassType);
+	}
+
+	/**
+	 * This will return all left side entities in a relationship . The object mapping looks like : A
+	 * ---relation----> B then return all A entities that has the given relationship name.
+	 * 
+	 * @param entity
+	 *            Denotes entity B
+	 * @param relation
+	 *            Relationship name
+	 * @param entitytype
+	 *            table name
+	 * @param expectedClassType
+	 *            mention the class type expected for entity A
+	 * @return List of entities of type A
+	 * @throws DaasClientException
+	 */
+	public <T extends Entity> List<T> getLeftSideRelatedEntities(Entity entity, String relation, String entityType,
+			Class<?> expectedClassType) throws DaasClientException {
+		return getLeftSideRelatedEntitiesWithGraph(entity, relation, entityType, expectedClassType);
 	}
 
 	/**
@@ -593,7 +777,26 @@ public class DaasClient {
 	 */
 	public <T extends Entity> boolean addRelation(T entity, T toBeRelatedEntity, String relation)
 			throws DaasClientException {
-		return relateOrRemoveRelationBetweenEntity(entity, toBeRelatedEntity, relation, true);
+		return relateOrRemoveRelationBetweenEntity(entity, entity.getClass().getSimpleName(), toBeRelatedEntity,
+				toBeRelatedEntity.getClass().getSimpleName(), relation, true);
+	}
+
+	/**
+	 * This will add relation between entities . The object mapping looks like : entity
+	 * ---relation----> toBeRelatedEntity
+	 * 
+	 * @param entity
+	 * @param entitytype
+	 *            table name
+	 * @param toBeRelatedEntity
+	 * @param relation
+	 * @return
+	 * @throws DaasClientException
+	 */
+	public <T extends Entity> boolean addRelation(T entity, String entityType, T toBeRelatedEntity,
+			String toBeRelatedEntityType, String relation) throws DaasClientException {
+		return relateOrRemoveRelationBetweenEntity(entity, entityType, toBeRelatedEntity, toBeRelatedEntityType,
+				relation, true);
 	}
 
 	/**
@@ -609,20 +812,42 @@ public class DaasClient {
 	 */
 	public <T extends Entity> boolean removeRelation(T entity, T toBeRelatedEntity, String relation)
 			throws DaasClientException {
-		return relateOrRemoveRelationBetweenEntity(entity, toBeRelatedEntity, relation, false);
+		return relateOrRemoveRelationBetweenEntity(entity, entity.getClass().getSimpleName(), toBeRelatedEntity,
+				toBeRelatedEntity.getClass().getSimpleName(), relation, false);
 	}
 
-	private <T extends Entity> boolean relateOrRemoveRelationBetweenEntity(T entity, T toBeRelatedEntity,
-			String relation, boolean relate) throws DaasClientException {
+	/**
+	 * This will remove relation between entities . The object mapping that looked like : entity
+	 * ---relation----> toBeRelatedEntity will no more be valid , the method will remove this
+	 * relation between entity and toBeRelatedEntity.
+	 * 
+	 * @param entity
+	 * @param entitytype
+	 *            table name
+	 * @param toBeRelatedEntity
+	 * @param toBeRelatedEntityType table name
+	 * @param relation
+	 * @return
+	 * @throws DaasClientException
+	 */
+	public <T extends Entity> boolean removeRelation(T entity, String entityType, T toBeRelatedEntity,
+			String toBeRelatedEntityType, String relation) throws DaasClientException {
+		return relateOrRemoveRelationBetweenEntity(entity, entityType, toBeRelatedEntity, toBeRelatedEntityType,
+				relation, false);
+	}
+
+	private <T extends Entity> boolean relateOrRemoveRelationBetweenEntity(T entity, String entityType,
+			T toBeRelatedEntity, String toBeRelatedEntityType, String relation, boolean relate)
+			throws DaasClientException {
 		try {
 
 			if (entity == null || toBeRelatedEntity == null || relation == null) {
 				throw new IllegalArgumentException("method args cannot be null");
 			}
 
-			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entity.getClass().getSimpleName()
-					+ "/" + entity.getUuid() + "/" + relation + "/" + toBeRelatedEntity.getClass().getSimpleName()
-					+ "/" + toBeRelatedEntity.getUuid();
+			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entityType + "/"
+					+ entity.getUuid() + "/" + relation + "/" + toBeRelatedEntityType + "/"
+					+ toBeRelatedEntity.getUuid();
 
 			Future<Response> f = null;
 			if (relate) {
@@ -632,8 +857,8 @@ public class DaasClient {
 			}
 
 			Response r = f.get();
-			
-			checkResponse(r);
+
+			DaasClientUtil.checkResponse(r);
 
 			return true;
 
@@ -651,6 +876,39 @@ public class DaasClient {
 	 */
 	public <T extends Entity> T createEntity(T entity) throws DaasClientException {
 		return createOrUpdateEntityFullGraph(entity, "create");
+	}
+
+	/**
+	 * Create the entity in Daas Db. The UUID will be auto assigned as it is a new entity.
+	 * 
+	 * @param entity
+	 * @param entitytype
+	 *            table name
+	 * @return
+	 * @throws DaasClientException
+	 */
+	public <T extends Entity> T createEntity(T entity, String entityType) throws DaasClientException {
+		return createOrUpdateEntityFullGraph(entity, entityType, "create");
+	}
+
+	/**
+	 * This will update the entity with the uuid in the entity object , if the uuid is missing then
+	 * it will be treated as new object.
+	 * 
+	 * @param entity
+	 * @param entitytype
+	 *            table name
+	 * @return
+	 * @throws DaasClientException
+	 */
+	public <T extends Entity> T updateEntity(T entity, String entityType) throws DaasClientException {
+		if (entity == null) {
+			throw new IllegalArgumentException("Entity cannot be null");
+		}
+		if (entity.getUuid() == null || entity.getUuid().isEmpty())
+			return createOrUpdateEntityFullGraph(entity, entityType, "create");
+
+		return createOrUpdateEntityFullGraph(entity, entityType, "update");
 	}
 
 	/**
@@ -681,8 +939,25 @@ public class DaasClient {
 	 * @return
 	 * @throws DaasClientException
 	 */
-	@SuppressWarnings("unchecked")
 	private <T extends Entity> T createOrUpdateSingleEntity(T entity, String action) throws DaasClientException {
+		return createOrUpdateSingleEntity(entity, entity.getClass().getSimpleName(), action);
+	}
+
+	/**
+	 * Doesn't read the annotation {@link Relation} to store full graph but jus saves or updates the
+	 * entity passed as single entity and not graph.
+	 * 
+	 * @param entity
+	 * @param entitytype
+	 *            table name
+	 * @param action
+	 *            can be 'create' or 'update'
+	 * @return
+	 * @throws DaasClientException
+	 */
+	@SuppressWarnings("unchecked")
+	private <T extends Entity> T createOrUpdateSingleEntity(T entity, String entityType, String action)
+			throws DaasClientException {
 
 		if (entity == null) {
 			throw new IllegalArgumentException("Entity cannot be null");
@@ -692,7 +967,7 @@ public class DaasClient {
 			String url;
 			Future<Response> f = null;
 			if (action.equals("create")) {
-				url = baseURL + "/" + accountName + "/" + applicationName + "/" + entity.getClass().getSimpleName();
+				url = baseURL + "/" + accountName + "/" + applicationName + "/" + entityType;
 				f = buildRequest("post", url).setBody(gson.toJson(entity))
 						.setHeader("Content-Type", "application/json").execute();
 			} else {
@@ -702,9 +977,9 @@ public class DaasClient {
 						.execute();
 			}
 			Response r = f.get();
-			
-			checkResponse(r);
-			
+
+			DaasClientUtil.checkResponse(r);
+
 			return (T) gson.fromJson(r.getResponseBody(), entity.getClass());
 
 		} catch (Exception e) {
@@ -716,12 +991,15 @@ public class DaasClient {
 	 * Reads the {@link Relation} annotation and saves/updates the entire object graph recursively
 	 * 
 	 * @param entity
+	 * @param entitytype
+	 *            table name
 	 * @param action
 	 *            can be 'create' or 'update'
 	 * @return
 	 * @throws DaasClientException
 	 */
-	private <T extends Entity> T createOrUpdateEntityFullGraph(T entity, String action) throws DaasClientException {
+	private <T extends Entity> T createOrUpdateEntityFullGraph(T entity, String enityType, String action)
+			throws DaasClientException {
 
 		if (entity == null) {
 			throw new IllegalArgumentException("Entity cannot be null");
@@ -761,7 +1039,7 @@ public class DaasClient {
 
 			}
 
-			entity = createOrUpdateSingleEntity(entity, action);
+			entity = createOrUpdateSingleEntity(entity, enityType, action);
 
 			for (Iterator<String> iterator = relationToEntity.keySet().iterator(); iterator.hasNext();) {
 				String relation = iterator.next();
@@ -773,9 +1051,8 @@ public class DaasClient {
 				boolean success = addRelation(entity, toBeRelatedEntity, relation);
 				if (!success)
 					throw new DaasClientException("Failed while creating relation between entities of type "
-							+ entity.getClass().getSimpleName() + " and "
-							+ toBeRelatedEntity.getClass().getSimpleName() + " with ids " + entity.getUuid() + " and "
-							+ toBeRelatedEntity.getUuid() + " respectively");
+							+ enityType + " and " + toBeRelatedEntity.getClass().getSimpleName() + " with ids "
+							+ entity.getUuid() + " and " + toBeRelatedEntity.getUuid() + " respectively");
 			}
 
 		} catch (IllegalArgumentException | IllegalAccessException e) {
@@ -783,6 +1060,19 @@ public class DaasClient {
 		}
 
 		return entity;
+	}
+
+	/**
+	 * Reads the {@link Relation} annotation and saves/updates the entire object graph recursively
+	 * 
+	 * @param entity
+	 * @param action
+	 *            can be 'create' or 'update'
+	 * @return
+	 * @throws DaasClientException
+	 */
+	private <T extends Entity> T createOrUpdateEntityFullGraph(T entity, String action) throws DaasClientException {
+		return createOrUpdateEntityFullGraph(entity, entity.getClass().getSimpleName(), action);
 	}
 
 	/**
@@ -806,10 +1096,42 @@ public class DaasClient {
 	 * deletes the entity.
 	 * 
 	 * @param entity
+	 * @param entitytype
+	 *            table name
+	 * @return String 'success'
+	 * @throws DaasClientException
+	 */
+	public <T extends Entity> String deleteEntity(T entity, String entityType) throws DaasClientException {
+		if (entity == null || entityType == null) {
+			throw new IllegalArgumentException("Entity or Type cannot be null");
+		}
+
+		return deleteEntityFullGraph(entity, entityType);
+	}
+
+	/**
+	 * This will delete the entity with the uuid inside the entity. It return success string if it
+	 * deletes the entity.
+	 * 
+	 * @param entity
 	 * @return String 'success'
 	 * @throws DaasClientException
 	 */
 	private <T extends Entity> String deleteSingleEntity(T entity) throws DaasClientException {
+		return deleteSingleEntity(entity, entity.getClass().getSimpleName());
+	}
+
+	/**
+	 * This will delete the entity with the uuid inside the entity. It return success string if it
+	 * deletes the entity.
+	 * 
+	 * @param entity
+	 * @param entitytype
+	 *            table name
+	 * @return String 'success'
+	 * @throws DaasClientException
+	 */
+	private <T extends Entity> String deleteSingleEntity(T entity, String entityType) throws DaasClientException {
 		if (entity == null) {
 			throw new IllegalArgumentException("Entity cannot be null");
 		}
@@ -820,13 +1142,13 @@ public class DaasClient {
 		}
 
 		try {
-			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entity.getClass().getSimpleName()
-					+ "/" + entity.getUuid();
+			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entityType + "/"
+					+ entity.getUuid();
 			Future<Response> f = buildRequest("delete", url).setHeader("Content-Type", "application/json").execute();
 
 			Response r = f.get();
-			
-			checkResponse(r);
+
+			DaasClientUtil.checkResponse(r);
 
 			return r.getResponseBody();
 
@@ -844,6 +1166,21 @@ public class DaasClient {
 	 * @throws DaasClientException
 	 */
 	private <T extends Entity> String deleteEntityFullGraph(T entity) throws DaasClientException {
+		return deleteEntityFullGraph(entity, entity.getClass().getSimpleName());
+
+	}
+
+	/**
+	 * This will delete the entity with the uuid inside the entity. It return success string if it
+	 * deletes the entity.
+	 * 
+	 * @param entity
+	 * @param entitytype
+	 *            table name
+	 * @return
+	 * @throws DaasClientException
+	 */
+	private <T extends Entity> String deleteEntityFullGraph(T entity, String entityType) throws DaasClientException {
 		if (entity == null) {
 			throw new IllegalArgumentException("Entity cannot be null");
 		}
@@ -892,7 +1229,7 @@ public class DaasClient {
 		}
 
 		// finally delete the entity and return result
-		return deleteSingleEntity(entity);
+		return deleteSingleEntity(entity, entityType);
 
 	}
 
@@ -900,4 +1237,8 @@ public class DaasClient {
 		return DaasClientUtil.buildRequest(asyncHttpClient, httpMethodType, url, token);
 	}
 
+	public void close() {
+		if (asyncHttpClient != null && !asyncHttpClient.isClosed())
+			asyncHttpClient.close();
+	}
 }
