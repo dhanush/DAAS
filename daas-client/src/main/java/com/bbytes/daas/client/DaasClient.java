@@ -939,6 +939,7 @@ public class DaasClient {
 	 * @return
 	 * @throws DaasClientException
 	 */
+	@SuppressWarnings("unused")
 	private <T extends Entity> T createOrUpdateSingleEntity(T entity, String action) throws DaasClientException {
 		return createOrUpdateSingleEntity(entity, entity.getClass().getSimpleName(), action);
 	}
