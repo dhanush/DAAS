@@ -16,7 +16,6 @@ package com.bbytes.daas.dao;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.domain.DataType;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
@@ -56,7 +54,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 	@Autowired
 	private SecurityService securityService;
-
+	
 	private Logger log = Logger.getLogger(DocumentDaoImpl.class);
 
 	/*
@@ -129,43 +127,43 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 			entityVertex = DocumentUtils.applyDefaultFields(entityVertex, entityType, accountName, appName);
 
-			// ODocument currentUser = (ODocument) getObjectDataBase().getRecordByUserObject(
-			// sessionStore.getSessionUser() ,false);
+			// // logic to relate the current user to this entity using edge CREATED . Mainly for
+			// audit purpose.
+			// DaasUser currentDaasUser = null;
+			// try {
+			// currentDaasUser = securityService.getLoggedInUser();
+			// if (currentDaasUser == null) {
+			// throw new BaasPersistentException("User is not Logged in");
+			// }
+			//
+			// // fix for close db conn , this will reopen the conn
+			// db = getDataBase();
+			//
+			// // add entity owner as a vertex with edge as 'created'
+			// Map<String, Object> ownerPropertyMap = new HashMap<String, Object>();
+			// ownerPropertyMap.put(DaasDefaultFields.ENTITY_TYPE.toString(),
+			// DaasUser.class.getSimpleName());
+			// ownerPropertyMap.put("owner_uuid", currentDaasUser.getUuid());
+			// ownerPropertyMap.put("owner_username", currentDaasUser.getUserName());
+			// ODocument entityOwnerVertex = db.createVertex(entityType, ownerPropertyMap);
+			//
+			// ODocument createdEdge = db.createEdge(entityOwnerVertex, entityVertex,
+			// DaasDefaultFields.ENTITY_CREATED.toString());
+			// entityOwnerVertex.save();
+			entityVertex.save();
+			// createdEdge.save();
 
-			DaasUser currentDaasUser = null;
-			try {
-				currentDaasUser = securityService.getLoggedInUser();
-				if (currentDaasUser == null) {
-					throw new BaasPersistentException("User is not Logged in");
-				}
-
-				// fix for close db conn , this will reopen the conn
-				db = getDataBase();
-
-				// add entity owner as a vertex with edge as 'created'
-				Map<String, Object> ownerPropertyMap = new HashMap<String, Object>();
-				ownerPropertyMap.put(DaasDefaultFields.ENTITY_TYPE.toString(), DaasUser.class.getSimpleName());
-				ownerPropertyMap.put("owner_uuid", currentDaasUser.getUuid());
-				ownerPropertyMap.put("owner_username", currentDaasUser.getUserName());
-				ODocument entityOwnerVertex = db.createVertex(entityType, ownerPropertyMap);
-
-				ODocument createdEdge = db.createEdge(entityOwnerVertex, entityVertex,
-						DaasDefaultFields.ENTITY_CREATED.toString());
-				entityOwnerVertex.save();
-				entityVertex.save();
-				createdEdge.save();
-
-				// need to have another rest like /entity/connections
-				// in connections and out connections to be displayed
-				// System.out.println("out " +
-				// getGraphDataBase().getOutEdges(entityVertex.getIdentity()));
-				// System.out.println("in "+
-				// getGraphDataBase().getInEdges(entityVertex.getIdentity()));
-				return entityVertex;
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-				throw new BaasPersistentException(e);
-			}
+			/*
+			 * // need to have another rest like /entity/connections // in connections and out
+			 * connections to be displayed // System.out.println("out " + //
+			 * getGraphDataBase().getOutEdges(entityVertex.getIdentity())); //
+			 * System.out.println("in "+ //
+			 * getGraphDataBase().getInEdges(entityVertex.getIdentity()));
+			 */
+			return entityVertex;
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new BaasPersistentException(e);
 		} finally {
 			if (db != null)
 				db.close();
@@ -267,6 +265,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public boolean removeRelation(String primartyEntityType, String primaryEntityId, String secondaryEntityType,
 			String secondaryEntityId, String relationName) throws BaasPersistentException {
 
@@ -320,6 +319,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public List<ODocument> findRelated(String primartyEntityType, String primaryEntityId, String secondaryEntityType,
 			String relationName) throws BaasEntityNotFoundException {
 		List<ODocument> result = new ArrayList<>();
@@ -356,6 +356,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public List<ODocument> findRelatedReverse(String secondaryEntityType, String secondaryEntityId,
 			String primartyEntityType, String relationName) throws BaasEntityNotFoundException {
 		List<ODocument> result = new ArrayList<>();
@@ -400,6 +401,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public boolean findAny(String entityType, String property, String value) throws BaasPersistentException {
 		OGraphDatabase db = getDataBase();
 		try {
@@ -425,6 +427,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#findAny(java.lang.String, java.util.Map)
 	 */
 	@Override
+	@Transactional
 	public boolean findAny(String entityType, Map<String, String> propertyToValue) throws BaasPersistentException {
 
 		if (propertyToValue == null)
@@ -531,6 +534,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#find(com.orientechnologies.orient.core.id.ORID)
 	 */
 	@Override
+	@Transactional
 	public ODocument find(ORID id) throws BaasEntityNotFoundException {
 		OGraphDatabase db = getDataBase();
 		try {
@@ -553,12 +557,17 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#find(java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public ODocument findById(String entityType, String uuid) throws BaasEntityNotFoundException {
 		OGraphDatabase db = getDataBase();
+	
 		try {
 			String sql = "SELECT * FROM " + entityType + "  WHERE " + DaasDefaultFields.FIELD_UUID + " = " + "'" + uuid
 					+ "'";
-			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
+			OSQLSynchQuery<ODocument>  synchQuery = new OSQLSynchQuery<ODocument>(sql);
+			synchQuery.setLimit(1);
+			synchQuery.setUseCache(false);
+			List<ODocument> result = db.query(synchQuery);
 
 			if (result == null || result.size() == 0)
 				throw new BaasEntityNotFoundException();
@@ -576,6 +585,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public List<ODocument> findByProperty(String entityType, String propertyName, String propertyValue)
 			throws BaasEntityNotFoundException {
 
@@ -597,6 +607,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public List<ODocument> findByProperty(String applicationName, String entityType, String propertyName,
 			String propertyValue) throws BaasEntityNotFoundException {
 		OGraphDatabase db = getDataBase();
@@ -621,6 +632,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * java.lang.String,com.bbytes.daas.domain.DataType, java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public List<ODocument> findByPropertyRange(String applicationName, String entityType, String propertyName,
 			DataType propertyDataType, String startRange, String endRange) throws BaasEntityNotFoundException {
 		if (startRange == null && endRange == null) {
@@ -680,6 +692,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#list(java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public List<ODocument> list(String entityType, String appName) throws BaasPersistentException {
 		OGraphDatabase db = getDataBase();
 		try {
@@ -698,6 +711,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @see com.bbytes.daas.rest.dao.DocumentDao#count(java.lang.String, java.lang.String)
 	 */
 	@Override
+	@Transactional
 	public long count(String entityType, String appName) {
 
 		OGraphDatabase db = getDataBase();

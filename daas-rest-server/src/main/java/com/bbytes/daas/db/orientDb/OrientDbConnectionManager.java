@@ -129,8 +129,8 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		OGlobalConfiguration.CLIENT_CHANNEL_MAX_POOL.setValue(100);
 		OGlobalConfiguration.MVRBTREE_TIMEOUT.setValue(30000);
 		OGlobalConfiguration.STORAGE_RECORD_LOCK_TIMEOUT.setValue(30000);
-        OGlobalConfiguration.STORAGE_LOCK_TIMEOUT.setValue(30000);
-        OGlobalConfiguration.CLIENT_CONNECT_POOL_WAIT_TIMEOUT.setValue(40000);
+		OGlobalConfiguration.STORAGE_LOCK_TIMEOUT.setValue(30000);
+		OGlobalConfiguration.CLIENT_CONNECT_POOL_WAIT_TIMEOUT.setValue(40000);
 	}
 
 	/**
@@ -158,7 +158,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 	}
 
 	public ODatabaseObject getObjectDatabase() {
-		
+
 		ODatabaseObject objectDatabase = null;
 		String tenantDbName = TenantRouter.getTenantIdentifier();
 
@@ -174,7 +174,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 				throw new BaasTenantCreationException("Failed to create tenant DB " + tenantDbName
 						+ " as there is no account created with name " + tenantDbName);
 			}
-		
+
 			tenantObjectDatabasePool = (OObjectDatabasePool) createDatabase(tenantDbName, "object");
 
 		}
@@ -204,8 +204,8 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 				throw new BaasTenantCreationException("Failed to create tenant DB " + tenantDbName
 						+ " as there is no account created with name " + tenantDbName);
 			}
-			
-			tenantGraphDatabasePool= (OGraphDatabasePool) createDatabase(tenantDbName, "graph");
+
+			tenantGraphDatabasePool = (OGraphDatabasePool) createDatabase(tenantDbName, "graph");
 
 		}
 		graphDatabase = tenantGraphDatabasePool.acquire();
@@ -247,8 +247,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 	private void registerClassUnderPackageToDb(ODatabaseRecord graphDatabase, final String classPackage) {
 		List<Class<?>> classes = null;
 		try {
-			classes = OReflectionHelper.getClassesFor(classPackage, Thread.currentThread()
-					.getContextClassLoader());
+			classes = OReflectionHelper.getClassesFor(classPackage, Thread.currentThread().getContextClassLoader());
 		} catch (ClassNotFoundException e) {
 			throw new OException(e);
 		}

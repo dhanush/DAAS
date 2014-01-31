@@ -14,6 +14,8 @@
 package com.bbytes.daas.client;
 
 import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.google.gson.JsonDeserializationContext;
@@ -47,7 +49,20 @@ public class SerializerUtil {
 			@Override
 			public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
 					throws JsonParseException {
-				return json == null ? null : new Date(json.getAsLong());
+				Date date = null;
+				if (json != null) {
+					try {
+						date = new Date(json.getAsLong());
+					} catch (NumberFormatException e) {
+						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+						try {
+							date = dateFormat.parse(json.getAsString());
+						} catch (ParseException exp) {
+							throw new JsonParseException(exp);
+						}
+					}
+				}
+				return date;
 			}
 		};
 	}
