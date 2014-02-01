@@ -89,7 +89,7 @@ public class DaasClientUtil {
 		} catch (InterruptedException | ExecutionException | IOException e) {
 			throw new DaasClientException(e);
 		}
-
+		
 		return token;
 
 	}

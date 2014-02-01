@@ -51,7 +51,7 @@ import com.ning.http.client.Response;
  * 
  * @version
  */
-public class DaasClient {
+public class DaasClient implements IDaasClient {
 
 	protected String clientId;
 
@@ -117,6 +117,16 @@ public class DaasClient {
 		return true;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#isConnected()
+	 */
+	@Override
+	public boolean isConnected() {
+		return pingSuccess();
+	}
+
 	/**
 	 * Login to your tenant account
 	 * 
@@ -142,6 +152,24 @@ public class DaasClient {
 		}
 
 		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#login(java.lang.String, java.lang.String,
+	 * java.lang.String, java.lang.String, com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public void login(String accountName, String applicationName, String clientId, String clientSecret,
+			AsyncResultHandler<Boolean> asyncResultHandler) {
+		try {
+			boolean result = login(accountName, applicationName, clientId, clientSecret);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
 	}
 
 	/**
@@ -208,7 +236,7 @@ public class DaasClient {
 	 * Find entity given the property map , the property check is done with OR query. If any one
 	 * property name and value match then it is added to result set.
 	 * 
-	 * @param entitytype
+	 * @param entityTypeName
 	 *            table name
 	 * @param entityClassType
 	 *            json to class type conversion
@@ -217,10 +245,10 @@ public class DaasClient {
 	 * @return
 	 * @throws DaasClientException
 	 */
-	public <T extends Entity> List<T> getEntitiesByProperty(String entitytype, Class<T> entityClassType,
+	public <T extends Entity> List<T> getEntitiesByProperty(String entityTypeName, Class<T> entityClassType,
 			Map<String, String> propertyMap) throws DaasClientException {
 		try {
-			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entitytype;
+			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entityTypeName;
 
 			// create parameter map from propertyMap
 			Map<String, Collection<String>> parameters = new HashMap<String, Collection<String>>();
@@ -256,6 +284,26 @@ public class DaasClient {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#getEntitiesByProperty(java.lang.String,
+	 * java.lang.Class, java.util.Map, com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getEntitiesByProperty(String entityTypeName, Class<T> entityClassType,
+			Map<String, String> propertyMap, AsyncResultHandler<List<T>> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+		try {
+			List<T> result = getEntitiesByProperty(entityTypeName, entityClassType, propertyMap);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
+	}
+
 	/**
 	 * Find entity given the property map , the property check is done with OR query. If any one
 	 * property name and value match then it is added to result set.
@@ -271,12 +319,32 @@ public class DaasClient {
 		return getEntitiesByProperty(entityClassType.getSimpleName(), entityClassType, propertyMap);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#getEntitiesByProperty(java.lang.Class, java.util.Map,
+	 * com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getEntitiesByProperty(Class<T> entityClassType, Map<String, String> propertyMap,
+			AsyncResultHandler<List<T>> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+		try {
+			List<T> result = getEntitiesByProperty(entityClassType, propertyMap);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
+	}
+
 	/**
 	 * It is the range query where it checks if greater than or equal to start range and smaller
 	 * than or equal to end range. Any one range is required. Datatype will say what data type to be
 	 * used while checking the range condition
 	 * 
-	 * @param entitytype
+	 * @param entityTypeName
 	 *            table name
 	 * @param entityClassType
 	 * @param propertyName
@@ -291,11 +359,11 @@ public class DaasClient {
 	 * @return
 	 * @throws DaasClientException
 	 */
-	public <T extends Entity> List<T> getEntitiesByRange(String entitytype, Class<T> entityClassType,
+	public <T extends Entity> List<T> getEntitiesByRange(String entityTypeName, Class<T> entityClassType,
 			String propertyName, String propertyDataType, String startRange, String endRange)
 			throws DaasClientException {
 		try {
-			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entitytype + "/range";
+			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entityTypeName + "/range";
 
 			Future<Response> f = buildRequest("get", url).setHeader("Content-Type", "application/json")
 					.addQueryParameter("propertyName", propertyName)
@@ -324,6 +392,30 @@ public class DaasClient {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#getEntitiesByRange(java.lang.String, java.lang.Class,
+	 * java.lang.String, java.lang.String, java.lang.String, java.lang.String,
+	 * com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getEntitiesByRange(String entityTypeName, Class<T> entityClassType,
+			String propertyName, String propertyDataType, String startRange, String endRange,
+			AsyncResultHandler<List<T>> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			List<T> result = getEntitiesByRange(entityTypeName, entityClassType, propertyName, propertyDataType,
+					startRange, endRange);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
+	}
+
 	/**
 	 * It is the range query where it checks if greater than or equal to start range and smaller
 	 * than or equal to end range. Any one range is required. Datatype will say what data type to be
@@ -346,6 +438,28 @@ public class DaasClient {
 			String propertyDataType, String startRange, String endRange) throws DaasClientException {
 		return getEntitiesByRange(entityClassType.getSimpleName(), entityClassType, propertyName, propertyDataType,
 				startRange, endRange);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#getEntitiesByRange(java.lang.Class, java.lang.String,
+	 * java.lang.String, java.lang.String, java.lang.String,
+	 * com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getEntitiesByRange(Class<T> entityClassType, String propertyName,
+			String propertyDataType, String startRange, String endRange, AsyncResultHandler<List<T>> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			List<T> result = getEntitiesByRange(entityClassType, propertyName, propertyDataType, startRange, endRange);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
 	}
 
 	/**
@@ -382,6 +496,27 @@ public class DaasClient {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#getEntityById(java.lang.String, java.lang.Class,
+	 * java.lang.String, com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getEntityById(String entityTypeName, Class<T> entityClassType, String UUID,
+			AsyncResultHandler<T> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			T result = getEntityById(entityTypeName, entityClassType, UUID);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
+	}
+
 	/**
 	 * Get the entity given UUID
 	 * 
@@ -392,6 +527,27 @@ public class DaasClient {
 	 */
 	public <T extends Entity> T getEntityById(Class<T> entityClassType, String UUID) throws DaasClientException {
 		return getEntityById(entityClassType.getSimpleName(), entityClassType, UUID);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#getEntityById(java.lang.Class, java.lang.String,
+	 * com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getEntityById(Class<T> entityClassType, String UUID,
+			AsyncResultHandler<T> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			T result = getEntityById(entityClassType, UUID);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
 	}
 
 	/**
@@ -426,6 +582,26 @@ public class DaasClient {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#getEntitySize(java.lang.String,
+	 * com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getEntitySize(String entityTypeName, AsyncResultHandler<Long> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			Long result = getEntitySize(entityTypeName);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
+	}
+
 	/**
 	 * Returns the size of the given entity type
 	 * 
@@ -435,6 +611,26 @@ public class DaasClient {
 	 */
 	public <T extends Entity> long getEntitySize(Class<T> entityClassType) throws DaasClientException {
 		return getEntitySize(entityClassType.getSimpleName());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#getEntitySize(java.lang.Class,
+	 * com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getEntitySize(Class<T> entityClassType, AsyncResultHandler<Long> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			Long result = getEntitySize(entityClassType);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
 	}
 
 	/**
@@ -582,6 +778,29 @@ public class DaasClient {
 		return getRightSideRelatedEntitiesWithGraph(entity, relation, entityType, expectedClassType);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.bbytes.daas.client.IDaasClient#getRightSideRelatedEntities(com.bbytes.daas.domain.Entity,
+	 * java.lang.String, java.lang.String, java.lang.Class,
+	 * com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getRightSideRelatedEntities(Entity entity, String relation, String entityTypeName,
+			Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			List<T> result = getRightSideRelatedEntities(entity, relation, entityTypeName, expectedClassType);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
+	}
+
 	/**
 	 * This will return all right side entities in a relationship . The object mapping looks like :
 	 * A ---relation----> B then return all B entities that has the given relationship name.
@@ -598,6 +817,28 @@ public class DaasClient {
 	public <T extends Entity> List<T> getRightSideRelatedEntities(Entity entity, String relation,
 			Class<?> expectedClassType) throws DaasClientException {
 		return getRightSideRelatedEntitiesWithGraph(entity, relation, expectedClassType);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.bbytes.daas.client.IDaasClient#getRightSideRelatedEntities(com.bbytes.daas.domain.Entity,
+	 * java.lang.String, java.lang.Class, com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getRightSideRelatedEntities(Entity entity, String relation,
+			Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			List<T> result = getRightSideRelatedEntities(entity, relation, expectedClassType);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
 	}
 
 	/**
@@ -640,6 +881,29 @@ public class DaasClient {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.bbytes.daas.client.IDaasClient#getLeftSideRelatedEntitiesWithOutGraph(com.bbytes.daas
+	 * .domain.Entity, java.lang.String, java.lang.String, java.lang.Class,
+	 * com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getLeftSideRelatedEntitiesWithOutGraph(Entity entity, String relation,
+			String entityTypeName, Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			List<T> result = getLeftSideRelatedEntitiesWithOutGraph(entity, relation, entityTypeName, expectedClassType);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
+	}
+
 	/**
 	 * This will return all left side entities in a relationship . The object mapping looks like : A
 	 * ---relation----> B then return all A entities that has the given relationship name.This
@@ -658,6 +922,28 @@ public class DaasClient {
 			Class<?> expectedClassType) throws DaasClientException {
 		return getLeftSideRelatedEntitiesWithOutGraph(entity, relation, expectedClassType.getSimpleName(),
 				expectedClassType);
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.bbytes.daas.client.IDaasClient#getLeftSideRelatedEntitiesWithOutGraph(com.bbytes.daas
+	 * .domain.Entity, java.lang.String, java.lang.Class, com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getLeftSideRelatedEntitiesWithOutGraph(Entity entity, String relation,
+			Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			List<T> result = getLeftSideRelatedEntitiesWithOutGraph(entity, relation, expectedClassType);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
 
 	}
 
@@ -708,6 +994,29 @@ public class DaasClient {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.bbytes.daas.client.IDaasClient#getLeftSideRelatedEntitiesWithGraph(com.bbytes.daas.domain
+	 * .Entity, java.lang.String, java.lang.String, java.lang.Class,
+	 * com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getLeftSideRelatedEntitiesWithGraph(Entity entity, String relation,
+			String entityTypeName, Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			List<T> result = getLeftSideRelatedEntitiesWithGraph(entity, relation, entityTypeName, expectedClassType);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
+	}
+
 	/**
 	 * This will return all left side entities in a relationship . The object mapping looks like : A
 	 * ---relation----> B then return all A entities that has the given relationship name.
@@ -727,6 +1036,28 @@ public class DaasClient {
 				expectedClassType);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.bbytes.daas.client.IDaasClient#getLeftSideRelatedEntitiesWithGraph(com.bbytes.daas.domain
+	 * .Entity, java.lang.String, java.lang.Class, com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getLeftSideRelatedEntitiesWithGraph(Entity entity, String relation,
+			Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			List<T> result = getLeftSideRelatedEntitiesWithGraph(entity, relation, expectedClassType);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
+	}
+
 	/**
 	 * This will return all left side entities in a relationship . The object mapping looks like : A
 	 * ---relation----> B then return all A entities that has the given relationship name.
@@ -743,6 +1074,27 @@ public class DaasClient {
 	public <T extends Entity> List<T> getLeftSideRelatedEntities(Entity entity, String relation,
 			Class<?> expectedClassType) throws DaasClientException {
 		return getLeftSideRelatedEntitiesWithGraph(entity, relation, expectedClassType);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.bbytes.daas.client.IDaasClient#getLeftSideRelatedEntities(com.bbytes.daas.domain.Entity,
+	 * java.lang.String, java.lang.Class, com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getLeftSideRelatedEntities(Entity entity, String relation,
+			Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			List<T> result = getLeftSideRelatedEntities(entity, relation, expectedClassType);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
 	}
 
 	/**
@@ -765,6 +1117,29 @@ public class DaasClient {
 		return getLeftSideRelatedEntitiesWithGraph(entity, relation, entityType, expectedClassType);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.bbytes.daas.client.IDaasClient#getLeftSideRelatedEntities(com.bbytes.daas.domain.Entity,
+	 * java.lang.String, java.lang.String, java.lang.Class,
+	 * com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void getLeftSideRelatedEntities(Entity entity, String relation, String entityTypeName,
+			Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			List<T> result = getLeftSideRelatedEntities(entity, relation, entityTypeName, expectedClassType);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
+	}
+
 	/**
 	 * This will add relation between entities . The object mapping looks like : entity
 	 * ---relation----> toBeRelatedEntity
@@ -779,6 +1154,28 @@ public class DaasClient {
 			throws DaasClientException {
 		return relateOrRemoveRelationBetweenEntity(entity, entity.getClass().getSimpleName(), toBeRelatedEntity,
 				toBeRelatedEntity.getClass().getSimpleName(), relation, true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#addRelation(com.bbytes.daas.domain.Entity,
+	 * java.lang.String, com.bbytes.daas.domain.Entity, java.lang.String, java.lang.String,
+	 * com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void addRelation(T entity, String entityTypeName, T toBeRelatedEntity,
+			String toBeRelatedEntityType, String relation, AsyncResultHandler<Boolean> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			Boolean result = addRelation(entity, entityTypeName, toBeRelatedEntity, toBeRelatedEntityType, relation);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
 	}
 
 	/**
@@ -799,6 +1196,27 @@ public class DaasClient {
 				relation, true);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#addRelation(com.bbytes.daas.domain.Entity,
+	 * com.bbytes.daas.domain.Entity, java.lang.String, com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void addRelation(T entity, T toBeRelatedEntity, String relation,
+			AsyncResultHandler<Boolean> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			Boolean result = addRelation(entity, toBeRelatedEntity, relation);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
+	}
+
 	/**
 	 * This will remove relation between entities . The object mapping that looked like : entity
 	 * ---relation----> toBeRelatedEntity will no more be valid , the method will remove this
@@ -816,6 +1234,27 @@ public class DaasClient {
 				toBeRelatedEntity.getClass().getSimpleName(), relation, false);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#removeRelation(com.bbytes.daas.domain.Entity,
+	 * com.bbytes.daas.domain.Entity, java.lang.String, com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void removeRelation(T entity, T toBeRelatedEntity, String relation,
+			AsyncResultHandler<Boolean> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			Boolean result = removeRelation(entity, toBeRelatedEntity, relation);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
+	}
+
 	/**
 	 * This will remove relation between entities . The object mapping that looked like : entity
 	 * ---relation----> toBeRelatedEntity will no more be valid , the method will remove this
@@ -825,7 +1264,8 @@ public class DaasClient {
 	 * @param entitytype
 	 *            table name
 	 * @param toBeRelatedEntity
-	 * @param toBeRelatedEntityType table name
+	 * @param toBeRelatedEntityType
+	 *            table name
 	 * @param relation
 	 * @return
 	 * @throws DaasClientException
@@ -834,6 +1274,29 @@ public class DaasClient {
 			String toBeRelatedEntityType, String relation) throws DaasClientException {
 		return relateOrRemoveRelationBetweenEntity(entity, entityType, toBeRelatedEntity, toBeRelatedEntityType,
 				relation, false);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#removeRelation(com.bbytes.daas.domain.Entity,
+	 * java.lang.String, com.bbytes.daas.domain.Entity, java.lang.String, java.lang.String,
+	 * com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void removeRelation(T entity, String entityTypeName, T toBeRelatedEntity,
+			String toBeRelatedEntityTypeName, String relation, AsyncResultHandler<Boolean> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			Boolean result = removeRelation(entity, entityTypeName, toBeRelatedEntity, toBeRelatedEntityTypeName,
+					relation);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
 	}
 
 	private <T extends Entity> boolean relateOrRemoveRelationBetweenEntity(T entity, String entityType,
@@ -878,6 +1341,26 @@ public class DaasClient {
 		return createOrUpdateEntityFullGraph(entity, "create");
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#createEntity(com.bbytes.daas.domain.Entity,
+	 * com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void createEntity(T entity, AsyncResultHandler<T> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			T result = createEntity(entity);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
+	}
+
 	/**
 	 * Create the entity in Daas Db. The UUID will be auto assigned as it is a new entity.
 	 * 
@@ -889,6 +1372,27 @@ public class DaasClient {
 	 */
 	public <T extends Entity> T createEntity(T entity, String entityType) throws DaasClientException {
 		return createOrUpdateEntityFullGraph(entity, entityType, "create");
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#createEntity(com.bbytes.daas.domain.Entity,
+	 * java.lang.String, com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void createEntity(T entity, String entityTypeName,
+			AsyncResultHandler<T> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			T result = createEntity(entity, entityTypeName);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
 	}
 
 	/**
@@ -911,6 +1415,27 @@ public class DaasClient {
 		return createOrUpdateEntityFullGraph(entity, entityType, "update");
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#updateEntity(com.bbytes.daas.domain.Entity,
+	 * java.lang.String, com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void updateEntity(T entity, String entityTypeName,
+			AsyncResultHandler<T> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			T result = updateEntity(entity, entityTypeName);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
+	}
+
 	/**
 	 * This will update the entity with the uuid in the entity object , if the uuid is missing then
 	 * it will be treated as new object.
@@ -927,6 +1452,26 @@ public class DaasClient {
 			return createOrUpdateEntityFullGraph(entity, "create");
 
 		return createOrUpdateEntityFullGraph(entity, "update");
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#updateEntity(com.bbytes.daas.domain.Entity,
+	 * com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void updateEntity(T entity, AsyncResultHandler<T> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			T result = updateEntity(entity);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
 	}
 
 	/**
@@ -1088,8 +1633,27 @@ public class DaasClient {
 		if (entity == null) {
 			throw new IllegalArgumentException("Entity cannot be null");
 		}
-
 		return deleteEntityFullGraph(entity);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#deleteEntity(com.bbytes.daas.domain.Entity,
+	 * com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void deleteEntity(T entity, AsyncResultHandler<String> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+
+		try {
+			String result = deleteEntity(entity);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
 	}
 
 	/**
@@ -1106,8 +1670,28 @@ public class DaasClient {
 		if (entity == null || entityType == null) {
 			throw new IllegalArgumentException("Entity or Type cannot be null");
 		}
-
 		return deleteEntityFullGraph(entity, entityType);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.bbytes.daas.client.IDaasClient#deleteEntity(com.bbytes.daas.domain.Entity,
+	 * java.lang.String, com.bbytes.daas.client.AsyncResultHandler)
+	 */
+	@Override
+	public <T extends Entity> void deleteEntity(T entity, String entityTypeName,
+			AsyncResultHandler<String> asyncResultHandler) {
+		if (asyncResultHandler == null)
+			return;
+		
+		try {
+			String result = deleteEntity(entity,entityTypeName);
+			asyncResultHandler.onComplete(result);
+		} catch (DaasClientException e) {
+			asyncResultHandler.onError(e);
+		}
+
 	}
 
 	/**
@@ -1242,4 +1826,5 @@ public class DaasClient {
 		if (asyncHttpClient != null && !asyncHttpClient.isClosed())
 			asyncHttpClient.close();
 	}
+
 }
