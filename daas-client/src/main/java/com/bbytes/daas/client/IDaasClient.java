@@ -508,7 +508,7 @@ public interface IDaasClient {
 	 * @return
 	 * @throws DaasClientException
 	 */
-	public <T extends Entity> long getEntitySize(String entityTypeName) throws DaasClientException;
+	public long getEntitySize(String entityTypeName) throws DaasClientException;
 	
 	/**
 	 * Returns the size of the given entity type. Async version
@@ -517,7 +517,7 @@ public interface IDaasClient {
 	 *            table name
 	 * @return
 	 */
-	public <T extends Entity> void getEntitySize(String entityTypeName,AsyncResultHandler<Long> asyncResultHandler);
+	public void getEntitySize(String entityTypeName,AsyncResultHandler<Long> asyncResultHandler);
 
 	/**
 	 * Returns the size of the given entity type

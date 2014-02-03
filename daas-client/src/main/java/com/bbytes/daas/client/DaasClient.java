@@ -558,7 +558,7 @@ public class DaasClient implements IDaasClient {
 	 * @return
 	 * @throws DaasClientException
 	 */
-	public <T extends Entity> long getEntitySize(String entityType) throws DaasClientException {
+	public long getEntitySize(String entityType) throws DaasClientException {
 
 		try {
 			String url = baseURL + "/" + accountName + "/" + applicationName + "/" + entityType + "/size";
@@ -589,7 +589,7 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getEntitySize(String entityTypeName, AsyncResultHandler<Long> asyncResultHandler) {
+	public void getEntitySize(String entityTypeName, AsyncResultHandler<Long> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
