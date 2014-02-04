@@ -143,7 +143,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 	private void initTenantManagementDB() throws IOException {
 		OServerAdmin serverAdmin = new OServerAdmin(databaseURL).connect(username, password);
 		if (!serverAdmin.listDatabases().keySet().contains(tenantManagementDBName)) {
-			serverAdmin.createDatabase(tenantManagementDBName, "document", "local");
+			serverAdmin.createDatabase(tenantManagementDBName, "document", "plocal");
 		}
 
 		ODatabaseObject database = defaultTenantManageDbPool.acquire();
@@ -219,7 +219,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		try {
 			serverAdmin = new OServerAdmin(databaseURL).connect(username, password);
 			if (!serverAdmin.listDatabases().keySet().contains(databaseName)) {
-				serverAdmin.createDatabase(databaseName, "graph", "local");
+				serverAdmin.createDatabase(databaseName, "graph", "plocal");
 			}
 		} catch (IOException e) {
 			logger.error(e);

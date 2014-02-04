@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import org.junit.Before;
@@ -28,6 +29,7 @@ import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.dao.AccountDao;
+import com.bbytes.daas.dao.ApplicationDao;
 import com.bbytes.daas.db.orientDb.OrientDbTemplate;
 import com.bbytes.daas.domain.Account;
 import com.bbytes.daas.domain.Application;
@@ -54,6 +56,9 @@ public class SaveObjectToDBTest extends BaseDBTest {
 	@Autowired
 	private AccountDao accountDao;
 	
+	@Autowired
+	private ApplicationDao applicationDao;
+	
 	private String uuid = UUID.randomUUID().toString();
 
 	@Before
@@ -64,7 +69,7 @@ public class SaveObjectToDBTest extends BaseDBTest {
 		org.setName(uuid);
 
 		try {
-			accountDao.save(org);
+			org = accountDao.save(org);
 		} catch (BaasPersistentException e) {
 			e.printStackTrace();
 		}
@@ -72,8 +77,8 @@ public class SaveObjectToDBTest extends BaseDBTest {
 		for (int i = 0; i < 2; i++) {
 			Application app = new Application();
 			app.setAccountName(org.getName());
-			app.setName("test app 1");
-			orientDbTemplate.getDocumentDatabase().save(conversionService.convert(app,ODocument.class));
+			app.setName("test app " + new Random().nextLong());
+			applicationDao.save(app);
 		}
 
 		long stop = Calendar.getInstance().getTimeInMillis();
@@ -90,8 +95,7 @@ public class SaveObjectToDBTest extends BaseDBTest {
 
 		assertTrue(result.size() > 0);
 
-		List<Application> appResult = orientDbTemplate.getDocumentDatabase().query(
-				new OSQLSynchQuery<Application>("select * from Application where accountName ='"+uuid+"' limit 10000 "));
+		List<Application> appResult = applicationDao.find("accountName",uuid);
 
 		System.out.println(appResult.size());
 		assertTrue(appResult.size() > 0);
