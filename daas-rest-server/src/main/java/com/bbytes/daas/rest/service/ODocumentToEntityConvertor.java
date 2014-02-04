@@ -39,6 +39,7 @@ public class ODocumentToEntityConvertor<T extends Entity> implements Converter<O
 	 * 
 	 * @see org.springframework.core.convert.converter.Converter#convert(java.lang.Object)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public T convert(ODocument source) {
 

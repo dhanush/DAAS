@@ -69,7 +69,7 @@ public class SaveObjectToDBTest extends BaseDBTest {
 			e.printStackTrace();
 		}
 
-		for (int i = 0; i < 2000; i++) {
+		for (int i = 0; i < 2; i++) {
 			Application app = new Application();
 			app.setAccountName(org.getName());
 			app.setName("test app 1");

@@ -43,6 +43,7 @@ public class ODocumentToEntityListConvertor<T extends Entity> implements Convert
 	 * 
 	 * @see org.springframework.core.convert.converter.Converter#convert(java.lang.Object)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public DaasGenericList<T> convert(List<ODocument> source) {
 

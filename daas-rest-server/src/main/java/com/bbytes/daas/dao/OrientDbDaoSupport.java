@@ -17,8 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DaoSupport;
 
 import com.bbytes.daas.db.orientDb.OrientDbTemplate;
-import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 
 /**
  * Orient DB DAO support
@@ -40,7 +40,7 @@ public abstract class OrientDbDaoSupport extends DaoSupport {
 		}
 	}
 
-	protected OGraphDatabase getDataBase() {
+	protected OrientGraph getDataBase() {
 		return orientDbTemplate.getDatabase();
 	}
 	

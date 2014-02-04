@@ -16,16 +16,16 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 
 @Component
 public class OrientDbTemplate {
 
 	static ThreadLocal<ODatabaseObject> TENANT_MANAGE_DB_INSTANCE = new ThreadLocal<ODatabaseObject>();
 
-	static ThreadLocal<OGraphDatabase> THREAD_LOCAL_DB_INSTANCE = new ThreadLocal<OGraphDatabase>();
+	static ThreadLocal<OrientGraph> THREAD_LOCAL_DB_INSTANCE = new ThreadLocal<OrientGraph>();
 
 	static ThreadLocal<ODatabaseObject> THREAD_LOCAL_OBJECT_DB_INSTANCE = new ThreadLocal<ODatabaseObject>();
 
@@ -35,8 +35,8 @@ public class OrientDbTemplate {
 	public OrientDbTemplate() {
 	}
 
-	public OGraphDatabase getDatabase() {
-		OGraphDatabase db = getThreadLocalGraphDB();
+	public OrientGraph getDatabase() {
+		OrientGraph db = getThreadLocalGraphDB();
 		// The database is valid and is open if its not null, so just return it
 		if (db != null && !db.isClosed())
 			return db;
@@ -49,7 +49,7 @@ public class OrientDbTemplate {
 	}
 
 	public ODatabaseRecord getDocumentDatabase() {
-		return getDatabase();
+		return getDatabase().getRawGraph();
 	}
 
 	public ODatabaseObject getTenantManagementDatabase() {
@@ -67,8 +67,8 @@ public class OrientDbTemplate {
 
 	}
 
-	protected OGraphDatabase getThreadLocalGraphDB() {
-		OGraphDatabase db = THREAD_LOCAL_DB_INSTANCE.get();
+	protected OrientGraph getThreadLocalGraphDB() {
+		OrientGraph db = THREAD_LOCAL_DB_INSTANCE.get();
 		if (db != null && !db.isClosed()) {
 			return db;
 		}

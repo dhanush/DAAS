@@ -18,11 +18,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.tx.OTransaction;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 
 /**
  * 
@@ -38,12 +38,12 @@ public class DocumentUtils {
 	 * 
 	 * @param entityType
 	 */
-	public static void createEntityType(OGraphDatabase graphDatabase, String entityType) {
+	public static void createEntityType(OrientGraph graphDatabase, String entityType) {
 
 		// cannot create new class inside active transaction so we need to close the current
 		// transaction and
 		// then begin transaction once again after the class creation is done
-		OTransaction transaction = graphDatabase.getTransaction();
+		OTransaction transaction = graphDatabase.getRawGraph().getTransaction();
 		if (transaction != null && transaction.isActive()) {
 			transaction.close();
 		}
@@ -77,12 +77,12 @@ public class DocumentUtils {
 	 * 
 	 * @param edgeType
 	 */
-	public static void createEdgeType(OGraphDatabase graphDatabase, String edgeType) {
+	public static void createEdgeType(OrientGraph graphDatabase, String edgeType) {
 
 		// cannot create new class inside active transaction so we need to close the current
 		// transaction and
 		// then begin transaction once again after the class creation is done
-		OTransaction transaction = graphDatabase.getTransaction();
+		OTransaction transaction = graphDatabase.getRawGraph().getTransaction();
 		if (transaction != null && transaction.isActive()) {
 			transaction.close();
 		}
@@ -137,6 +137,7 @@ public class DocumentUtils {
 		return originalDocument;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static ODocument applyProperties(ODocument doc, final Object... iFields) {
 		if (iFields != null)
 			// SET THE FIELDS
