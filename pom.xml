@@ -1,14 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.bbytes</groupId>
 	<artifactId>daas</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>DAAS</name>
 	<url>http://daas.bbytes.com</url>
+
+	<scm>
+		<url>https://github.com/bbytes/DAAS</url>
+		<connection>scm:git:ssh://github.com/bbytes/DAAS.git</connection>
+		<developerConnection>scm:git:git+ssh://git@github.com/bbytes/DAAS.git</developerConnection>
+	</scm>
+
+
+	<distributionManagement>
+		<repository>
+			<id>releases</id>
+			<url>http://repo.beyondbytes.co.in:8181/nexus/content/repositories/releases</url>
+		</repository>
+	</distributionManagement>
+
+	<developers>
+		<developer>
+			<name>Thanneermalai L</name>
+			<organization>Beyond Bytes Technologies Pvt Ltd</organization>
+			<email>tm@beyondbytes.co.in</email>
+			<url>www.beyondbytes.co.in</url>
+		</developer>
+		<developer>
+			<name>Dhanush Gopinath</name>
+			<organization>Beyond Bytes Technologies Pvt Ltd</organization>
+			<email>dhanush@beyondbytes.co.in</email>
+			<url>www.beyondbytes.co.in</url>
+		</developer>
+	</developers>
 
 	<properties>
 		<jetty.version>9.0.2.v20130417</jetty.version>
@@ -291,7 +319,7 @@
 				<artifactId>blueprints-core</artifactId>
 				<version>${tinkerpop.version}</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>com.tinkerpop.blueprints</groupId>
 				<artifactId>blueprints-test</artifactId>
@@ -355,6 +383,15 @@
 					<showDeprecation>true</showDeprecation>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.1</version>
+				<configuration>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 

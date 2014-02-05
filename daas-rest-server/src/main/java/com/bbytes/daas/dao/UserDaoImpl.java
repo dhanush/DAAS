@@ -25,10 +25,10 @@ import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.domain.Role;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 
 /**
  * Account DAO Impl
@@ -207,18 +207,18 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 	 */
 	@Override
 	public ODocument findUserAsRecord(String userName) throws BaasEntityNotFoundException {
-		OGraphDatabase db = getDataBase();
+		OrientGraph db = getDataBase();
 		try {
 			String sql = "select * from DaasUser  where userName = '" + userName + "'";
 
-			List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>(sql));
+			List<ODocument> result = db.getRawGraph().query(new OSQLSynchQuery<ODocument>(sql));
 
 			if (result == null || result.size() == 0)
 				throw new BaasEntityNotFoundException("Entity not found of type DaasUser with Username " + userName);
 
 			return result.get(0);
 		} finally {
-			db.close();
+			db.shutdown();
 		}
 	}
 	

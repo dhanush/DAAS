@@ -26,8 +26,7 @@
 		<property name="minConnections" value="1" />
 		<property name="maxConnections" value="5" />
 		<property name="username" value="root" />
-		<property name="password"
-			value="root" />
+		<property name="password" value="root" />
 
 		<property name="domainClassBasePackage" value="com.bbytes.daas.domain" />
 	</bean>

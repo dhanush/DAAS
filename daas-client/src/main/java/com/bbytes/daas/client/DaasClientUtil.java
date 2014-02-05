@@ -89,8 +89,25 @@ public class DaasClientUtil {
 		} catch (InterruptedException | ExecutionException | IOException e) {
 			throw new DaasClientException(e);
 		}
-
+		
 		return token;
 
 	}
+
+	/**
+	 * @param r
+	 * @throws DaasClientException
+	 * @throws IOException
+	 */
+	public static void checkResponse(Response r) throws DaasClientException, IOException {
+		if (!HttpStatusUtil.isSuccess(r)) {
+
+			if (r.getStatusCode() == HttpStatusUtil.NOT_FOUND)
+				throw new DaasClientEntityNotFoundException("Entity Not Found");
+			else
+				throw new DaasClientException("Daas server error : " + r.getResponseBody());
+		}
+
+	}
+
 }

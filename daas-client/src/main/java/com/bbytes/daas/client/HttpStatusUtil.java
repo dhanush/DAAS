@@ -24,6 +24,13 @@ import com.ning.http.client.Response;
  */
 public class HttpStatusUtil {
 
+	
+	
+	
+	public static final int NOT_FOUND = 404;
+	
+	public static final int INTERNAL_SERVER_ERROR = 500;
+	
 	public static final String SUCCESS = "success";
 
 	public static final String RE_DIRECTION = "redirection";

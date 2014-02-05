@@ -31,11 +31,12 @@ import com.orientechnologies.common.reflection.OReflectionHelper;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabasePoolBase;
-import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
-import com.orientechnologies.orient.core.db.graph.OGraphDatabasePool;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocumentPool;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
 import com.orientechnologies.orient.object.db.OObjectDatabasePool;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 
 /**
  * Creates new connections to Orient database. It use global connection pull for establishing
@@ -49,7 +50,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 
 	private static final Logger logger = Logger.getLogger(OrientDbConnectionManager.class);
 
-	private Map<String, OGraphDatabasePool> tenantToGraphDbConnPoolMap = new HashMap<String, OGraphDatabasePool>();
+	private Map<String, ODatabaseDocumentPool> tenantToGraphDbConnPoolMap = new HashMap<String, ODatabaseDocumentPool>();
 
 	private Map<String, OObjectDatabasePool> tenantToObjectDbConnPoolMap = new HashMap<String, OObjectDatabasePool>();
 
@@ -142,7 +143,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 	private void initTenantManagementDB() throws IOException {
 		OServerAdmin serverAdmin = new OServerAdmin(databaseURL).connect(username, password);
 		if (!serverAdmin.listDatabases().keySet().contains(tenantManagementDBName)) {
-			serverAdmin.createDatabase(tenantManagementDBName, "document", "local");
+			serverAdmin.createDatabase(tenantManagementDBName, "document", "plocal");
 		}
 
 		ODatabaseObject database = defaultTenantManageDbPool.acquire();
@@ -188,15 +189,15 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 	 * 
 	 * @return new database connection
 	 */
-	public OGraphDatabase getDatabase() {
-		OGraphDatabase graphDatabase = null;
+	public OrientGraph getDatabase() {
+		OrientGraph graphDatabase = null;
 		String tenantDbName = TenantRouter.getTenantIdentifier();
 
 		if (tenantDbName == null)
 			throw new IllegalArgumentException(
 					"Account information missing in HTTP parameter or URL for tenant identification");
 
-		OGraphDatabasePool tenantGraphDatabasePool = tenantToGraphDbConnPoolMap.get(tenantDbName);
+		ODatabaseDocumentPool tenantGraphDatabasePool = tenantToGraphDbConnPoolMap.get(tenantDbName);
 		// if accn does not exist then throw cannot create new tenant db
 
 		if (tenantGraphDatabasePool == null) {
@@ -205,10 +206,10 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 						+ " as there is no account created with name " + tenantDbName);
 			}
 
-			tenantGraphDatabasePool = (OGraphDatabasePool) createDatabase(tenantDbName, "graph");
+			tenantGraphDatabasePool = (ODatabaseDocumentPool) createDatabase(tenantDbName, "graph");
 
 		}
-		graphDatabase = tenantGraphDatabasePool.acquire();
+		graphDatabase = new OrientGraph(tenantGraphDatabasePool.acquire());
 
 		return graphDatabase;
 	}
@@ -218,18 +219,18 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		try {
 			serverAdmin = new OServerAdmin(databaseURL).connect(username, password);
 			if (!serverAdmin.listDatabases().keySet().contains(databaseName)) {
-				serverAdmin.createDatabase(databaseName, "graph", "local");
+				serverAdmin.createDatabase(databaseName, "graph", "plocal");
 			}
 		} catch (IOException e) {
 			logger.error(e);
 		}
 
 		if (dbType.equals("graph")) {
-			OGraphDatabasePool tenantGraphDatabasePool = new OGraphDatabasePool(databaseURL + "/" + databaseName,
+			ODatabaseDocumentPool tenantGraphDatabasePool = new ODatabaseDocumentPool(databaseURL + "/" + databaseName,
 					username, password);
 			tenantGraphDatabasePool.setup(minConnections, maxConnections);
 			tenantToGraphDbConnPoolMap.put(databaseName, tenantGraphDatabasePool);
-			OGraphDatabase graphDatabase = tenantGraphDatabasePool.acquire();
+			ODatabaseDocumentTx  graphDatabase = tenantGraphDatabasePool.acquire();
 			registerClassUnderPackageToDb(graphDatabase, domainClassBasePackage);
 			return tenantGraphDatabasePool;
 		} else {
@@ -300,7 +301,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 	public void destroy() throws Exception {
 		this.defaultTenantManageDbPool.close();
 
-		for (OGraphDatabasePool graphDatabasePool : tenantToGraphDbConnPoolMap.values()) {
+		for (ODatabaseDocumentPool graphDatabasePool : tenantToGraphDbConnPoolMap.values()) {
 			graphDatabasePool.close();
 		}
 

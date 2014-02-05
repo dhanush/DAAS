@@ -30,12 +30,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bbytes.daas.domain.Entity;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.orientechnologies.orient.core.db.graph.OGraphDatabase;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 
 /**
  * 
@@ -194,7 +194,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 		if (propertyToValue == null)
 			throw new IllegalArgumentException("Null value passed as arg");
 
-		OGraphDatabase db = getDataBase();
+		OrientGraph db = getDataBase();
 		try {
 			String whereCondition = "";
 			int index = 0;
@@ -212,7 +212,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 
 			String sql = "SELECT COUNT(*) as count FROM " + this.entityType.getSimpleName() + "  WHERE "
 					+ whereCondition;
-			long count = ((ODocument) db.query(new OSQLSynchQuery<E>(sql)).get(0)).field("count");
+			long count = ((ODocument) db.getRawGraph().query(new OSQLSynchQuery<E>(sql)).get(0)).field("count");
 			LOG.debug("SQL Result : " + sql + "  - Result - " + count);
 			if (count == 0)
 				return false;
@@ -222,7 +222,8 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		} finally {
-			db.close();
+			if (db != null)
+				db.shutdown();
 		}
 		
 		return false;

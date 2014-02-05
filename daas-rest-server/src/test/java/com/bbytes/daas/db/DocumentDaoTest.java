@@ -109,7 +109,7 @@ public class DocumentDaoTest extends BaseDBTest {
 
 		assertNotNull(relateDoc);
 
-		OrientGraph graph = new OrientGraph(orientDbTemplate.getDatabase());
+		OrientGraph graph = orientDbTemplate.getDatabase();
 
 		OrientVertex vertex = ((OrientVertex) graph.getVertex(doc1.getIdentity()));
 
@@ -127,7 +127,7 @@ public class DocumentDaoTest extends BaseDBTest {
 		assertNotNull(relateDoc2);
 
 		// need this to reuse the conn
-		graph = new OrientGraph(orientDbTemplate.getDatabase());
+		graph = orientDbTemplate.getDatabase();
 
 		vertex = ((OrientVertex) graph.getVertex(doc1.getIdentity()));
 
@@ -165,7 +165,7 @@ public class DocumentDaoTest extends BaseDBTest {
 
 		assertNotNull(relateDoc);
 
-		OrientGraph graph = new OrientGraph(orientDbTemplate.getDatabase());
+		OrientGraph graph = orientDbTemplate.getDatabase();
 
 		OrientVertex vertex = ((OrientVertex) graph.getVertex(doc1.getIdentity()));
 
@@ -175,7 +175,7 @@ public class DocumentDaoTest extends BaseDBTest {
 				doc2.field(DaasDefaultFields.FIELD_UUID.toString()).toString(), "testrel1");
 
 		// need this to reuse the conn
-		graph = new OrientGraph(orientDbTemplate.getDatabase());
+		graph = orientDbTemplate.getDatabase();
 
 		vertex = ((OrientVertex) graph.getVertex(doc1.getIdentity()));
 
