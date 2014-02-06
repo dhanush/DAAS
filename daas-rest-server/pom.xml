@@ -6,7 +6,7 @@
 		<relativePath>../pom.xml</relativePath>
 		<artifactId>daas</artifactId>
 		<groupId>com.bbytes</groupId>
-		<version>1.0.2-SNAPSHOT</version>
+		<version>1.0.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>daas-rest-server</artifactId>
 	<packaging>war</packaging>

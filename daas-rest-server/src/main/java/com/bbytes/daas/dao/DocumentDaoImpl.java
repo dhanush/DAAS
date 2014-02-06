@@ -160,8 +160,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			log.error(e.getMessage(), e);
 			throw new BaasPersistentException(e);
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 	}
 
@@ -192,8 +191,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		} catch (BaasEntityNotFoundException e) {
 			throw new BaasPersistentException(e);
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 	}
 
@@ -217,8 +215,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			db.getRawGraph().delete(entity.getIdentity());
 			db.commit();
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 
 	}
@@ -247,8 +244,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		} catch (BaasEntityNotFoundException e) {
 			throw new BaasPersistentException(e);
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 	}
 
@@ -288,8 +284,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		} catch (BaasEntityNotFoundException e) {
 			throw new BaasPersistentException(e);
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 	}
 
@@ -335,8 +330,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 			return result;
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 
 	}
@@ -368,8 +362,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 			return result;
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 	}
 
@@ -439,8 +432,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 			return true;
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 	}
 
@@ -471,8 +463,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			docToBeSaved.field(DaasDefaultFields.FIELD_MODIFICATION_DATE.toString(), new Date());
 			return docToBeSaved.save();
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 
 	}
@@ -530,8 +521,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			return result;
 
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 
 	}
@@ -560,8 +550,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 			return result.get(0);
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 	}
 
@@ -585,8 +574,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 			return result;
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 	}
 
@@ -612,8 +600,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 			return result;
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 	}
 
@@ -678,8 +665,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 			return result;
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 	}
 
@@ -702,8 +688,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			List<ODocument> result = db.getRawGraph().query(asynchQuery);
 			return result;
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 	}
 
@@ -727,8 +712,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			long count = ((ODocument) db.getRawGraph().query(asynchQuery).get(0)).field("count");
 			return count;
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
 	}
 
@@ -755,4 +739,11 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		return (doc != null);
 	}
 
+	
+	protected void closeDB(OrientGraph db) {
+		if (db != null && !db.isClosed())
+			db.shutdown();
+	}
+
+	
 }

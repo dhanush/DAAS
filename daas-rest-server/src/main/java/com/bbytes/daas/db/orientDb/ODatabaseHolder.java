@@ -12,13 +12,13 @@ package com.bbytes.daas.db.orientDb;
 import org.springframework.transaction.support.ResourceHolderSupport;
 
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
-import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 
 public class ODatabaseHolder extends ResourceHolderSupport {
 
 	private boolean transactionActive;
 
-	private ODatabaseRecord graphDatabase;
+	private OrientGraph graphDatabase;
 	
 	private ODatabaseObject objectDatabase;
 
@@ -27,7 +27,7 @@ public class ODatabaseHolder extends ResourceHolderSupport {
 		super();
 	}
 
-	public ODatabaseHolder(ODatabaseRecord database) {
+	public ODatabaseHolder(OrientGraph database) {
 		super();
 		this.graphDatabase = database;
 		this.transactionActive = false;
@@ -47,7 +47,7 @@ public class ODatabaseHolder extends ResourceHolderSupport {
 		return this.transactionActive;
 	}
 
-	public ODatabaseRecord getGraphDatabase() {
+	public OrientGraph getGraphDatabase() {
 		return graphDatabase;
 	}
 	
