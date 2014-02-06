@@ -9,11 +9,11 @@ package com.bbytes.daas.db.orientDb;
  * @version
  */
 
-import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 
 public class GraphDBTransactionHolder extends ODatabaseHolder {
 
-	public GraphDBTransactionHolder(ODatabaseRecord database) {
+	public GraphDBTransactionHolder(OrientGraph database) {
 		super(database);
 	}
 }

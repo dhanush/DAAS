@@ -71,7 +71,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 			return detach(e, dbTx);
 
 		} finally {
-			dbTx.close();
+			closeDB(dbTx);
 		}
 	}
 
@@ -84,7 +84,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 			E e = dbTx.save(entity);
 			return detach(e, dbTx);
 		} finally {
-			dbTx.close();
+			closeDB(dbTx);
 		}
 
 	}
@@ -96,7 +96,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 		try {
 			db.delete(entity);
 		} finally {
-			db.close();
+			closeDB(db);
 		}
 
 	}
@@ -108,7 +108,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 			E e = dbTx.load(id);
 			return detach(e, dbTx);
 		} finally {
-			dbTx.close();
+			closeDB(dbTx);
 		}
 	}
 
@@ -124,7 +124,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		} finally {
-			dbTx.close();
+			closeDB(dbTx);
 		}
 
 		return new ArrayList<E>();
@@ -142,7 +142,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 			long count = db.countClass(this.entityType.getSimpleName());
 			return count;
 		} finally {
-			db.close();
+			closeDB(db);
 		}
 	}
 
@@ -162,11 +162,11 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 				throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 
 			return detach(result.get(0), dbTx);
-			
+
 		} catch (Exception e) {
 			throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 		} finally {
-			dbTx.close();
+			closeDB(dbTx);
 		}
 
 	}
@@ -218,14 +218,13 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 				return false;
 			else
 				return true;
-			
+
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		} finally {
-			if (db != null)
-				db.shutdown();
+			closeDB(db);
 		}
-		
+
 		return false;
 	}
 
@@ -245,13 +244,13 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 				throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 
 			return detach(result, dbTx);
-			
+
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		} finally {
-			dbTx.close();
+			closeDB(dbTx);
 		}
-		
+
 		return new ArrayList<E>();
 	}
 
@@ -270,4 +269,18 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 		return db.detachAll(entity, true);
 	}
 
+	protected void closeDB(OrientGraph db) {
+		if (db != null && !db.isClosed())
+			db.shutdown();
+	}
+	
+	protected void closeDB(OObjectDatabaseTx db) {
+		if (db != null && !db.isClosed())
+			db.close();
+	}
+	
+	protected void closeDB(ODatabaseObject db) {
+		if (db != null && !db.isClosed())
+			db.close();
+	}
 }

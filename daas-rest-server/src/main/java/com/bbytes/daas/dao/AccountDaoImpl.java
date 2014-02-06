@@ -71,8 +71,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 						+ " is already taken ");
 			}
 		} finally {
-			if (db != null)
-				db.close();
+			closeDB(db);
 		}
 		return account;
 	}
@@ -85,7 +84,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 			db.save(account);
 			account = db.detach(account, true);
 		} finally {
-			db.close();
+			closeDB(db);
 		}
 		return account;
 	}
@@ -99,7 +98,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 			// deleted and the db is dropped.
 			orientDbTemplate.dropDatabase(account.getName());
 		} finally {
-			db.close();
+			closeDB(db);
 		}
 	}
 
@@ -111,7 +110,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 			account = db.detach(account, true);
 			return account;
 		} finally {
-			db.close();
+			closeDB(db);
 		}
 	}
 
@@ -126,7 +125,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 				throw new BaasEntityNotFoundException();
 			return detach(result, db);
 		} finally {
-			db.close();
+			closeDB(db);
 		}
 	}
 
@@ -142,7 +141,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 			long count = db.countClass(Account.class.getSimpleName());
 			return count;
 		} finally {
-			db.close();
+			closeDB(db);
 		}
 	}
 
@@ -163,7 +162,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 			result = detach(result, db);
 			return result.get(0);
 		} finally {
-			db.close();
+			closeDB(db);
 		}
 
 	}
@@ -185,7 +184,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 			result = detach(result, db);
 			return result;
 		} finally {
-			db.close();
+			closeDB(db);
 		}
 	}
 
@@ -235,7 +234,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 
 			return true;
 		} finally {
-			db.close();
+			closeDB(db);
 		}
 	}
 

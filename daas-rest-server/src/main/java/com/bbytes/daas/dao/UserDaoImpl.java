@@ -115,7 +115,7 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 
 		return detach(result.get(0), dbTx);
 		} finally {
-			dbTx.close();
+			closeDB(dbTx);
 		}
 	}
 
@@ -139,7 +139,7 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 
 		return detach(result.get(0), dbTx);
 		} finally {
-			dbTx.close();
+			closeDB(dbTx);
 		}
 	}
 
@@ -158,7 +158,7 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 
 		return detach(result.get(0), dbTx);
 		} finally {
-			dbTx.close();
+			closeDB(dbTx);
 		}
 	}
 
@@ -178,7 +178,7 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 
 		return detach(result, dbTx);
 		} finally {
-			dbTx.close();
+			closeDB(dbTx);
 		}
 	}
 	
@@ -198,7 +198,7 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 
 		return detach(result, dbTx);
 		} finally {
-			dbTx.close();
+			closeDB(dbTx);
 		}
 	}
 
@@ -218,7 +218,7 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 
 			return result.get(0);
 		} finally {
-			db.shutdown();
+			closeDB(db);
 		}
 	}
 	
