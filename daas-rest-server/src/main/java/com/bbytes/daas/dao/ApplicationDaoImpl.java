@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.core.GenericTypeResolver;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,10 +34,10 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraph;
  * @version 1.0.0
  */
 @Repository
+@Transactional
 public class ApplicationDaoImpl extends AbstractDao<Application> implements ApplicationDao {
 
 	@Override
-	@Transactional
 	public Application save(Application app) throws BaasPersistentException {
 		// check if the org name and app name combo is unique
 		Map<String, String> propertyToValue = new HashMap<String, String>();

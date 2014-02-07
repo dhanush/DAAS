@@ -78,8 +78,10 @@ public class DaasClientUtil {
 			}
 
 			Response r = f.get();
-			if (!HttpStatusUtil.isSuccess(r))
+			if (!HttpStatusUtil.isSuccess(r)){
 				throw new DaasClientException("Not able to login to daas server on " + baseURL);
+			}
+				
 
 			token = gson.fromJson(r.getResponseBody(), OAuthToken.class);
 

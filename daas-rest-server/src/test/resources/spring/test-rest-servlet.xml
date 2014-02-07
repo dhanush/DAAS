@@ -18,7 +18,5 @@
 	<context:component-scan base-package="com.bbytes.daas.rest.controller" />
 	<mvc:annotation-driven />
 	
-	<util:properties id="props"
-		location="classpath:META-INF/test-rest-config.properties" />
 	<import resource="test-rest-daas-server-context.xml"/>
 </beans>

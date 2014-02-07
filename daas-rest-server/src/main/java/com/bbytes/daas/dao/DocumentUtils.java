@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.bbytes.daas.domain.Entity;
+import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -49,7 +51,7 @@ public class DocumentUtils {
 		}
 
 		OClass entityVertexType = graphDatabase.getVertexType(entityType);
-			
+
 		if (entityVertexType == null) {
 
 			entityVertexType = graphDatabase.createVertexType(entityType);
@@ -63,8 +65,8 @@ public class DocumentUtils {
 			// create index - uuid based
 			entityVertexType.createIndex(entityType + "." + DaasDefaultFields.FIELD_UUID.toString(),
 					OClass.INDEX_TYPE.UNIQUE, DaasDefaultFields.FIELD_UUID.toString());
-			entityVertexType.setOverSize(2); 
-			
+			entityVertexType.setOverSize(2);
+
 			// now we can begin the transaction
 			if (transaction != null) {
 				transaction.begin();

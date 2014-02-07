@@ -27,6 +27,7 @@ import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bbytes.daas.db.orientDb.OrientDbConnectionManager;
 import com.bbytes.daas.domain.Entity;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
@@ -48,7 +49,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 
 	private static final Logger LOG = Logger.getLogger(AbstractDao.class);
 
-	private final Class<E> entityType;
+	protected final Class<E> entityType;
 
 	@Autowired
 	protected ConversionService conversionService;
@@ -58,7 +59,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 		super();
 		this.entityType = (Class<E>) GenericTypeResolver.resolveTypeArgument(getClass(), AbstractDao.class);
 	}
-
+	
 	@Override
 	public E save(E entity) throws BaasPersistentException {
 		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
@@ -236,18 +237,5 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 		return db.detachAll(entity, true);
 	}
 	
-	protected void closeDB(OrientGraph db) {
-		if (db != null && !db.isClosed())
-			db.shutdown();
-	}
 	
-	protected void closeDB(OObjectDatabaseTx db) {
-		if (db != null && !db.isClosed())
-			db.close();
-	}
-	
-	protected void closeDB(ODatabaseObject db) {
-		if (db != null && !db.isClosed())
-			db.close();
-	}
 }

@@ -151,11 +151,11 @@ public class DaasClient implements IDaasClient {
 
 		// first verify if port and host name is correct using the ping url
 		if (!pingSuccess())
-			throw new DaasClientException("Not able to reach daas server on" + baseURL);
+			throw new DaasClientException("Not able to reach daas server on " + baseURL);
 
 		token = DaasClientUtil.loginHelper(accountName, clientId, clientSecret, baseURL, asyncHttpClient, gson);
 		if (token == null) {
-			throw new DaasClientException("Not able to login to daas server on" + baseURL);
+			throw new DaasClientException("Not able to login to daas server on " + baseURL);
 		}
 
 		return true;

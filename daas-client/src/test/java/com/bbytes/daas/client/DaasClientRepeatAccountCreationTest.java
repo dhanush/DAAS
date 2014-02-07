@@ -34,7 +34,7 @@ import com.bbytes.daas.domain.DaasUser;
  */
 public class DaasClientRepeatAccountCreationTest extends DaasClientBaseTest {
 
-	private String accnName = "new-accn-same"+ UUID.randomUUID().toString();
+	private String accnName = "new-accn-same" + UUID.randomUUID().toString();
 	private String appName = "new-app-" + UUID.randomUUID().toString();
 
 	@Before
@@ -44,11 +44,12 @@ public class DaasClientRepeatAccountCreationTest extends DaasClientBaseTest {
 
 	@Test
 	public void daasMgmtClientRepeatAccountCreationTest() throws DaasClientException {
-		
+
 		DaasManagementClient daasManagementClient = new DaasManagementClient(host, port);
 		boolean success = daasManagementClient.login("admin", "password");
 
 		Account account = daasManagementClient.createAccount(accnName);
+		System.out.println("Account created : " + accnName);
 
 		List<Account> accounts = daasManagementClient.getAccounts();
 		int size = accounts.size();
@@ -58,7 +59,7 @@ public class DaasClientRepeatAccountCreationTest extends DaasClientBaseTest {
 		application.setAccountName(accnName);
 		application.setName(appName);
 		application = daasManagementClient.createApplication(application);
-		
+
 		DaasUser user = new DaasUser();
 		user.setAccountName(account.getName());
 		user.setEmail("test@test.com");
@@ -69,11 +70,12 @@ public class DaasClientRepeatAccountCreationTest extends DaasClientBaseTest {
 
 		Assert.assertNotNull(returnedUser);
 
+		System.out.println("Account deleted : " + accnName);
 		daasManagementClient.deleteAccount(accnName);
 
 		accounts = daasManagementClient.getAccounts();
 		int newsize = accounts.size();
-		Assert.assertTrue(newsize == size-1);
+		Assert.assertTrue(newsize == size - 1);
 
 		account = daasManagementClient.createAccount(accnName);
 
@@ -82,7 +84,7 @@ public class DaasClientRepeatAccountCreationTest extends DaasClientBaseTest {
 		Assert.assertTrue(size > 0);
 
 		application = daasManagementClient.createApplication(application);
-		
+
 		returnedUser = daasManagementClient.createAccountUser(account.getName(), user);
 
 		Assert.assertNotNull(returnedUser);
@@ -94,11 +96,17 @@ public class DaasClientRepeatAccountCreationTest extends DaasClientBaseTest {
 		DaasManagementClient daasManagementClient = new DaasManagementClient(host, port);
 		boolean success = daasManagementClient.login("admin", "password");
 
-		daasManagementClient.deleteAccount(accnName);
-
 		List<Account> accounts = daasManagementClient.getAccounts();
 		int size = accounts.size();
-		Assert.assertTrue(size == 0);
+
+		System.out.println("Account deleted : " + accnName);
+		success = daasManagementClient.deleteAccount(accounts.get(0).getName());
+		Assert.assertTrue(success);
+
+		accounts = daasManagementClient.getAccounts();
+		int newSize = accounts.size();
+
+		Assert.assertTrue(newSize == size - 1);
 	}
 
 	@After
