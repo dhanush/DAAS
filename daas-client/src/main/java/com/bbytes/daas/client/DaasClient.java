@@ -11,7 +11,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import com.bbytes.daas.client.annotation.Relation;
@@ -74,6 +77,8 @@ public class DaasClient implements IDaasClient {
 	protected String accountName;
 
 	protected DaasManagementClient daasManagementClient;
+	
+	protected ExecutorService executor ;
 
 	public DaasClient(String host, String port) {
 
@@ -90,6 +95,8 @@ public class DaasClient implements IDaasClient {
 		gson = new GsonBuilder().registerTypeAdapter(Date.class, SerializerUtil.getSerializerForDate())
 				.registerTypeAdapter(Date.class, SerializerUtil.getDeSerializerForDate())
 				.setExclusionStrategies(new RelationAnnotationExclStrat()).create();
+		
+		executor = Executors.newCachedThreadPool();
 
 	}
 
@@ -144,11 +151,11 @@ public class DaasClient implements IDaasClient {
 
 		// first verify if port and host name is correct using the ping url
 		if (!pingSuccess())
-			throw new DaasClientException("Not able to reach daas server on" + baseURL);
+			throw new DaasClientException("Not able to reach daas server on " + baseURL);
 
 		token = DaasClientUtil.loginHelper(accountName, clientId, clientSecret, baseURL, asyncHttpClient, gson);
 		if (token == null) {
-			throw new DaasClientException("Not able to login to daas server on" + baseURL);
+			throw new DaasClientException("Not able to login to daas server on " + baseURL);
 		}
 
 		return true;
@@ -291,17 +298,21 @@ public class DaasClient implements IDaasClient {
 	 * java.lang.Class, java.util.Map, com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getEntitiesByProperty(String entityTypeName, Class<T> entityClassType,
-			Map<String, String> propertyMap, AsyncResultHandler<List<T>> asyncResultHandler) {
+	public <T extends Entity> void getEntitiesByProperty(final String entityTypeName, final Class<T> entityClassType,
+			final Map<String, String> propertyMap, AsyncResultHandler<List<T>> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
-		try {
-			List<T> result = getEntitiesByProperty(entityTypeName, entityClassType, propertyMap);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
-
+		
+		Callable<List<T>> getEntitiesByProperty= new Callable<List<T>>() {
+			@Override
+			public List<T> call() throws Exception {
+				List<T> result = getEntitiesByProperty(entityTypeName, entityClassType, propertyMap);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<List<T>> asyncTask = new DaasClientCallAsyncTask<List<T>>(getEntitiesByProperty, asyncResultHandler);
+		executor.submit(asyncTask);
 	}
 
 	/**
@@ -326,16 +337,21 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getEntitiesByProperty(Class<T> entityClassType, Map<String, String> propertyMap,
+	public <T extends Entity> void getEntitiesByProperty(final Class<T> entityClassType, final Map<String, String> propertyMap,
 			AsyncResultHandler<List<T>> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
-		try {
-			List<T> result = getEntitiesByProperty(entityClassType, propertyMap);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		
+		Callable<List<T>> getEntitiesByProperty= new Callable<List<T>>() {
+			@Override
+			public List<T> call() throws Exception {
+				List<T> result = getEntitiesByProperty(entityClassType, propertyMap);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<List<T>> asyncTask = new DaasClientCallAsyncTask<List<T>>(getEntitiesByProperty, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -400,19 +416,23 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getEntitiesByRange(String entityTypeName, Class<T> entityClassType,
-			String propertyName, String propertyDataType, String startRange, String endRange,
+	public <T extends Entity> void getEntitiesByRange(final String entityTypeName, final Class<T> entityClassType,
+			final String propertyName, final String propertyDataType, final String startRange, final String endRange,
 			AsyncResultHandler<List<T>> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			List<T> result = getEntitiesByRange(entityTypeName, entityClassType, propertyName, propertyDataType,
-					startRange, endRange);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<List<T>> getEntitiesByRange= new Callable<List<T>>() {
+			@Override
+			public List<T> call() throws Exception {
+				List<T> result = getEntitiesByRange(entityTypeName, entityClassType, propertyName, propertyDataType,
+						startRange, endRange);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<List<T>> asyncTask = new DaasClientCallAsyncTask<List<T>>(getEntitiesByRange, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -448,17 +468,21 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getEntitiesByRange(Class<T> entityClassType, String propertyName,
-			String propertyDataType, String startRange, String endRange, AsyncResultHandler<List<T>> asyncResultHandler) {
+	public <T extends Entity> void getEntitiesByRange(final Class<T> entityClassType, final String propertyName,
+			final String propertyDataType, final String startRange, final String endRange, AsyncResultHandler<List<T>> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			List<T> result = getEntitiesByRange(entityClassType, propertyName, propertyDataType, startRange, endRange);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<List<T>> getEntitiesByRange= new Callable<List<T>>() {
+			@Override
+			public List<T> call() throws Exception {
+				List<T> result = getEntitiesByRange(entityClassType, propertyName, propertyDataType, startRange, endRange);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<List<T>> asyncTask = new DaasClientCallAsyncTask<List<T>>(getEntitiesByRange, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -503,17 +527,21 @@ public class DaasClient implements IDaasClient {
 	 * java.lang.String, com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getEntityById(String entityTypeName, Class<T> entityClassType, String UUID,
+	public <T extends Entity> void getEntityById(final String entityTypeName, final Class<T> entityClassType, final String UUID,
 			AsyncResultHandler<T> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			T result = getEntityById(entityTypeName, entityClassType, UUID);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<T> getEntityById= new Callable<T>() {
+			@Override
+			public T call() throws Exception {
+				T result = getEntityById(entityTypeName, entityClassType, UUID);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<T> asyncTask = new DaasClientCallAsyncTask<T>(getEntityById, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -536,17 +564,21 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getEntityById(Class<T> entityClassType, String UUID,
+	public <T extends Entity> void getEntityById(final Class<T> entityClassType, final String UUID,
 			AsyncResultHandler<T> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			T result = getEntityById(entityClassType, UUID);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<T> getEntityById= new Callable<T>() {
+			@Override
+			public T call() throws Exception {
+				T result = getEntityById(entityClassType, UUID);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<T> asyncTask = new DaasClientCallAsyncTask<T>(getEntityById, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -589,16 +621,20 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public void getEntitySize(String entityTypeName, AsyncResultHandler<Long> asyncResultHandler) {
+	public void getEntitySize(final String entityTypeName, AsyncResultHandler<Long> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			Long result = getEntitySize(entityTypeName);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<Long> getEntitySize= new Callable<Long>() {
+			@Override
+			public Long call() throws Exception {
+				Long result = getEntitySize(entityTypeName);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<Long> asyncTask = new DaasClientCallAsyncTask<Long>(getEntitySize, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -620,16 +656,20 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getEntitySize(Class<T> entityClassType, AsyncResultHandler<Long> asyncResultHandler) {
+	public <T extends Entity> void getEntitySize(final Class<T> entityClassType, AsyncResultHandler<Long> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			Long result = getEntitySize(entityClassType);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<Long> getEntitySize= new Callable<Long>() {
+			@Override
+			public Long call() throws Exception {
+				Long result = getEntitySize(entityClassType);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<Long> asyncTask = new DaasClientCallAsyncTask<Long>(getEntitySize, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -787,17 +827,21 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getRightSideRelatedEntities(Entity entity, String relation, String entityTypeName,
-			Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+	public <T extends Entity> void getRightSideRelatedEntities(final Entity entity, final String relation, final String entityTypeName,
+			final Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			List<T> result = getRightSideRelatedEntities(entity, relation, entityTypeName, expectedClassType);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<List<T>> getRightSideRelatedEntities= new Callable<List<T>>() {
+			@Override
+			public List<T> call() throws Exception {
+				List<T> result = getRightSideRelatedEntities(entity, relation, entityTypeName, expectedClassType);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<List<T>> asyncTask = new DaasClientCallAsyncTask<List<T>>(getRightSideRelatedEntities, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -827,17 +871,23 @@ public class DaasClient implements IDaasClient {
 	 * java.lang.String, java.lang.Class, com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getRightSideRelatedEntities(Entity entity, String relation,
-			Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+	public <T extends Entity> void getRightSideRelatedEntities(final Entity entity, final String relation,
+			final Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			List<T> result = getRightSideRelatedEntities(entity, relation, expectedClassType);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<List<T>> getRightSideRelatedEntities= new Callable<List<T>>() {
+			@Override
+			public List<T> call() throws Exception {
+				List<T> result = getRightSideRelatedEntities(entity, relation, expectedClassType);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<List<T>> asyncTask = new DaasClientCallAsyncTask<List<T>>(getRightSideRelatedEntities, asyncResultHandler);
+		executor.submit(asyncTask);
+		
+		
 
 	}
 
@@ -890,17 +940,21 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getLeftSideRelatedEntitiesWithOutGraph(Entity entity, String relation,
-			String entityTypeName, Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+	public <T extends Entity> void getLeftSideRelatedEntitiesWithOutGraph(final Entity entity, final String relation,
+			final String entityTypeName, final Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			List<T> result = getLeftSideRelatedEntitiesWithOutGraph(entity, relation, entityTypeName, expectedClassType);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<List<T>> getLeftSideRelatedEntitiesWithOutGraph= new Callable<List<T>>() {
+			@Override
+			public List<T> call() throws Exception {
+				List<T> result = getLeftSideRelatedEntitiesWithOutGraph(entity, relation, entityTypeName, expectedClassType);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<List<T>> asyncTask = new DaasClientCallAsyncTask<List<T>>(getLeftSideRelatedEntitiesWithOutGraph, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -933,17 +987,22 @@ public class DaasClient implements IDaasClient {
 	 * .domain.Entity, java.lang.String, java.lang.Class, com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getLeftSideRelatedEntitiesWithOutGraph(Entity entity, String relation,
-			Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+	public <T extends Entity> void getLeftSideRelatedEntitiesWithOutGraph(final Entity entity, final String relation,
+			final Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			List<T> result = getLeftSideRelatedEntitiesWithOutGraph(entity, relation, expectedClassType);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<List<T>> getLeftSideRelatedEntitiesWithOutGraph= new Callable<List<T>>() {
+			@Override
+			public List<T> call() throws Exception {
+				List<T> result = getLeftSideRelatedEntitiesWithOutGraph(entity, relation, expectedClassType);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<List<T>> asyncTask = new DaasClientCallAsyncTask<List<T>>(getLeftSideRelatedEntitiesWithOutGraph, asyncResultHandler);
+		executor.submit(asyncTask);
+
 
 	}
 
@@ -1003,17 +1062,21 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getLeftSideRelatedEntitiesWithGraph(Entity entity, String relation,
-			String entityTypeName, Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+	public <T extends Entity> void getLeftSideRelatedEntitiesWithGraph(final Entity entity, final String relation,
+			final String entityTypeName, final Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			List<T> result = getLeftSideRelatedEntitiesWithGraph(entity, relation, entityTypeName, expectedClassType);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<List<T>> getLeftSideRelatedEntitiesWithGraph= new Callable<List<T>>() {
+			@Override
+			public List<T> call() throws Exception {
+				List<T> result = getLeftSideRelatedEntitiesWithGraph(entity, relation, entityTypeName, expectedClassType);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<List<T>> asyncTask = new DaasClientCallAsyncTask<List<T>>(getLeftSideRelatedEntitiesWithGraph, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -1044,17 +1107,21 @@ public class DaasClient implements IDaasClient {
 	 * .Entity, java.lang.String, java.lang.Class, com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getLeftSideRelatedEntitiesWithGraph(Entity entity, String relation,
-			Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+	public <T extends Entity> void getLeftSideRelatedEntitiesWithGraph(final Entity entity, final String relation,
+			final Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			List<T> result = getLeftSideRelatedEntitiesWithGraph(entity, relation, expectedClassType);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<List<T>> getLeftSideRelatedEntitiesWithGraph= new Callable<List<T>>() {
+			@Override
+			public List<T> call() throws Exception {
+				List<T> result = getLeftSideRelatedEntitiesWithGraph(entity, relation, expectedClassType);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<List<T>> asyncTask = new DaasClientCallAsyncTask<List<T>>(getLeftSideRelatedEntitiesWithGraph, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -1084,17 +1151,21 @@ public class DaasClient implements IDaasClient {
 	 * java.lang.String, java.lang.Class, com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getLeftSideRelatedEntities(Entity entity, String relation,
-			Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+	public <T extends Entity> void getLeftSideRelatedEntities(final Entity entity, final String relation,
+			final Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			List<T> result = getLeftSideRelatedEntities(entity, relation, expectedClassType);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<List<T>> getLeftSideRelatedEntities= new Callable<List<T>>() {
+			@Override
+			public List<T> call() throws Exception {
+				List<T> result = getLeftSideRelatedEntities(entity, relation, expectedClassType);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<List<T>> asyncTask = new DaasClientCallAsyncTask<List<T>>(getLeftSideRelatedEntities, asyncResultHandler);
+		executor.submit(asyncTask);
 	}
 
 	/**
@@ -1126,17 +1197,21 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void getLeftSideRelatedEntities(Entity entity, String relation, String entityTypeName,
-			Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
+	public <T extends Entity> void getLeftSideRelatedEntities(final Entity entity, final String relation, final String entityTypeName,
+			final Class<?> expectedClassType, AsyncResultHandler<List<T>> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			List<T> result = getLeftSideRelatedEntities(entity, relation, entityTypeName, expectedClassType);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<List<T>> getLeftSideRelatedEntities= new Callable<List<T>>() {
+			@Override
+			public List<T> call() throws Exception {
+				List<T> result = getLeftSideRelatedEntities(entity, relation, entityTypeName, expectedClassType);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<List<T>> asyncTask = new DaasClientCallAsyncTask<List<T>>(getLeftSideRelatedEntities, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -1164,17 +1239,21 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void addRelation(T entity, String entityTypeName, T toBeRelatedEntity,
-			String toBeRelatedEntityType, String relation, AsyncResultHandler<Boolean> asyncResultHandler) {
+	public <T extends Entity> void addRelation(final T entity, final String entityTypeName, final T toBeRelatedEntity,
+			final String toBeRelatedEntityType, final String relation, AsyncResultHandler<Boolean> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			Boolean result = addRelation(entity, entityTypeName, toBeRelatedEntity, toBeRelatedEntityType, relation);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<Boolean> addRelation= new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				Boolean result = addRelation(entity, entityTypeName, toBeRelatedEntity, toBeRelatedEntityType, relation);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<Boolean> asyncTask = new DaasClientCallAsyncTask<Boolean>(addRelation, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -1203,17 +1282,21 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.domain.Entity, java.lang.String, com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void addRelation(T entity, T toBeRelatedEntity, String relation,
+	public <T extends Entity> void addRelation(final T entity, final T toBeRelatedEntity, final String relation,
 			AsyncResultHandler<Boolean> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			Boolean result = addRelation(entity, toBeRelatedEntity, relation);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<Boolean> addRelation= new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				Boolean result = addRelation(entity, toBeRelatedEntity, relation);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<Boolean> asyncTask = new DaasClientCallAsyncTask<Boolean>(addRelation, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -1241,17 +1324,21 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.domain.Entity, java.lang.String, com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void removeRelation(T entity, T toBeRelatedEntity, String relation,
+	public <T extends Entity> void removeRelation(final T entity, final T toBeRelatedEntity, final String relation,
 			AsyncResultHandler<Boolean> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			Boolean result = removeRelation(entity, toBeRelatedEntity, relation);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<Boolean> removeRelation= new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				Boolean result = removeRelation(entity, toBeRelatedEntity, relation);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<Boolean> asyncTask = new DaasClientCallAsyncTask<Boolean>(removeRelation, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -1284,18 +1371,22 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void removeRelation(T entity, String entityTypeName, T toBeRelatedEntity,
-			String toBeRelatedEntityTypeName, String relation, AsyncResultHandler<Boolean> asyncResultHandler) {
+	public <T extends Entity> void removeRelation(final T entity, final String entityTypeName, final T toBeRelatedEntity,
+			final String toBeRelatedEntityTypeName, final String relation, AsyncResultHandler<Boolean> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			Boolean result = removeRelation(entity, entityTypeName, toBeRelatedEntity, toBeRelatedEntityTypeName,
-					relation);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<Boolean> removeRelation= new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				Boolean result = removeRelation(entity, entityTypeName, toBeRelatedEntity, toBeRelatedEntityTypeName,
+						relation);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<Boolean> asyncTask = new DaasClientCallAsyncTask<Boolean>(removeRelation, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -1348,16 +1439,20 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void createEntity(T entity, AsyncResultHandler<T> asyncResultHandler) {
+	public <T extends Entity> void createEntity(final T entity, AsyncResultHandler<T> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			T result = createEntity(entity);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<T> createEntity= new Callable<T>() {
+			@Override
+			public T call() throws Exception {
+				T result = createEntity(entity);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<T> asyncTask = new DaasClientCallAsyncTask<T>(createEntity, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -1381,18 +1476,22 @@ public class DaasClient implements IDaasClient {
 	 * java.lang.String, com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void createEntity(T entity, String entityTypeName,
+	public <T extends Entity> void createEntity(final T entity, final String entityTypeName,
 			AsyncResultHandler<T> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			T result = createEntity(entity, entityTypeName);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
-
+		Callable<T> createEntity= new Callable<T>() {
+			@Override
+			public T call() throws Exception {
+				T result = createEntity(entity, entityTypeName);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<T> asyncTask = new DaasClientCallAsyncTask<T>(createEntity, asyncResultHandler);
+		executor.submit(asyncTask);
+	
 	}
 
 	/**
@@ -1422,17 +1521,21 @@ public class DaasClient implements IDaasClient {
 	 * java.lang.String, com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void updateEntity(T entity, String entityTypeName,
+	public <T extends Entity> void updateEntity(final T entity, final String entityTypeName,
 			AsyncResultHandler<T> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			T result = updateEntity(entity, entityTypeName);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<T> updateEntity= new Callable<T>() {
+			@Override
+			public T call() throws Exception {
+				T result = updateEntity(entity, entityTypeName);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<T> asyncTask = new DaasClientCallAsyncTask<T>(updateEntity, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -1461,17 +1564,21 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void updateEntity(T entity, AsyncResultHandler<T> asyncResultHandler) {
+	public <T extends Entity> void updateEntity(final T entity, AsyncResultHandler<T> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			T result = updateEntity(entity);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
-
+		Callable<T> updateEntity= new Callable<T>() {
+			@Override
+			public T call() throws Exception {
+				T result = updateEntity(entity);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<T> asyncTask = new DaasClientCallAsyncTask<T>(updateEntity, asyncResultHandler);
+		executor.submit(asyncTask);
+	
 	}
 
 	/**
@@ -1643,16 +1750,20 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void deleteEntity(T entity, AsyncResultHandler<String> asyncResultHandler) {
+	public <T extends Entity> void deleteEntity(final T entity, AsyncResultHandler<String> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		try {
-			String result = deleteEntity(entity);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<String> deleteEntity= new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				String result = deleteEntity(entity);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<String> asyncTask = new DaasClientCallAsyncTask<String>(deleteEntity, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 
@@ -1680,17 +1791,21 @@ public class DaasClient implements IDaasClient {
 	 * java.lang.String, com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void deleteEntity(T entity, String entityTypeName,
+	public <T extends Entity> void deleteEntity(final T entity, final String entityTypeName,
 			AsyncResultHandler<String> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 		
-		try {
-			String result = deleteEntity(entity,entityTypeName);
-			asyncResultHandler.onComplete(result);
-		} catch (DaasClientException e) {
-			asyncResultHandler.onError(e);
-		}
+		Callable<String> deleteEntity= new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				String result = deleteEntity(entity,entityTypeName);
+				return result;
+			}
+		};
+		
+		DaasClientCallAsyncTask<String> asyncTask = new DaasClientCallAsyncTask<String>(deleteEntity, asyncResultHandler);
+		executor.submit(asyncTask);
 
 	}
 

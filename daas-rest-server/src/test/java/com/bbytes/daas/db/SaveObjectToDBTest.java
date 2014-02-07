@@ -24,9 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.transaction.BeforeTransaction;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.dao.AccountDao;
 import com.bbytes.daas.dao.ApplicationDao;
@@ -35,8 +32,6 @@ import com.bbytes.daas.domain.Account;
 import com.bbytes.daas.domain.Application;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 /**
  * 

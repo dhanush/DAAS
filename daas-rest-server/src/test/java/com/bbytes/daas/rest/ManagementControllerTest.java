@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.bbytes.daas.db.orientDb.TenantRouter;
+import com.bbytes.daas.security.DaasClientDetailsService;
 
 /**
  * Unit test for Endure Rest Services using Usergrid as the BAAS
@@ -67,13 +68,14 @@ public class ManagementControllerTest extends DAASTesting{
 	public void setup() throws BaasException {
 		// appending date to make them unique as retesting will create duplicate entry error
 		long date = DateTime.now().getMillis();
-		password = "usertest";
-		username = password + date;
+		password = "admin";
+		username = "admin";
 		appName = "myapp" + date;
 		accountName = "TestORG" + date;
 		token = "token";
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-
+		
+	
 		
 	}
 

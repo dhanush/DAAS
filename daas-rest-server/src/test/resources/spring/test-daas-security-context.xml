@@ -73,6 +73,7 @@
 			<user-service id="userDetailsService">
 				<user name="marissa" password="koala" authorities="ROLE_ACCOUNT_ADMIN" />
 				<user name="paul" password="emu" authorities="ROLE_ACCOUNT_ADMIN" />
+				<user name="admin" password="admin" authorities="ROLE_ACCOUNT_ADMIN" />
 			</user-service>
 		</authentication-provider>
 	</authentication-manager>

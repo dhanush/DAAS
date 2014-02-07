@@ -22,7 +22,9 @@ import java.util.UUID;
 
 import org.apache.commons.collections.IteratorUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.bbytes.daas.db.orientDb.TenantRouter;
 import com.bbytes.daas.domain.Account;
 import com.bbytes.daas.rest.BaasEntityNotFoundException;
 import com.bbytes.daas.rest.BaasPersistentException;
@@ -41,6 +43,7 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
  * @version 1.0.0
  */
 @Repository
+@Transactional(TenantRouter.TENANT_MGT)
 public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 
 	/**
@@ -55,78 +58,63 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 	public Account save(Account account) throws BaasPersistentException {
 		// check if the org name is unique if so then save
 		OObjectDatabaseTx db = null;
-		try {
-			if (!findAny("name", account.getName())) {
-				db = (OObjectDatabaseTx) getObjectDataBase();
-				account.setUuid(UUID.randomUUID().toString());
-				account.setCreationDate(new Date());
-				account.setModificationDate(new Date());
-				db.save(account);
-				account = db.detach(account, true);
-				if (account != null) {
-					orientDbTemplate.createDatabase(account.getName(), "object");
-				}
-			} else {
-				throw new BaasPersistentException("Account name has to be unique,  " + account.getName()
-						+ " is already taken ");
+
+		if (!findAny("name", account.getName())) {
+			db = (OObjectDatabaseTx) getObjectDataBase();
+			account.setUuid(UUID.randomUUID().toString());
+			account.setCreationDate(new Date());
+			account.setModificationDate(new Date());
+			db.save(account);
+			account = db.detach(account, true);
+			if (account != null) {
+				orientDbTemplate.createDatabase(account.getName(), "object");
 			}
-		} finally {
-			closeDB(db);
+		} else {
+			throw new BaasPersistentException("Account name has to be unique,  " + account.getName()
+					+ " is already taken ");
 		}
+
 		return account;
 	}
 
 	@Override
 	public Account update(Account account) throws BaasPersistentException {
 		OObjectDatabaseTx db = (OObjectDatabaseTx) getObjectDataBase();
-		try {
-			account.setModificationDate(new Date());
-			db.save(account);
-			account = db.detach(account, true);
-		} finally {
-			closeDB(db);
-		}
+		account.setModificationDate(new Date());
+		db.save(account);
+		account = db.detach(account, true);
 		return account;
 	}
 
 	@Override
 	public void remove(Account account) throws BaasPersistentException {
 		ODatabaseObject db = getObjectDataBase();
-		try {
-			db.delete(account);
-			// Drop database after the account is delete . All the data in the tenant account db is
-			// deleted and the db is dropped.
-			orientDbTemplate.dropDatabase(account.getName());
-		} finally {
-			closeDB(db);
-		}
+		db.delete(account);
+		// Drop database after the account is delete . All the data in the tenant account db is
+		// deleted and the db is dropped.
+		orientDbTemplate.dropDatabase(account.getName());
+
 	}
 
 	@Override
 	public Account find(ORID id) throws BaasPersistentException, BaasEntityNotFoundException {
 		OObjectDatabaseTx db = (OObjectDatabaseTx) getObjectDataBase();
-		try {
-			Account account = db.load(id);
-			account = db.detach(account, true);
-			return account;
-		} finally {
-			closeDB(db);
-		}
+		Account account = db.load(id);
+		account = db.detach(account, true);
+		return account;
+
 	}
 
 	@Override
 	public List<Account> findAll() throws BaasPersistentException, BaasEntityNotFoundException {
 		OObjectDatabaseTx db = (OObjectDatabaseTx) getObjectDataBase();
-		try {
-			OObjectIteratorClassInterface<Account> listItr = db.browseClass(Account.class);
-			@SuppressWarnings("unchecked")
-			List<Account> result = IteratorUtils.toList(listItr);
-			if (result == null || result.size() == 0)
-				throw new BaasEntityNotFoundException();
-			return detach(result, db);
-		} finally {
-			closeDB(db);
-		}
+		OObjectIteratorClassInterface<Account> listItr = db.browseClass(Account.class);
+		@SuppressWarnings("unchecked")
+		List<Account> result = IteratorUtils.toList(listItr);
+		if (result == null || result.size() == 0)
+			throw new BaasEntityNotFoundException();
+		return detach(result, db);
+
 	}
 
 	/*
@@ -137,12 +125,8 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 	@Override
 	public long count() throws BaasPersistentException {
 		ODatabaseObject db = getObjectDataBase();
-		try {
-			long count = db.countClass(Account.class.getSimpleName());
-			return count;
-		} finally {
-			closeDB(db);
-		}
+		long count = db.countClass(Account.class.getSimpleName());
+		return count;
 	}
 
 	/*
@@ -153,18 +137,13 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 	@Override
 	public Account find(String uuid) throws BaasPersistentException, BaasEntityNotFoundException {
 		OObjectDatabaseTx db = (OObjectDatabaseTx) getObjectDataBase();
-		try {
-			List<Account> result = db.query(new OSQLSynchQuery<Account>("select * from "
-					+ Account.class.getSimpleName() + " where uuid = '" + uuid + "'"));
+		List<Account> result = db.query(new OSQLSynchQuery<Account>("select * from " + Account.class.getSimpleName()
+				+ " where uuid = '" + uuid + "'"));
 
-			if (result == null || result.size() == 0)
-				throw new BaasEntityNotFoundException("Entity not found " + Account.class.getSimpleName());
-			result = detach(result, db);
-			return result.get(0);
-		} finally {
-			closeDB(db);
-		}
-
+		if (result == null || result.size() == 0)
+			throw new BaasEntityNotFoundException("Entity not found " + Account.class.getSimpleName());
+		result = detach(result, db);
+		return result.get(0);
 	}
 
 	/*
@@ -175,17 +154,13 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 	@Override
 	public List<Account> find(String property, String value) throws BaasEntityNotFoundException {
 		OObjectDatabaseTx db = (OObjectDatabaseTx) getObjectDataBase();
-		try {
-			List<Account> result = db.query(new OSQLSynchQuery<ODocument>("select * from "
-					+ Account.class.getSimpleName() + " where " + property + " = " + "'" + value + "'"));
+		List<Account> result = db.query(new OSQLSynchQuery<ODocument>("select * from " + Account.class.getSimpleName()
+				+ " where " + property + " = " + "'" + value + "'"));
 
-			if (result == null || result.size() == 0)
-				throw new BaasEntityNotFoundException("Account not found " + value);
-			result = detach(result, db);
-			return result;
-		} finally {
-			closeDB(db);
-		}
+		if (result == null || result.size() == 0)
+			throw new BaasEntityNotFoundException("Account not found " + value);
+		result = detach(result, db);
+		return result;
 	}
 
 	/*
@@ -208,34 +183,32 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 	@Override
 	public boolean findAny(Map<String, String> propertyToValue) {
 		ODatabaseObject db = getObjectDataBase();
-		try {
-			if (propertyToValue == null)
-				throw new IllegalArgumentException("Null value passed as arg");
 
-			String whereCondition = "";
-			int index = 0;
-			for (Iterator<String> iterator = propertyToValue.keySet().iterator(); iterator.hasNext();) {
-				String property = iterator.next();
-				String value = propertyToValue.get(property);
-				if (index == 0) {
-					whereCondition = whereCondition + property + " = " + "'" + value + "'";
-				} else {
-					whereCondition = whereCondition + " and " + property + " = " + "'" + value + "'";
-				}
-				index++;
+		if (propertyToValue == null)
+			throw new IllegalArgumentException("Null value passed as arg");
 
+		String whereCondition = "";
+		int index = 0;
+		for (Iterator<String> iterator = propertyToValue.keySet().iterator(); iterator.hasNext();) {
+			String property = iterator.next();
+			String value = propertyToValue.get(property);
+			if (index == 0) {
+				whereCondition = whereCondition + property + " = " + "'" + value + "'";
+			} else {
+				whereCondition = whereCondition + " and " + property + " = " + "'" + value + "'";
 			}
+			index++;
 
-			String sql = "SELECT COUNT(*) as count FROM " + Account.class.getSimpleName() + "  WHERE " + whereCondition;
-			long count = ((ODocument) db.query(new OSQLSynchQuery<Account>(sql)).get(0)).field("count");
-
-			if (count == 0)
-				return false;
-
-			return true;
-		} finally {
-			closeDB(db);
 		}
+
+		String sql = "SELECT COUNT(*) as count FROM " + Account.class.getSimpleName() + "  WHERE " + whereCondition;
+		long count = ((ODocument) db.query(new OSQLSynchQuery<Account>(sql)).get(0)).field("count");
+
+		if (count == 0)
+			return false;
+
+		return true;
+
 	}
 
 }

@@ -68,8 +68,8 @@ public class RestControllerTest extends DAASTesting {
 	public void setup() throws BaasException {
 		// appending date to make them unique as retesting will create duplicate entry error
 		long date = DateTime.now().getMillis();
-		password = "usertest";
-		username = password + date;
+		password = "admin";
+		username = "admin";
 		appName = "myapp" + date;
 		orgName = "TestORG" + date;
 		token = init(orgName, appName, username, password);

@@ -38,10 +38,10 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraph;
  * @version 1.0.0
  */
 @Repository
+@Transactional
 public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 
 	@Override
-	@Transactional
 	public DaasUser saveAccountUser(DaasUser user) throws BaasPersistentException {
 		// check if the user name and email combo is unique
 		Map<String, String> emailPropValue = new HashMap<String, String>();
@@ -69,7 +69,6 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 	}
 
 	@Override
-	@Transactional
 	public DaasUser saveAppUser(DaasUser user) throws BaasPersistentException {
 
 		// check if the user name and email combo is unique
@@ -105,18 +104,14 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 	@Override
 	public DaasUser findUser(String accountName, String userName) throws BaasEntityNotFoundException {
 		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
-		try {
-		List<DaasUser> result = dbTx.query(
-				new OSQLSynchQuery<DaasUser>("select * from DaasUser  where userName = '" + userName + "' and "
-						+ DaasDefaultFields.FIELD_ACCOUNT_NAME.toString() + " = '" + accountName + "'"));
+
+		List<DaasUser> result = dbTx.query(new OSQLSynchQuery<DaasUser>("select * from DaasUser  where userName = '"
+				+ userName + "' and " + DaasDefaultFields.FIELD_ACCOUNT_NAME.toString() + " = '" + accountName + "'"));
 
 		if (result == null || result.size() == 0)
 			throw new BaasEntityNotFoundException("Entity not found of type DaasUser with Username " + userName);
 
 		return detach(result.get(0), dbTx);
-		} finally {
-			closeDB(dbTx);
-		}
 	}
 
 	/*
@@ -128,100 +123,92 @@ public class UserDaoImpl extends AbstractDao<DaasUser> implements UserDao {
 	@Override
 	public DaasUser findUser(String accountName, String appName, String userName) throws BaasEntityNotFoundException {
 		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
-		try {
-		List<DaasUser> result = dbTx.query(
-				new OSQLSynchQuery<DaasUser>("select * from DaasUser  where userName = '" + userName + "' and "
-						+ DaasDefaultFields.FIELD_ACCOUNT_NAME.toString() + " = '" + accountName + "' and "
-						+ DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = '" + appName + "'"));
+		List<DaasUser> result = dbTx.query(new OSQLSynchQuery<DaasUser>("select * from DaasUser  where userName = '"
+				+ userName + "' and " + DaasDefaultFields.FIELD_ACCOUNT_NAME.toString() + " = '" + accountName
+				+ "' and " + DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = '" + appName + "'"));
 
 		if (result == null || result.size() == 0)
 			throw new BaasEntityNotFoundException("Entity not found of type DaasUser with Username " + userName);
 
 		return detach(result.get(0), dbTx);
-		} finally {
-			closeDB(dbTx);
-		}
+
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.bbytes.daas.rest.dao.UserDao#findUser(java.lang.String)
 	 */
 	@Override
 	public DaasUser findUser(String userName) throws BaasEntityNotFoundException {
 		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
-		try {
-		List<DaasUser> result = dbTx.query(
-				new OSQLSynchQuery<DaasUser>("select * from DaasUser  where userName = '" + userName + "'"));
+		List<DaasUser> result = dbTx.query(new OSQLSynchQuery<DaasUser>("select * from DaasUser  where userName = '"
+				+ userName + "'"));
 
 		if (result == null || result.size() == 0)
 			throw new BaasEntityNotFoundException("Entity not found of type DaasUser with Username " + userName);
 
 		return detach(result.get(0), dbTx);
-		} finally {
-			closeDB(dbTx);
-		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.bbytes.daas.dao.UserDao#findUserByRole(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public List<DaasUser> findUserByRole(String accountName, String role) throws BaasEntityNotFoundException {
 		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
-		try {
-		List<DaasUser> result = dbTx.query(
-				new OSQLSynchQuery<DaasUser>("select * from DaasUser  where "+DaasDefaultFields.FIELD_ACCOUNT_NAME.toString() + " = '" + accountName + "' and "
-						+ "roles.value in ['"+role+"']"));
+		List<DaasUser> result = dbTx.query(new OSQLSynchQuery<DaasUser>("select * from DaasUser  where "
+				+ DaasDefaultFields.FIELD_ACCOUNT_NAME.toString() + " = '" + accountName + "' and "
+				+ "roles.value in ['" + role + "']"));
 
 		if (result == null || result.size() == 0)
-			throw new BaasEntityNotFoundException("Daas User with given role -  " + role + " and account name - "+ accountName);
+			throw new BaasEntityNotFoundException("Daas User with given role -  " + role + " and account name - "
+					+ accountName);
 
 		return detach(result, dbTx);
-		} finally {
-			closeDB(dbTx);
-		}
+
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.bbytes.daas.dao.UserDao#findUserByRole(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public List<DaasUser> findUserByRole(String accountName,String applicationName, String role) throws BaasEntityNotFoundException {
+	public List<DaasUser> findUserByRole(String accountName, String applicationName, String role)
+			throws BaasEntityNotFoundException {
 		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
-		try {
-		List<DaasUser> result = dbTx.query(
-				new OSQLSynchQuery<DaasUser>("select * from DaasUser  where "+DaasDefaultFields.FIELD_ACCOUNT_NAME.toString() + " = '" + accountName + "' and "
-						+DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = '" + applicationName + "' and "+ "roles.value in ['"+role+"']"));
+		List<DaasUser> result = dbTx.query(new OSQLSynchQuery<DaasUser>("select * from DaasUser  where "
+				+ DaasDefaultFields.FIELD_ACCOUNT_NAME.toString() + " = '" + accountName + "' and "
+				+ DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = '" + applicationName + "' and "
+				+ "roles.value in ['" + role + "']"));
 
 		if (result == null || result.size() == 0)
-			throw new BaasEntityNotFoundException("Daas User with given role -  " + role + " and account name - "+ accountName);
+			throw new BaasEntityNotFoundException("Daas User with given role -  " + role + " and account name - "
+					+ accountName);
 
 		return detach(result, dbTx);
-		} finally {
-			closeDB(dbTx);
-		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.bbytes.daas.dao.UserDao#findUserAsRecord(java.lang.String)
 	 */
 	@Override
 	public ODocument findUserAsRecord(String userName) throws BaasEntityNotFoundException {
 		OrientGraph db = getDataBase();
-		try {
-			String sql = "select * from DaasUser  where userName = '" + userName + "'";
+		String sql = "select * from DaasUser  where userName = '" + userName + "'";
 
-			List<ODocument> result = db.getRawGraph().query(new OSQLSynchQuery<ODocument>(sql));
+		List<ODocument> result = db.getRawGraph().query(new OSQLSynchQuery<ODocument>(sql));
 
-			if (result == null || result.size() == 0)
-				throw new BaasEntityNotFoundException("Entity not found of type DaasUser with Username " + userName);
+		if (result == null || result.size() == 0)
+			throw new BaasEntityNotFoundException("Entity not found of type DaasUser with Username " + userName);
 
-			return result.get(0);
-		} finally {
-			closeDB(db);
-		}
+		return result.get(0);
+
 	}
-	
-	
-	
+
 }

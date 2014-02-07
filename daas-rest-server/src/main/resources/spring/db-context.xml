@@ -17,8 +17,16 @@
 
 	<!-- default transaction manager -->
 	<bean id="transactionManager"
-		class="com.bbytes.daas.db.orientDb.OrientGraphDbPoolTransactionManager">
+		class="com.bbytes.daas.db.orientDb.OrientGraphDbPoolTransactionManager" primary="true">
 	</bean>
+	
+	
+	<bean id="tenantMgtTransactionManager"
+		class="com.bbytes.daas.db.orientDb.OrientTenantManagementDbPoolTransactionManager" >
+		<qualifier value="TenantManagement" />
+	</bean>
+	
+	
 
 	<bean id="orientDbConnManager" class="com.bbytes.daas.db.orientDb.OrientDbConnectionManager">
 		<property name="databaseURL" value="remote:localhost" />

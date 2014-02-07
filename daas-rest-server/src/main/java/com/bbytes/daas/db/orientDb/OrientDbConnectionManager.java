@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import com.bbytes.daas.dao.AccountDao;
+import com.bbytes.daas.dao.DocumentUtils;
 import com.bbytes.daas.rest.BaasTenantCreationException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.reflection.OReflectionHelper;
@@ -36,6 +37,7 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
 import com.orientechnologies.orient.object.db.OObjectDatabasePool;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 
 /**
@@ -239,6 +241,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 			tenantObjectDatabasePool.setup(minConnections, maxConnections);
 			tenantToObjectDbConnPoolMap.put(databaseName, tenantObjectDatabasePool);
 			ODatabaseObject objectDatabase = tenantObjectDatabasePool.acquire();
+			registerClassUnderPackageToDb(objectDatabase, domainClassBasePackage);
 			objectDatabase.getEntityManager().registerEntityClasses(domainClassBasePackage);
 			return tenantObjectDatabasePool;
 		}
@@ -258,6 +261,25 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 				graphDatabase.getMetadata().getSchema().createClass(c);
 			}
 		}
+		
+		graphDatabase.close();
+	}
+	
+	private void registerClassUnderPackageToDb(ODatabaseObject objectDatabase, final String classPackage) {
+		List<Class<?>> classes = null;
+		try {
+			classes = OReflectionHelper.getClassesFor(classPackage, Thread.currentThread().getContextClassLoader());
+		} catch (ClassNotFoundException e) {
+			throw new OException(e);
+		}
+
+		for (Class<?> c : classes) {
+			if (!objectDatabase.getMetadata().getSchema().existsClass(c.getSimpleName())) {
+				objectDatabase.getMetadata().getSchema().createClass(c);
+			}
+		}
+		
+		objectDatabase.close();
 	}
 
 	public boolean dropDatabase(String databaseName) {

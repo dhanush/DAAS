@@ -14,53 +14,37 @@
 package com.bbytes.daas.db.orientDb;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionSystemException;
-import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionStatus;
-import org.springframework.transaction.support.ResourceTransactionManager;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
+import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.exception.OTransactionException;
-import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 
 /**
  * 
- * Spring AbstractPlatformTransactionManager impl for orient db
  * 
  * @author Thanneer
  * 
  * @version
  */
-public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransactionManager implements
-		ResourceTransactionManager, DisposableBean {
+public class OrientTenantManagementDbPoolTransactionManager extends OrientGraphDbPoolTransactionManager {
 
-	private static final Logger LOG = Logger.getLogger(OrientGraphDbPoolTransactionManager.class);
+	private static final long serialVersionUID = -5497970042226024082L;
 
-	private static final long serialVersionUID = -1837116040878560582L;
-
-	@Autowired
-	protected OrientDbTemplate orientDbTemplate;
-
-	@Override
-	protected Object doGetTransaction() throws TransactionException {
-		GraphOrientTransactionObject txObject = new GraphOrientTransactionObject();
-		return txObject;
-	}
+	private static final Logger LOG = Logger.getLogger(OrientTenantManagementDbPoolTransactionManager.class);
 
 	@Override
 	protected void doBegin(Object transactionObject, TransactionDefinition definition) throws TransactionException {
-		LOG.debug("Came into doBegin");
+		LOG.debug("Came into TenantManagement doBegin");
 		GraphOrientTransactionObject txObject = (GraphOrientTransactionObject) transactionObject;
-		
-		OrientGraph graphDb = orientDbTemplate.getDatabase();
+
+		ODatabaseObject tenantMgtDb = orientDbTemplate.getTenantManagementDatabase();
 
 		try {
-			txObject.setODatabaseRecordHolder(new ODatabaseHolder(graphDb));
+			txObject.setODatabaseRecordHolder(new ODatabaseHolder(tenantMgtDb));
 
 			// Sets TransactionActive = true in the Database Holder
 			txObject.setTransactionData(null);
@@ -71,24 +55,23 @@ public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransac
 
 			txObject.getDatabaseHolder().setSynchronizedWithTransaction(true);
 
-			txObject.getDatabaseHolder().getGraphDatabase().getRawGraph().begin();
+			txObject.getDatabaseHolder().getObjectDatabase().begin();
 		} catch (Exception e) {
 			closeDatabaseConnectionAfterFailedBegin(txObject);
-			throw new OrientDbTransactionException("Could open a Transaction with Graph: " + txObject, e);
+			throw new OrientDbTransactionException("Could open a Transaction with TenantManagement Db: " + txObject, e);
 		}
 
 	}
 
 	protected void closeDatabaseConnectionAfterFailedBegin(OrientTransactionObject txObject) {
-		OrientGraph graphDb = txObject.getDatabaseHolder().getGraphDatabase();
+		ODatabaseObject tenantMgtDb = txObject.getDatabaseHolder().getObjectDatabase();
 
-		if (graphDb == null || graphDb.isClosed() || graphDb.getRawGraph().getURL()==null)
+		if (tenantMgtDb == null || tenantMgtDb.isClosed())
 			return;
 
-		ODatabaseRecord db = graphDb.getRawGraph();
 		try {
-			if (db.getTransaction().isActive()) {
-				db.rollback();
+			if (tenantMgtDb.getTransaction().isActive()) {
+				tenantMgtDb.rollback();
 			}
 		} catch (Throwable ex) {
 			logger.debug("Could not rollback OTransaction after failed transaction begin", ex);
@@ -99,22 +82,22 @@ public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransac
 
 	@Override
 	protected void doCommit(DefaultTransactionStatus status) throws TransactionException {
-		LOG.debug("Came into doCommit");
+		LOG.debug("Came into TenantManagement doCommit");
 
 		GraphOrientTransactionObject txObject = (GraphOrientTransactionObject) status.getTransaction();
 		if (status.isDebug()) {
-			logger.debug("Committing transaction on DB [" + txObject.getDatabaseHolder().getGraphDatabase() + "]");
+			logger.debug("Committing transaction on TenantManagement DB ["
+					+ txObject.getDatabaseHolder().getObjectDatabase() + "]");
 		}
 		try {
-			OrientGraph graphDb = txObject.getDatabaseHolder().getGraphDatabase();
+			ODatabaseObject tenantMgtDb = txObject.getDatabaseHolder().getObjectDatabase();
 
-			if (graphDb == null || graphDb.isClosed() || graphDb.getRawGraph().getURL()==null)
+			if (tenantMgtDb == null || tenantMgtDb.isClosed())
 				return;
 
-			ODatabaseRecord db = graphDb.getRawGraph();
-			db.commit();
+			tenantMgtDb.commit();
 		} catch (OTransactionException ex) {
-			throw new TransactionSystemException("Could not commit OrientDB transaction", ex);
+			throw new TransactionSystemException("Could not commit TenantManagement OrientDB transaction", ex);
 		} catch (RuntimeException ex) {
 			throw ex;
 		}
@@ -123,22 +106,21 @@ public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransac
 
 	@Override
 	protected void doRollback(DefaultTransactionStatus status) throws TransactionException {
-		LOG.debug("Came into doRollback");
+		LOG.debug("Came into TenantManagement doRollback");
 		GraphOrientTransactionObject txObject = (GraphOrientTransactionObject) status.getTransaction();
 		if (status.isDebug()) {
-			logger.debug("Rolling back OrientDB transaction on DB [" + txObject.getDatabaseHolder().getGraphDatabase()
-					+ "]");
+			logger.debug("Rolling back TenantManagement OrientDB  transaction on DB ["
+					+ txObject.getDatabaseHolder().getObjectDatabase() + "]");
 		}
 		try {
-			OrientGraph graphDb = txObject.getDatabaseHolder().getGraphDatabase();
+			ODatabaseObject tenantMgtDb = txObject.getDatabaseHolder().getObjectDatabase();
 
-			if (graphDb == null || graphDb.isClosed() || graphDb.getRawGraph().getURL()==null)
+			if (tenantMgtDb == null || tenantMgtDb.isClosed())
 				return;
 
-			ODatabaseRecord db = graphDb.getRawGraph();
-			db.rollback();
+			tenantMgtDb.rollback();
 		} catch (OTransactionException ex) {
-			throw new TransactionSystemException("Could not commit OrientDB transaction", ex);
+			throw new TransactionSystemException("Could not commit TenantManagement OrientDB transaction", ex);
 		} catch (RuntimeException ex) {
 			throw ex;
 		}
@@ -159,32 +141,10 @@ public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransac
 
 	protected void releaseDatabase(ODatabaseHolder holder) {
 
-		if (holder.getGraphDatabase() == null || holder.getGraphDatabase().isClosed())
+		if (holder.getObjectDatabase() == null || holder.getObjectDatabase().isClosed())
 			return;
 
-		LOG.debug("Came into release db");
-		holder.getGraphDatabase().shutdown();
+		LOG.debug("Came into release TenantManagement db");
+		holder.getObjectDatabase().close();
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.springframework.beans.factory.DisposableBean#destroy()
-	 */
-	@Override
-	public void destroy() throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.springframework.transaction.support.ResourceTransactionManager#getResourceFactory()
-	 */
-	@Override
-	public Object getResourceFactory() {
-		return orientDbTemplate;
-	}
-
 }
