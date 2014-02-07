@@ -30,7 +30,6 @@ public class GraphDBConnTesting extends BaseDBTest {
 	}
 	
 	@Test
-	@Transactional
 	public void testGraphDBConn() {
 		assertTrue(orientDbTemplate.getDatabase().getRawGraph().exists());
 	}

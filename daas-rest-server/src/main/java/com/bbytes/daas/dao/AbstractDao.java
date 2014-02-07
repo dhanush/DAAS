@@ -43,6 +43,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraph;
  * @author Thanneer
  * @version 1.0.0
  */
+@Transactional
 public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements DaasDAO<E> {
 
 	private static final Logger LOG = Logger.getLogger(AbstractDao.class);
@@ -59,57 +60,35 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	}
 
 	@Override
-	@Transactional
 	public E save(E entity) throws BaasPersistentException {
-
 		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
-		try {
-			entity.setUuid(UUID.randomUUID().toString());
-			entity.setCreationDate(new Date());
-			entity.setModificationDate(new Date());
-			E e = dbTx.save(entity);
-			return detach(e, dbTx);
-
-		} finally {
-			closeDB(dbTx);
-		}
+		entity.setUuid(UUID.randomUUID().toString());
+		entity.setCreationDate(new Date());
+		entity.setModificationDate(new Date());
+		E e = dbTx.save(entity);
+		return detach(e, dbTx);
 	}
 
 	@Override
-	@Transactional
 	public E update(E entity) throws BaasPersistentException {
 		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
-		try {
-			entity.setModificationDate(new Date());
-			E e = dbTx.save(entity);
-			return detach(e, dbTx);
-		} finally {
-			closeDB(dbTx);
-		}
+		entity.setModificationDate(new Date());
+		E e = dbTx.save(entity);
+		return detach(e, dbTx);
 
 	}
 
 	@Override
-	@Transactional
 	public void remove(E entity) throws BaasPersistentException {
 		ODatabaseObject db = getObjectDatabase();
-		try {
-			db.delete(entity);
-		} finally {
-			closeDB(db);
-		}
-
+		db.delete(entity);
 	}
 
 	@Override
 	public E find(ORID id) throws BaasPersistentException, BaasEntityNotFoundException {
 		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
-		try {
-			E e = dbTx.load(id);
-			return detach(e, dbTx);
-		} finally {
-			closeDB(dbTx);
-		}
+		E e = dbTx.load(id);
+		return detach(e, dbTx);
 	}
 
 	@Override
@@ -123,8 +102,6 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 			return detach(result, dbTx);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-		} finally {
-			closeDB(dbTx);
 		}
 
 		return new ArrayList<E>();
@@ -138,12 +115,8 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	@Override
 	public long count() throws BaasPersistentException {
 		ODatabaseObject db = getObjectDatabase();
-		try {
-			long count = db.countClass(this.entityType.getSimpleName());
-			return count;
-		} finally {
-			closeDB(db);
-		}
+		long count = db.countClass(this.entityType.getSimpleName());
+		return count;
 	}
 
 	/*
@@ -165,8 +138,6 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 
 		} catch (Exception e) {
 			throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
-		} finally {
-			closeDB(dbTx);
 		}
 
 	}
@@ -221,8 +192,6 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-		} finally {
-			closeDB(db);
 		}
 
 		return false;
@@ -247,8 +216,6 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
-		} finally {
-			closeDB(dbTx);
 		}
 
 		return new ArrayList<E>();
@@ -268,7 +235,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	protected E detach(E entity, OObjectDatabaseTx db) {
 		return db.detachAll(entity, true);
 	}
-
+	
 	protected void closeDB(OrientGraph db) {
 		if (db != null && !db.isClosed())
 			db.shutdown();

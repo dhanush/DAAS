@@ -201,10 +201,10 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		// if accn does not exist then throw cannot create new tenant db
 
 		if (tenantGraphDatabasePool == null) {
-			if (!accountDao.findAny("name", tenantDbName)) {
-				throw new BaasTenantCreationException("Failed to create tenant DB " + tenantDbName
-						+ " as there is no account created with name " + tenantDbName);
-			}
+//			if (!accountDao.findAny("name", tenantDbName)) {
+//				throw new BaasTenantCreationException("Failed to create tenant DB " + tenantDbName
+//						+ " as there is no account created with name " + tenantDbName);
+//			}
 
 			tenantGraphDatabasePool = (ODatabaseDocumentPool) createDatabase(tenantDbName, "graph");
 

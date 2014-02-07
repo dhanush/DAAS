@@ -50,14 +50,11 @@ public class DBDropTesting extends BaseDBTest {
 	}
 
 	@Test
-	public void testDBExist() {
+	public void testDBExistAndDrop() {
 		connectionManager.getDatabase();
 		assertTrue(connectionManager.databaseExist(DB_NAME));
-	}
-	
-	@Test
-	public void testDropDB() {
 		assertTrue(connectionManager.dropDatabase(DB_NAME));
 	}
+	
 
 }

@@ -159,8 +159,6 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new BaasPersistentException(e);
-		} finally {
-			closeDB(db);
 		}
 	}
 
@@ -190,8 +188,6 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 		} catch (BaasEntityNotFoundException e) {
 			throw new BaasPersistentException(e);
-		} finally {
-			closeDB(db);
 		}
 	}
 
@@ -207,16 +203,13 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	public void remove(ODocument entity, String accountName, String appName) throws BaasPersistentException {
 
 		OrientGraph db = getDataBase();
-		try {
-			ODocument docToBeRemoved = db.getRawGraph().load(entity.getIdentity());
-			if (docToBeRemoved == null)
-				throw new BaasPersistentException("Document to be deleted doesnt exist in DB");
 
-			db.getRawGraph().delete(entity.getIdentity());
-			db.commit();
-		} finally {
-			closeDB(db);
-		}
+		ODocument docToBeRemoved = db.getRawGraph().load(entity.getIdentity());
+		if (docToBeRemoved == null)
+			throw new BaasPersistentException("Document to be deleted doesnt exist in DB");
+
+		db.getRawGraph().delete(entity.getIdentity());
+		db.commit();
 
 	}
 
@@ -243,8 +236,6 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			db.commit();
 		} catch (BaasEntityNotFoundException e) {
 			throw new BaasPersistentException(e);
-		} finally {
-			closeDB(db);
 		}
 	}
 
@@ -283,8 +274,6 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 		} catch (BaasEntityNotFoundException e) {
 			throw new BaasPersistentException(e);
-		} finally {
-			closeDB(db);
 		}
 	}
 
@@ -313,25 +302,22 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		List<ODocument> result = new ArrayList<>();
 
 		OrientGraph db = null;
-		try {
-			ODocument primaryEntity = findById(primartyEntityType, primaryEntityId);
 
-			db = getDataBase();
+		ODocument primaryEntity = findById(primartyEntityType, primaryEntityId);
 
-			Vertex vertex = db.getVertex(primaryEntity.getIdentity());
+		db = getDataBase();
 
-			for (Vertex v : vertex.getVertices(Direction.OUT, relationName)) {
-				ODocument doc = ((OrientVertex) v).getRecord();
-				if (secondaryEntityType == null
-						|| doc.field(DaasDefaultFields.ENTITY_TYPE.toString()).equals(secondaryEntityType)) {
-					result.add(doc);
-				}
+		Vertex vertex = db.getVertex(primaryEntity.getIdentity());
+
+		for (Vertex v : vertex.getVertices(Direction.OUT, relationName)) {
+			ODocument doc = ((OrientVertex) v).getRecord();
+			if (secondaryEntityType == null
+					|| doc.field(DaasDefaultFields.ENTITY_TYPE.toString()).equals(secondaryEntityType)) {
+				result.add(doc);
 			}
-
-			return result;
-		} finally {
-			closeDB(db);
 		}
+
+		return result;
 
 	}
 
@@ -348,22 +334,20 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		List<ODocument> result = new ArrayList<>();
 
 		OrientGraph db = null;
-		try {
-			ODocument secondaryEntity = findById(secondaryEntityType, secondaryEntityId);
-			db = getDataBase();
-			Vertex vertex = db.getVertex(secondaryEntity.getIdentity());
-			for (Vertex v : vertex.getVertices(Direction.IN, relationName)) {
-				ODocument doc = ((OrientVertex) v).getRecord();
-				if (primartyEntityType == null
-						|| doc.field(DaasDefaultFields.ENTITY_TYPE.toString()).equals(primartyEntityType)) {
-					result.add(doc);
-				}
-			}
 
-			return result;
-		} finally {
-			closeDB(db);
+		ODocument secondaryEntity = findById(secondaryEntityType, secondaryEntityId);
+		db = getDataBase();
+		Vertex vertex = db.getVertex(secondaryEntity.getIdentity());
+		for (Vertex v : vertex.getVertices(Direction.IN, relationName)) {
+			ODocument doc = ((OrientVertex) v).getRecord();
+			if (primartyEntityType == null
+					|| doc.field(DaasDefaultFields.ENTITY_TYPE.toString()).equals(primartyEntityType)) {
+				result.add(doc);
+			}
 		}
+
+		return result;
+
 	}
 
 	/*
@@ -406,34 +390,32 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			throw new IllegalArgumentException("Null value passed as arg");
 
 		OrientGraph db = getDataBase();
-		try {
-			String whereCondition = "";
-			int index = 0;
-			for (Iterator<String> iterator = propertyToValue.keySet().iterator(); iterator.hasNext();) {
-				String property = iterator.next();
-				String value = propertyToValue.get(property);
-				if (index == 0) {
-					whereCondition = whereCondition + property + " = " + "'" + value + "'";
-				} else {
-					whereCondition = whereCondition + " and " + property + " = " + "'" + value + "'";
-				}
-				index++;
 
+		String whereCondition = "";
+		int index = 0;
+		for (Iterator<String> iterator = propertyToValue.keySet().iterator(); iterator.hasNext();) {
+			String property = iterator.next();
+			String value = propertyToValue.get(property);
+			if (index == 0) {
+				whereCondition = whereCondition + property + " = " + "'" + value + "'";
+			} else {
+				whereCondition = whereCondition + " and " + property + " = " + "'" + value + "'";
 			}
+			index++;
 
-			String sql = "SELECT COUNT(*) as count FROM " + entityType + "  WHERE " + whereCondition;
-			OSQLSynchQuery<ODocument> synchQuery = new OSQLSynchQuery<ODocument>(sql);
-			synchQuery.setFetchPlan(fetchPlan);
-
-			long count = ((ODocument) db.getRawGraph().query(synchQuery).get(0)).field("count");
-
-			if (count == 0)
-				return false;
-
-			return true;
-		} finally {
-			closeDB(db);
 		}
+
+		String sql = "SELECT COUNT(*) as count FROM " + entityType + "  WHERE " + whereCondition;
+		OSQLSynchQuery<ODocument> synchQuery = new OSQLSynchQuery<ODocument>(sql);
+		synchQuery.setFetchPlan(fetchPlan);
+
+		long count = ((ODocument) db.getRawGraph().query(synchQuery).get(0)).field("count");
+
+		if (count == 0)
+			return false;
+
+		return true;
+
 	}
 
 	/*
@@ -449,22 +431,19 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			String appName) throws BaasPersistentException {
 
 		OrientGraph db = getDataBase();
-		try {
-			if (propertyMap != null)
-				docToBeUpdated = DocumentUtils.applyProperties(docToBeUpdated, propertyMap);
 
-			ODocument originalDoc = db.getRawGraph().load(docToBeUpdated.getIdentity());
-			if (originalDoc == null)
-				throw new BaasPersistentException(
-						"Document to be updated doesnt exist in DB , use create method to save the object to DB");
+		if (propertyMap != null)
+			docToBeUpdated = DocumentUtils.applyProperties(docToBeUpdated, propertyMap);
 
-			ODocument docToBeSaved = DocumentUtils.update(originalDoc, docToBeUpdated);
-			// update modification time
-			docToBeSaved.field(DaasDefaultFields.FIELD_MODIFICATION_DATE.toString(), new Date());
-			return docToBeSaved.save();
-		} finally {
-			closeDB(db);
-		}
+		ODocument originalDoc = db.getRawGraph().load(docToBeUpdated.getIdentity());
+		if (originalDoc == null)
+			throw new BaasPersistentException(
+					"Document to be updated doesnt exist in DB , use create method to save the object to DB");
+
+		ODocument docToBeSaved = DocumentUtils.update(originalDoc, docToBeUpdated);
+		// update modification time
+		docToBeSaved.field(DaasDefaultFields.FIELD_MODIFICATION_DATE.toString(), new Date());
+		return docToBeSaved.save();
 
 	}
 
@@ -512,17 +491,13 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Transactional
 	public ODocument find(ORID id) throws BaasEntityNotFoundException {
 		OrientGraph db = getDataBase();
-		try {
-			ODocument result = db.getRawGraph().load(id);
 
-			if (result == null)
-				throw new BaasEntityNotFoundException();
+		ODocument result = db.getRawGraph().load(id);
 
-			return result;
+		if (result == null)
+			throw new BaasEntityNotFoundException();
 
-		} finally {
-			closeDB(db);
-		}
+		return result;
 
 	}
 
@@ -536,22 +511,19 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	public ODocument findById(String entityType, String uuid) throws BaasEntityNotFoundException {
 		OrientGraph db = getDataBase();
 
-		try {
-			String sql = "SELECT * FROM " + entityType + "  WHERE " + DaasDefaultFields.FIELD_UUID + " = " + "'" + uuid
-					+ "'";
-			OSQLSynchQuery<ODocument> synchQuery = new OSQLSynchQuery<ODocument>(sql);
-			synchQuery.setFetchPlan(fetchPlan);
-			synchQuery.setLimit(1);
-			synchQuery.setUseCache(false);
-			List<ODocument> result = db.getRawGraph().query(synchQuery);
+		String sql = "SELECT * FROM " + entityType + "  WHERE " + DaasDefaultFields.FIELD_UUID + " = " + "'" + uuid
+				+ "'";
+		OSQLSynchQuery<ODocument> synchQuery = new OSQLSynchQuery<ODocument>(sql);
+		synchQuery.setFetchPlan(fetchPlan);
+		synchQuery.setLimit(1);
+		synchQuery.setUseCache(false);
+		List<ODocument> result = db.getRawGraph().query(synchQuery);
 
-			if (result == null || result.size() == 0)
-				throw new BaasEntityNotFoundException();
+		if (result == null || result.size() == 0)
+			throw new BaasEntityNotFoundException();
 
-			return result.get(0);
-		} finally {
-			closeDB(db);
-		}
+		return result.get(0);
+
 	}
 
 	/*
@@ -566,16 +538,14 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			throws BaasEntityNotFoundException {
 
 		OrientGraph db = getDataBase();
-		try {
-			String sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " = " + "'" + propertyValue + "'";
-			OSQLAsynchQuery<ODocument> asynchQuery = new OSQLSynchQuery<ODocument>(sql);
-			asynchQuery.setFetchPlan(fetchPlan);
-			List<ODocument> result = db.getRawGraph().query(asynchQuery);
 
-			return result;
-		} finally {
-			closeDB(db);
-		}
+		String sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " = " + "'" + propertyValue + "'";
+		OSQLAsynchQuery<ODocument> asynchQuery = new OSQLSynchQuery<ODocument>(sql);
+		asynchQuery.setFetchPlan(fetchPlan);
+		List<ODocument> result = db.getRawGraph().query(asynchQuery);
+
+		return result;
+
 	}
 
 	/*
@@ -589,19 +559,16 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	public List<ODocument> findByProperty(String applicationName, String entityType, String propertyName,
 			String propertyValue) throws BaasEntityNotFoundException {
 		OrientGraph db = getDataBase();
-		try {
-			String sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " = " + "'" + propertyValue + "'"
-					+ " and " + DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName
-					+ "'";
-			OSQLAsynchQuery<ODocument> asynchQuery = new OSQLSynchQuery<ODocument>(sql);
-			asynchQuery.setFetchPlan(fetchPlan);
 
-			List<ODocument> result = db.getRawGraph().query(asynchQuery);
+		String sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " = " + "'" + propertyValue + "'"
+				+ " and " + DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName + "'";
+		OSQLAsynchQuery<ODocument> asynchQuery = new OSQLSynchQuery<ODocument>(sql);
+		asynchQuery.setFetchPlan(fetchPlan);
 
-			return result;
-		} finally {
-			closeDB(db);
-		}
+		List<ODocument> result = db.getRawGraph().query(asynchQuery);
+
+		return result;
+
 	}
 
 	/*
@@ -642,31 +609,27 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			propertyName = propertyName + ".asString()";
 			break;
 		}
-		try {
-			String sql = "";
-			if (startRange == null) {
-				sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " <= " + "'" + endRange + "'"
-						+ " and " + DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName
-						+ "'";
-			} else if (endRange == null) {
-				sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " >= " + "'" + startRange + "'"
-						+ " and " + DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName
-						+ "'";
-			} else {
-				sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " >= " + "'" + startRange + "'"
-						+ " and " + propertyName + " <= " + "'" + endRange + "'" + " and "
-						+ DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName + "'";
-			}
 
-			OSQLAsynchQuery<ODocument> asynchQuery = new OSQLSynchQuery<ODocument>(sql);
-			asynchQuery.setFetchPlan(fetchPlan);
-
-			List<ODocument> result = db.getRawGraph().query(asynchQuery);
-
-			return result;
-		} finally {
-			closeDB(db);
+		String sql = "";
+		if (startRange == null) {
+			sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " <= " + "'" + endRange + "'" + " and "
+					+ DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName + "'";
+		} else if (endRange == null) {
+			sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " >= " + "'" + startRange + "'" + " and "
+					+ DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName + "'";
+		} else {
+			sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " >= " + "'" + startRange + "'" + " and "
+					+ propertyName + " <= " + "'" + endRange + "'" + " and "
+					+ DaasDefaultFields.FIELD_APPLICATION_NAME.toString() + " = " + "'" + applicationName + "'";
 		}
+
+		OSQLAsynchQuery<ODocument> asynchQuery = new OSQLSynchQuery<ODocument>(sql);
+		asynchQuery.setFetchPlan(fetchPlan);
+
+		List<ODocument> result = db.getRawGraph().query(asynchQuery);
+
+		return result;
+
 	}
 
 	/*
@@ -678,18 +641,16 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Transactional
 	public List<ODocument> list(String entityType, String appName) throws BaasPersistentException {
 		OrientGraph db = getDataBase();
-		try {
-			String sql = "SELECT * FROM " + entityType + "  WHERE " + DaasDefaultFields.FIELD_APPLICATION_NAME + " = "
-					+ "'" + appName + "'";
 
-			OSQLAsynchQuery<ODocument> asynchQuery = new OSQLSynchQuery<ODocument>(sql);
-			asynchQuery.setFetchPlan(fetchPlan);
+		String sql = "SELECT * FROM " + entityType + "  WHERE " + DaasDefaultFields.FIELD_APPLICATION_NAME + " = "
+				+ "'" + appName + "'";
 
-			List<ODocument> result = db.getRawGraph().query(asynchQuery);
-			return result;
-		} finally {
-			closeDB(db);
-		}
+		OSQLAsynchQuery<ODocument> asynchQuery = new OSQLSynchQuery<ODocument>(sql);
+		asynchQuery.setFetchPlan(fetchPlan);
+
+		List<ODocument> result = db.getRawGraph().query(asynchQuery);
+		return result;
+
 	}
 
 	/*
@@ -702,18 +663,16 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	public long count(String entityType, String appName) {
 
 		OrientGraph db = getDataBase();
-		try {
-			String sql = "SELECT COUNT(*) as count FROM " + entityType + "  WHERE "
-					+ DaasDefaultFields.FIELD_APPLICATION_NAME + " = " + "'" + appName + "'";
 
-			OSQLAsynchQuery<ODocument> asynchQuery = new OSQLSynchQuery<ODocument>(sql);
-			asynchQuery.setFetchPlan(fetchPlan);
+		String sql = "SELECT COUNT(*) as count FROM " + entityType + "  WHERE "
+				+ DaasDefaultFields.FIELD_APPLICATION_NAME + " = " + "'" + appName + "'";
 
-			long count = ((ODocument) db.getRawGraph().query(asynchQuery).get(0)).field("count");
-			return count;
-		} finally {
-			closeDB(db);
-		}
+		OSQLAsynchQuery<ODocument> asynchQuery = new OSQLSynchQuery<ODocument>(sql);
+		asynchQuery.setFetchPlan(fetchPlan);
+
+		long count = ((ODocument) db.getRawGraph().query(asynchQuery).get(0)).field("count");
+		return count;
+
 	}
 
 	/*
@@ -739,11 +698,4 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		return (doc != null);
 	}
 
-	
-	protected void closeDB(OrientGraph db) {
-		if (db != null && !db.isClosed())
-			db.shutdown();
-	}
-
-	
 }

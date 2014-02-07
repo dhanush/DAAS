@@ -56,10 +56,10 @@ public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransac
 	protected void doBegin(Object transactionObject, TransactionDefinition definition) throws TransactionException {
 		LOG.debug("Came into doBegin");
 		GraphOrientTransactionObject txObject = (GraphOrientTransactionObject) transactionObject;
-		OrientGraph db = orientDbTemplate.getDatabase();
+		OrientGraph graphDb = orientDbTemplate.getDatabase();
 
 		try {
-			txObject.setODatabaseRecordHolder(new ODatabaseHolder(db));
+			txObject.setODatabaseRecordHolder(new ODatabaseHolder(graphDb));
 
 			// Sets TransactionActive = true in the Database Holder
 			txObject.setTransactionData(null);
@@ -79,7 +79,12 @@ public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransac
 	}
 
 	protected void closeDatabaseConnectionAfterFailedBegin(OrientTransactionObject txObject) {
-		ODatabaseRecord db = txObject.getDatabaseHolder().getGraphDatabase().getRawGraph();
+		OrientGraph graphDb = txObject.getDatabaseHolder().getGraphDatabase();
+
+		if (graphDb == null || graphDb.isClosed())
+			return;
+
+		ODatabaseRecord db = graphDb.getRawGraph();
 		try {
 			if (db.getTransaction().isActive()) {
 				db.rollback();
@@ -100,7 +105,12 @@ public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransac
 			logger.debug("Committing transaction on DB [" + txObject.getDatabaseHolder().getGraphDatabase() + "]");
 		}
 		try {
-			ODatabaseRecord db = txObject.getDatabaseHolder().getGraphDatabase().getRawGraph();
+			OrientGraph graphDb = txObject.getDatabaseHolder().getGraphDatabase();
+
+			if (graphDb == null || graphDb.isClosed())
+				return;
+
+			ODatabaseRecord db = graphDb.getRawGraph();
 			db.commit();
 		} catch (OTransactionException ex) {
 			throw new TransactionSystemException("Could not commit OrientDB transaction", ex);
@@ -119,7 +129,12 @@ public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransac
 					+ "]");
 		}
 		try {
-			ODatabaseRecord db = txObject.getDatabaseHolder().getGraphDatabase().getRawGraph();
+			OrientGraph graphDb = txObject.getDatabaseHolder().getGraphDatabase();
+
+			if (graphDb == null || graphDb.isClosed())
+				return;
+
+			ODatabaseRecord db = graphDb.getRawGraph();
 			db.rollback();
 		} catch (OTransactionException ex) {
 			throw new TransactionSystemException("Could not commit OrientDB transaction", ex);
@@ -142,6 +157,10 @@ public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransac
 	}
 
 	protected void releaseDatabase(ODatabaseHolder holder) {
+
+		if (holder.getGraphDatabase() == null || holder.getGraphDatabase().isClosed())
+			return;
+
 		LOG.debug("Came into release db");
 		holder.getGraphDatabase().shutdown();
 	}

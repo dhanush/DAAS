@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -78,6 +80,11 @@ public class BaseDBTest extends DAASTesting {
 		grantedAuthorities.add(grantedAuthority);
 		Authentication auth = new UsernamePasswordAuthenticationToken(user.getUserName(), "test123", grantedAuthorities);
 		SecurityContextHolder.getContext().setAuthentication(auth);
+	}
+	
+	@Test
+	public void dummyMethod(){
+		Assert.assertTrue(true);
 	}
 
 }
