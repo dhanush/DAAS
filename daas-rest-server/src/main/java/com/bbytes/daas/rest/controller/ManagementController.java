@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.bbytes.daas.domain.Account;
 import com.bbytes.daas.domain.Application;
 import com.bbytes.daas.domain.DaasUser;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.BaasException;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasException;
+import com.bbytes.daas.rest.DaasPersistentException;
 import com.bbytes.daas.service.ManagementService;
 import com.bbytes.daas.service.UserService;
 
@@ -50,12 +50,12 @@ public class ManagementController {
 	 * 
 	 * @param accountName
 	 * @return
-	 * @throws BaasException
-	 * @throws BaasPersistentException
+	 * @throws DaasException
+	 * @throws DaasPersistentException
 	 */
 	@RequestMapping(value = "/accounts/{accountName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	Account createAccount(@PathVariable("accountName") String accountName) throws BaasPersistentException {
+	Account createAccount(@PathVariable("accountName") String accountName) throws DaasPersistentException {
 		LOG.debug("Request to create account : " + accountName);
 		return managementService.createAccount(accountName);
 	}
@@ -65,12 +65,12 @@ public class ManagementController {
 	 * 
 	 * @param accountName
 	 * @return
-	 * @throws BaasException
-	 * @throws BaasPersistentException
+	 * @throws DaasException
+	 * @throws DaasPersistentException
 	 */
 	@RequestMapping(value = "/accounts/count", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	Long createAccount() throws BaasPersistentException {
+	Long createAccount() throws DaasPersistentException {
 		return managementService.getAccountCount();
 	}
 	
@@ -79,13 +79,13 @@ public class ManagementController {
 	 * 
 	 * @param accountName
 	 * @return
-	 * @throws BaasException
-	 * @throws BaasPersistentException
-	 * @throws BaasEntityNotFoundException 
+	 * @throws DaasException
+	 * @throws DaasPersistentException
+	 * @throws DaasEntityNotFoundException 
 	 */
 	@RequestMapping(value = "/accounts/{accountName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	Account getAccount(@PathVariable("accountName") String accountName) throws BaasPersistentException, BaasEntityNotFoundException {
+	Account getAccount(@PathVariable("accountName") String accountName) throws DaasPersistentException, DaasEntityNotFoundException {
 		return managementService.getAccount(accountName);
 	}
 	
@@ -94,13 +94,13 @@ public class ManagementController {
 	 * 
 	 * @param accountName
 	 * @return
-	 * @throws BaasException
-	 * @throws BaasPersistentException
-	 * @throws BaasEntityNotFoundException 
+	 * @throws DaasException
+	 * @throws DaasPersistentException
+	 * @throws DaasEntityNotFoundException 
 	 */
 	@RequestMapping(value = "/accounts/{accountName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	boolean deleteAccount(@PathVariable("accountName") String accountName) throws BaasPersistentException, BaasEntityNotFoundException {
+	boolean deleteAccount(@PathVariable("accountName") String accountName) throws DaasPersistentException, DaasEntityNotFoundException {
 		return managementService.deleteAccount(accountName);
 	}
 
@@ -110,20 +110,20 @@ public class ManagementController {
 	 * @param accountName
 	 * @param user
 	 * @return
-	 * @throws BaasException
-	 * @throws BaasPersistentException
+	 * @throws DaasException
+	 * @throws DaasPersistentException
 	 */
 	@RequestMapping(value = "/accounts/{accountName}/user", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	DaasUser createAccountUser(@PathVariable("accountName") String accountName, @RequestBody DaasUser user)
-			throws BaasException, BaasPersistentException {
+			throws DaasException, DaasPersistentException {
 		return userService.createAccountUser(accountName, user);
 	}
 	
 	@RequestMapping(value = "/accounts/{accountName}/user/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE,  consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	String changePassword(@PathVariable("accountName") String accountName, @PathVariable("id") String userUuid, @RequestBody String data)
-			throws BaasException, BaasPersistentException {
+			throws DaasException, DaasPersistentException {
 		JsonNode node = null;
 		try {
 			node = new ObjectMapper().readTree(data);
@@ -135,8 +135,8 @@ public class ManagementController {
 				status = true;
 			}
 			return "{\"status\" : "+ status+" }"; 
-		} catch (IOException | BaasEntityNotFoundException e) {
-			throw new BaasPersistentException(e);
+		} catch (IOException | DaasEntityNotFoundException e) {
+			throw new DaasPersistentException(e);
 		}
 	}
 	
@@ -144,7 +144,7 @@ public class ManagementController {
 	@RequestMapping(value = "/accounts/{accountName}/user", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	List<DaasUser> getAccountUsers(@PathVariable("accountName") String accountName)
-			throws BaasException, BaasEntityNotFoundException {
+			throws DaasException, DaasEntityNotFoundException {
 		return userService.getAccountUsers(accountName);
 	}
 
@@ -152,13 +152,13 @@ public class ManagementController {
 	 * Get all Accounts
 	 * 
 	 * @return
-	 * @throws BaasEntityNotFoundException
-	 * @throws BaasException
-	 * @throws BaasPersistentException
+	 * @throws DaasEntityNotFoundException
+	 * @throws DaasException
+	 * @throws DaasPersistentException
 	 */
 	@RequestMapping(value = "/accounts", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	List<Account> getAccounts() throws BaasPersistentException, BaasEntityNotFoundException {
+	List<Account> getAccounts() throws DaasPersistentException, DaasEntityNotFoundException {
 		LOG.debug("Request to get all accounts");
 		return managementService.getAllAccounts();
 	}
@@ -170,14 +170,14 @@ public class ManagementController {
 	 * @param applicationName
 	 * @param application TODO
 	 * @return
-	 * @throws BaasException
-	 * @throws BaasPersistentException
+	 * @throws DaasException
+	 * @throws DaasPersistentException
 	 */
 	@RequestMapping(value = "/accounts/{accountName}/applications/{applicationName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	Application createApplication(@PathVariable String accountName,
 			@PathVariable("applicationName") String applicationName, @RequestBody Application application)
-			throws BaasException, BaasPersistentException {
+			throws DaasException, DaasPersistentException {
 		if (application == null) {
 			return managementService.createApplication(accountName, applicationName, null, null, null);
 		} else {
@@ -194,14 +194,14 @@ public class ManagementController {
 	 * @param applicationName
 	 * @param application
 	 * @return
-	 * @throws BaasException
-	 * @throws BaasPersistentException
+	 * @throws DaasException
+	 * @throws DaasPersistentException
 	 */
 	@RequestMapping(value = "/accounts/{accountName}/applications/{applicationName}/edit", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	Application editApplication(@PathVariable String accountName,
 			@PathVariable("applicationName") String applicationName, @RequestBody Application application)
-			throws BaasException, BaasPersistentException {
+			throws DaasException, DaasPersistentException {
 		if (application != null) {
 			return managementService.editApplication(accountName, applicationName, application.getApplicationType(),
 					application.getApplicationSubType(), application.getFullName());
@@ -215,14 +215,14 @@ public class ManagementController {
 	 * @param accountName
 	 * @param applicationName
 	 * @return
-	 * @throws BaasException
-	 * @throws BaasPersistentException
-	 * @throws BaasEntityNotFoundException 
+	 * @throws DaasException
+	 * @throws DaasPersistentException
+	 * @throws DaasEntityNotFoundException 
 	 */
 	@RequestMapping(value = "/accounts/{accountName}/applications/{applicationName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	Application getApplication(@PathVariable String accountName,
-			@PathVariable("applicationName") String applicationName) throws BaasPersistentException, BaasEntityNotFoundException {
+			@PathVariable("applicationName") String applicationName) throws DaasPersistentException, DaasEntityNotFoundException {
 		return managementService.getApplication(accountName, applicationName);
 	}
 	
@@ -232,14 +232,14 @@ public class ManagementController {
 	 * @param accountName
 	 * @param applicationName
 	 * @return
-	 * @throws BaasException
-	 * @throws BaasPersistentException
-	 * @throws BaasEntityNotFoundException 
+	 * @throws DaasException
+	 * @throws DaasPersistentException
+	 * @throws DaasEntityNotFoundException 
 	 */
 	@RequestMapping(value = "/accounts/{accountName}/applications/{applicationName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	boolean deleteApplication(@PathVariable String accountName,
-			@PathVariable("applicationName") String applicationName) throws BaasPersistentException, BaasEntityNotFoundException {
+			@PathVariable("applicationName") String applicationName) throws DaasPersistentException, DaasEntityNotFoundException {
 		return managementService.deleteApplication(accountName, applicationName);
 	}
 
@@ -249,14 +249,14 @@ public class ManagementController {
 	 * @param accountName
 	 * @param user
 	 * @return
-	 * @throws BaasException
-	 * @throws BaasPersistentException
+	 * @throws DaasException
+	 * @throws DaasPersistentException
 	 */
 	@RequestMapping(value = "/accounts/{accountName}/applications/{applicationName}/user", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	DaasUser createAppUser(@PathVariable("accountName") String accountName,
-			@PathVariable("applicationName") String applicationName, @RequestBody DaasUser user) throws BaasException,
-			BaasPersistentException {
+			@PathVariable("applicationName") String applicationName, @RequestBody DaasUser user) throws DaasException,
+			DaasPersistentException {
 		return userService.createApplicationUser(accountName, applicationName, user);
 	}
 
@@ -265,13 +265,13 @@ public class ManagementController {
 	 *  
 	 * @param accountName
 	 * @return
-	 * @throws BaasException
-	 * @throws BaasPersistentException
-	 * @throws BaasEntityNotFoundException 
+	 * @throws DaasException
+	 * @throws DaasPersistentException
+	 * @throws DaasEntityNotFoundException 
 	 */
 	@RequestMapping(value = "/accounts/{accountName}/applications", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	List<Application> getApplications(@PathVariable String accountName) throws BaasPersistentException, BaasEntityNotFoundException {
+	List<Application> getApplications(@PathVariable String accountName) throws DaasPersistentException, DaasEntityNotFoundException {
 		return managementService.getAllApplications(accountName);
 	}
 }

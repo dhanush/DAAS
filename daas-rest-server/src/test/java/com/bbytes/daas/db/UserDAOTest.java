@@ -32,8 +32,8 @@ import com.bbytes.daas.domain.Account;
 import com.bbytes.daas.domain.Application;
 import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.domain.Role;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasPersistentException;
 
 /**
  * 
@@ -60,7 +60,7 @@ public class UserDAOTest extends BaseDBTest {
 		
 
 	@Before
-	public void setUp() throws BaasPersistentException {
+	public void setUp() throws DaasPersistentException {
 
 		Account org = new Account();
 		org.setName(UUID.randomUUID().toString());
@@ -93,7 +93,7 @@ public class UserDAOTest extends BaseDBTest {
 
 	
 	@Test
-	public void testFindAccountUser() throws BaasPersistentException, BaasEntityNotFoundException {
+	public void testFindAccountUser() throws DaasPersistentException, DaasEntityNotFoundException {
 		LOG.debug("testFindAccountUser started...");
 		Application app = applicationDao.find("name", uuid).get(0);
 		assertNotNull(app);
@@ -106,7 +106,7 @@ public class UserDAOTest extends BaseDBTest {
 	}
 
 	@Test
-	public void testFindAppUser() throws BaasPersistentException, BaasEntityNotFoundException {
+	public void testFindAppUser() throws DaasPersistentException, DaasEntityNotFoundException {
 		LOG.debug("testFindAppUser started...");
 		Application app = applicationDao.find("name", uuid).get(0);
 		assertNotNull(app);

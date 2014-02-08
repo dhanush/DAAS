@@ -25,8 +25,8 @@ import com.bbytes.daas.dao.UserDao;
 import com.bbytes.daas.db.orientDb.TenantRouter;
 import com.bbytes.daas.domain.Account;
 import com.bbytes.daas.domain.DaasUser;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasPersistentException;
 import com.bbytes.daas.rest.DAASTesting;
 
 /**
@@ -56,7 +56,7 @@ public class BaseDBTest extends DAASTesting {
 
 	@Before
 	@Transactional
-	public void baseSetup() throws BaasPersistentException {
+	public void baseSetup() throws DaasPersistentException {
 		if (!accountDao.findAny("name", DB_NAME)) {
 			Account account = new Account(UUID.randomUUID().toString(), DB_NAME);
 			accountDao.save(account);
@@ -72,7 +72,7 @@ public class BaseDBTest extends DAASTesting {
 
 	}
 
-	protected void setAuthObjectForTest(String role) throws BaasPersistentException, BaasEntityNotFoundException {
+	protected void setAuthObjectForTest(String role) throws DaasPersistentException, DaasEntityNotFoundException {
 		List<DaasUser> userList = userDao.findAll();
 		DaasUser user = userList.get(0);
 		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();

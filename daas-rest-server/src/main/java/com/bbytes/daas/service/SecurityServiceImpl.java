@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.bbytes.daas.dao.UserDao;
 import com.bbytes.daas.domain.DaasUser;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
 
 /**
  * 
@@ -39,7 +39,7 @@ public class SecurityServiceImpl implements SecurityService {
 		String name = auth.getName();
 		try {
 			return userDao.findUser(name);
-		} catch (BaasEntityNotFoundException e) {
+		} catch (DaasEntityNotFoundException e) {
 			log.error(e.getMessage(), e);
 			throw new Exception(e);
 		}

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.bbytes.daas.dao.DocumentDao;
 import com.bbytes.daas.domain.DataType;
-import com.bbytes.daas.rest.BaasException;
+import com.bbytes.daas.rest.DaasException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 
@@ -45,12 +45,12 @@ public class EntityController {
 	 * @param entityType
 	 * @param accessToken
 	 * @returnmm
-	 * @throws BaasException
+	 * @throws DaasException
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	String getEntities(@PathVariable String accountName, @PathVariable String applicationName,
-			@PathVariable String entityType, HttpServletRequest request) throws BaasException {
+			@PathVariable String entityType, HttpServletRequest request) throws DaasException {
 		List<ODocument> documents = null;
 		Map<String, String[]> parameterMap = request.getParameterMap();
 		if (parameterMap != null && !parameterMap.isEmpty()) {
@@ -105,13 +105,13 @@ public class EntityController {
 	 * @param endRange the end range ,the check is less than or equals to would be applied
 	 * @param request
 	 * @return
-	 * @throws BaasException
+	 * @throws DaasException
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/range", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	String getEntityByRange(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @RequestParam String propertyName, @RequestParam String propertyDataType,
-			@RequestParam(required=false) String startRange, @RequestParam(required=false) String endRange, HttpServletRequest request) throws BaasException {
+			@RequestParam(required=false) String startRange, @RequestParam(required=false) String endRange, HttpServletRequest request) throws DaasException {
 		List<ODocument> documents = null;
 		documents = documentDao.findByPropertyRange(applicationName, entityType, propertyName, DataType.getForLabel(propertyDataType),
 				startRange, endRange);
@@ -127,13 +127,13 @@ public class EntityController {
 	 * @param entityType
 	 * @param accessToken
 	 * @return
-	 * @throws BaasException
+	 * @throws DaasException
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityUuid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	String getEntity(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityUuid, HttpServletRequest request)
-			throws BaasException {
+			throws DaasException {
 		ODocument document = documentDao.findById(entityType, entityUuid);
 		return document.toJSON();
 	}
@@ -145,12 +145,12 @@ public class EntityController {
 	 * @param entityType
 	 * @param request
 	 * @return
-	 * @throws BaasException
+	 * @throws DaasException
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/size", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	String getEntitySize(@PathVariable String accountName, @PathVariable String applicationName,
-			@PathVariable String entityType, HttpServletRequest request) throws BaasException {
+			@PathVariable String entityType, HttpServletRequest request) throws DaasException {
 		long size = documentDao.count(entityType, applicationName);
 		return "{\"size\" : " + size + " }";
 	}
@@ -171,13 +171,13 @@ public class EntityController {
 	 *            - related entity that we want to return
 	 * @param accessToken
 	 * @return - List<T> - a list object consisting of objects of relatedEntityName
-	 * @throws BaasException
+	 * @throws DaasException
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	String getRelatedEntities(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityId, @PathVariable String relation,
-			@PathVariable String relatedEntityType, HttpServletRequest request) throws BaasException {
+			@PathVariable String relatedEntityType, HttpServletRequest request) throws DaasException {
 		List<ODocument> documents = documentDao.findRelated(entityType, entityId, relatedEntityType, relation);
 		return OJSONWriter.listToJSON(documents, null);
 	}
@@ -197,13 +197,13 @@ public class EntityController {
 	 * @param relatedEntityType
 	 * @param accessToken
 	 * @return
-	 * @throws BaasException
+	 * @throws DaasException
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{relatedEntityType}/{relatedEntityId}/connecting/{relation}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	String getConnectingEntities(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String relatedEntityType, @PathVariable String relatedEntityId,
-			@PathVariable String relation, HttpServletRequest request) throws BaasException {
+			@PathVariable String relation, HttpServletRequest request) throws DaasException {
 		List<ODocument> documents = documentDao.findRelatedReverse(relatedEntityType, relatedEntityId, relation);
 		return OJSONWriter.listToJSON(documents, null);
 	}
@@ -223,13 +223,13 @@ public class EntityController {
 	 * @param relatedEntityType
 	 * @param accessToken
 	 * @return
-	 * @throws BaasException
+	 * @throws DaasException
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{relatedEntityType}/{relatedEntityId}/connecting/{relation}/{primaryEntityType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	String getConnectingEntities(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String relatedEntityType, @PathVariable String relatedEntityId,
-			@PathVariable String relation,@PathVariable String primaryEntityType, HttpServletRequest request) throws BaasException {
+			@PathVariable String relation,@PathVariable String primaryEntityType, HttpServletRequest request) throws DaasException {
 		List<ODocument> documents = documentDao.findRelatedReverse(relatedEntityType, relatedEntityId,primaryEntityType, relation);
 		return OJSONWriter.listToJSON(documents, null);
 	}
@@ -242,13 +242,13 @@ public class EntityController {
 	 * @param entityJson
 	 * @param request
 	 * @return
-	 * @throws BaasException
+	 * @throws DaasException
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	String createEntity(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @RequestBody String entityJson, HttpServletRequest request)
-			throws BaasException {
+			throws DaasException {
 		// create the document with the property sent in request body
 		ODocument document = documentDao.create(entityType, entityJson, accountName, applicationName);
 		return document.toJSON();
@@ -263,13 +263,13 @@ public class EntityController {
 	 * @param entityJson
 	 * @param request
 	 * @return
-	 * @throws BaasException
+	 * @throws DaasException
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityUuid}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	String updateEntity(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityUuid, @RequestBody String entityJson,
-			HttpServletRequest request) throws BaasException {
+			HttpServletRequest request) throws DaasException {
 		ODocument document = documentDao.update(entityUuid, entityType, entityJson, accountName, applicationName);
 		return document.toJSON();
 	}
@@ -282,13 +282,13 @@ public class EntityController {
 	 * @param entityUuid
 	 * @param request
 	 * @return
-	 * @throws BaasException
+	 * @throws DaasException
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityUuid}", method = RequestMethod.DELETE, produces = MediaType.TEXT_PLAIN_VALUE)
 	public @ResponseBody
 	String deleteEntity(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityUuid, HttpServletRequest request)
-			throws BaasException {
+			throws DaasException {
 		documentDao.remove(entityUuid, entityType, accountName, applicationName);
 		return "success";
 
@@ -305,14 +305,14 @@ public class EntityController {
 	 * @param relatedEntityId
 	 * @param request
 	 * @return
-	 * @throws BaasException
+	 * @throws DaasException
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}/{relatedEntityId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
 	String addConnection(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityId, @PathVariable String relation,
 			@PathVariable String relatedEntityType, @PathVariable String relatedEntityId, HttpServletRequest request)
-			throws BaasException {
+			throws DaasException {
 		ODocument document = documentDao.relate(entityType, entityId, relatedEntityType, relatedEntityId, relation);
 		return document.toJSON();
 	}
@@ -328,14 +328,14 @@ public class EntityController {
 	 * @param relatedEntityId
 	 * @param request
 	 * @return
-	 * @throws BaasException
+	 * @throws DaasException
 	 */
 	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityId}/{relation}/{relatedEntityType}/{relatedEntityId}", method = RequestMethod.DELETE, produces = MediaType.TEXT_PLAIN_VALUE)
 	public @ResponseBody
 	String deleteConnection(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityId, @PathVariable String relation,
 			@PathVariable String relatedEntityType, @PathVariable String relatedEntityId, HttpServletRequest request)
-			throws BaasException {
+			throws DaasException {
 		documentDao.removeRelation(entityType, entityId, relatedEntityType, relatedEntityId, relation);
 		return "success";
 	}

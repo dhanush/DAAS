@@ -26,23 +26,23 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @version 1.0.0
  */
 @ResponseStatus(value=HttpStatus.INTERNAL_SERVER_ERROR, reason="Failed during persistance")  // 500
-public class BaasPersistentException extends RuntimeException {
+public class DaasPersistentException extends RuntimeException {
 
 	private static final long serialVersionUID = 6289917997937599218L;
 
-	public BaasPersistentException() {
+	public DaasPersistentException() {
 		super();
 	}
 
-	public BaasPersistentException(String jsonResponse, String message, Throwable cause) {
+	public DaasPersistentException(String jsonResponse, String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public BaasPersistentException(String message) {
+	public DaasPersistentException(String message) {
 		super(message);
 	}
 
-	public BaasPersistentException(Throwable cause) {
+	public DaasPersistentException(Throwable cause) {
 		super(cause);
 	}
 

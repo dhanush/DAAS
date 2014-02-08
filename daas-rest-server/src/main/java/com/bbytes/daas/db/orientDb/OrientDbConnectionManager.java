@@ -25,8 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import com.bbytes.daas.dao.AccountDao;
-import com.bbytes.daas.dao.DocumentUtils;
-import com.bbytes.daas.rest.BaasTenantCreationException;
+import com.bbytes.daas.rest.DaasTenantCreationException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.reflection.OReflectionHelper;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
@@ -37,7 +36,6 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.db.record.ODatabaseRecord;
 import com.orientechnologies.orient.object.db.OObjectDatabasePool;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 
 /**
@@ -174,7 +172,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		// if accn does not exist then throw cannot create new tenant db
 		if (tenantObjectDatabasePool == null) {
 			if (!accountDao.findAny("name", tenantDbName)) {
-				throw new BaasTenantCreationException("Failed to create tenant DB " + tenantDbName
+				throw new DaasTenantCreationException("Failed to create tenant DB " + tenantDbName
 						+ " as there is no account created with name " + tenantDbName);
 			}
 
@@ -204,7 +202,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 
 		if (tenantGraphDatabasePool == null) {
 			if (!accountDao.findAny("name", tenantDbName)) {
-				throw new BaasTenantCreationException("Failed to create tenant DB " + tenantDbName
+				throw new DaasTenantCreationException("Failed to create tenant DB " + tenantDbName
 						+ " as there is no account created with name " + tenantDbName);
 			}
 

@@ -22,23 +22,23 @@ package com.bbytes.daas.rest;
  *
  * @version 1.0.0
  */
-public class BaasException extends Exception {
+public class DaasException extends Exception {
 
 	private static final long serialVersionUID = 6289917997937599218L;
 
-	public BaasException() {
+	public DaasException() {
 		super();
 	}
 
-	public BaasException(String jsonResponse, String message, Throwable cause) {
+	public DaasException(String jsonResponse, String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public BaasException(String message) {
+	public DaasException(String message) {
 		super(message);
 	}
 
-	public BaasException(Throwable cause) {
+	public DaasException(Throwable cause) {
 		super(cause);
 	}
 

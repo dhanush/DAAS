@@ -18,8 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import com.bbytes.daas.domain.Entity;
-import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;

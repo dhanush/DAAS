@@ -25,8 +25,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.domain.DataType;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasPersistentException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
@@ -60,7 +60,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Override
 	@Transactional
 	public ODocument create(String entityType, Map<String, Object> propertyMap, String accountName, String appName)
-			throws BaasPersistentException {
+			throws DaasPersistentException {
 		return createDocument(entityType, propertyMap, null, accountName, appName);
 	}
 
@@ -72,7 +72,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Override
 	@Transactional
 	public ODocument create(String entityType, String entityInJson, String accountName, String appName)
-			throws BaasPersistentException {
+			throws DaasPersistentException {
 		return createDocument(entityType, null, entityInJson, accountName, appName);
 	}
 
@@ -85,7 +85,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 */
 	@Override
 	@Transactional
-	public ODocument create(ODocument entity, String accountName, String appName) throws BaasPersistentException {
+	public ODocument create(ODocument entity, String accountName, String appName) throws DaasPersistentException {
 		entity = DocumentUtils.applyDefaultFields(entity, entity.getClassName(), accountName, appName);
 		return entity.save();
 	}
@@ -96,11 +96,11 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 * @param accountName
 	 * @param appName
 	 * @return
-	 * @throws BaasPersistentException
+	 * @throws DaasPersistentException
 	 */
 	@Transactional
 	private ODocument createDocument(String entityType, Map<String, Object> propertyMap, String entityInJson,
-			String accountName, String appName) throws BaasPersistentException {
+			String accountName, String appName) throws DaasPersistentException {
 
 		OrientGraph db = null;
 
@@ -158,7 +158,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			return entityVertex;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
-			throw new BaasPersistentException(e);
+			throw new DaasPersistentException(e);
 		}
 	}
 
@@ -171,7 +171,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Override
 	@Transactional
 	public ODocument relate(String primartyEntityType, String primaryEntityId, String secondaryEntityType,
-			String secondaryEntityId, String relationName) throws BaasPersistentException {
+			String secondaryEntityId, String relationName) throws DaasPersistentException {
 
 		OrientGraph db = null;
 		try {
@@ -186,8 +186,8 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			db.commit();
 			return ((OrientEdge) edge).getRecord();
 
-		} catch (BaasEntityNotFoundException e) {
-			throw new BaasPersistentException(e);
+		} catch (DaasEntityNotFoundException e) {
+			throw new DaasPersistentException(e);
 		}
 	}
 
@@ -200,13 +200,13 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 */
 	@Override
 	@Transactional
-	public void remove(ODocument entity, String accountName, String appName) throws BaasPersistentException {
+	public void remove(ODocument entity, String accountName, String appName) throws DaasPersistentException {
 
 		OrientGraph db = getDataBase();
 
 		ODocument docToBeRemoved = db.getRawGraph().load(entity.getIdentity());
 		if (docToBeRemoved == null)
-			throw new BaasPersistentException("Document to be deleted doesnt exist in DB");
+			throw new DaasPersistentException("Document to be deleted doesnt exist in DB");
 
 		db.getRawGraph().delete(entity.getIdentity());
 		db.commit();
@@ -222,20 +222,20 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Override
 	@Transactional
 	public void remove(String uuid, String entityType, String accountName, String appName)
-			throws BaasPersistentException {
+			throws DaasPersistentException {
 		OrientGraph db = null;
 		ODocument docToBeRemoved;
 		try {
 			docToBeRemoved = findById(entityType, uuid);
 			if (docToBeRemoved == null)
-				throw new BaasPersistentException("Document to be deleted doesnt exist in DB");
+				throw new DaasPersistentException("Document to be deleted doesnt exist in DB");
 			db = getDataBase();
 
 			Vertex vertex = db.getVertex(docToBeRemoved.getIdentity());
 			db.removeVertex(vertex);
 			db.commit();
-		} catch (BaasEntityNotFoundException e) {
-			throw new BaasPersistentException(e);
+		} catch (DaasEntityNotFoundException e) {
+			throw new DaasPersistentException(e);
 		}
 	}
 
@@ -248,7 +248,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Override
 	@Transactional
 	public boolean removeRelation(String primartyEntityType, String primaryEntityId, String secondaryEntityType,
-			String secondaryEntityId, String relationName) throws BaasPersistentException {
+			String secondaryEntityId, String relationName) throws DaasPersistentException {
 
 		OrientGraph db = null;
 
@@ -272,8 +272,8 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 			db.commit();
 			return true;
 
-		} catch (BaasEntityNotFoundException e) {
-			throw new BaasPersistentException(e);
+		} catch (DaasEntityNotFoundException e) {
+			throw new DaasPersistentException(e);
 		}
 	}
 
@@ -285,7 +285,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 */
 	@Override
 	public List<ODocument> findRelated(String primartyEntityType, String primaryEntityId, String relationName)
-			throws BaasEntityNotFoundException {
+			throws DaasEntityNotFoundException {
 		return findRelated(primartyEntityType, primaryEntityId, null, relationName);
 	}
 
@@ -298,7 +298,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Override
 	@Transactional
 	public List<ODocument> findRelated(String primartyEntityType, String primaryEntityId, String secondaryEntityType,
-			String relationName) throws BaasEntityNotFoundException {
+			String relationName) throws DaasEntityNotFoundException {
 		List<ODocument> result = new ArrayList<>();
 
 		OrientGraph db = null;
@@ -330,7 +330,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Override
 	@Transactional
 	public List<ODocument> findRelatedReverse(String secondaryEntityType, String secondaryEntityId,
-			String primartyEntityType, String relationName) throws BaasEntityNotFoundException {
+			String primartyEntityType, String relationName) throws DaasEntityNotFoundException {
 		List<ODocument> result = new ArrayList<>();
 
 		OrientGraph db = null;
@@ -358,7 +358,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 */
 	@Override
 	public List<ODocument> findRelatedReverse(String secondaryEntityType, String secondaryEntityId, String relationName)
-			throws BaasEntityNotFoundException {
+			throws DaasEntityNotFoundException {
 		return findRelatedReverse(secondaryEntityType, secondaryEntityId, null, relationName);
 	}
 
@@ -370,7 +370,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 */
 	@Override
 	@Transactional
-	public boolean findAny(String entityType, String property, String value) throws BaasPersistentException {
+	public boolean findAny(String entityType, String property, String value) throws DaasPersistentException {
 		Map<String, String> propertyToValue = new HashMap<String, String>();
 		propertyToValue.put(property, value);
 		return findAny(entityType, propertyToValue);
@@ -384,7 +384,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 */
 	@Override
 	@Transactional
-	public boolean findAny(String entityType, Map<String, String> propertyToValue) throws BaasPersistentException {
+	public boolean findAny(String entityType, Map<String, String> propertyToValue) throws DaasPersistentException {
 
 		if (propertyToValue == null)
 			throw new IllegalArgumentException("Null value passed as arg");
@@ -428,7 +428,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Override
 	@Transactional
 	public ODocument update(ODocument docToBeUpdated, Map<String, Object> propertyMap, String accountName,
-			String appName) throws BaasPersistentException {
+			String appName) throws DaasPersistentException {
 
 		OrientGraph db = getDataBase();
 
@@ -437,7 +437,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 
 		ODocument originalDoc = db.getRawGraph().load(docToBeUpdated.getIdentity());
 		if (originalDoc == null)
-			throw new BaasPersistentException(
+			throw new DaasPersistentException(
 					"Document to be updated doesnt exist in DB , use create method to save the object to DB");
 
 		ODocument docToBeSaved = DocumentUtils.update(originalDoc, docToBeUpdated);
@@ -456,7 +456,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 */
 	@Override
 	@Transactional
-	public ODocument update(ODocument entity, String accountName, String appName) throws BaasPersistentException {
+	public ODocument update(ODocument entity, String accountName, String appName) throws DaasPersistentException {
 		return update(entity, null, accountName, appName);
 	}
 
@@ -469,12 +469,12 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Override
 	@Transactional
 	public ODocument update(String uuid, String entityType, String entityJson, String accountName, String appName)
-			throws BaasPersistentException {
+			throws DaasPersistentException {
 		ODocument originalDocument;
 		try {
 			originalDocument = findById(entityType, uuid);
-		} catch (BaasEntityNotFoundException e) {
-			throw new BaasPersistentException(e);
+		} catch (DaasEntityNotFoundException e) {
+			throw new DaasPersistentException(e);
 		}
 		ODocument documentToMerge = new ODocument().fromJSON(entityJson);
 		documentToMerge = DocumentUtils.update(originalDocument, documentToMerge);
@@ -489,13 +489,13 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 */
 	@Override
 	@Transactional
-	public ODocument find(ORID id) throws BaasEntityNotFoundException {
+	public ODocument find(ORID id) throws DaasEntityNotFoundException {
 		OrientGraph db = getDataBase();
 
 		ODocument result = db.getRawGraph().load(id);
 
 		if (result == null)
-			throw new BaasEntityNotFoundException();
+			throw new DaasEntityNotFoundException();
 
 		return result;
 
@@ -508,7 +508,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 */
 	@Override
 	@Transactional
-	public ODocument findById(String entityType, String uuid) throws BaasEntityNotFoundException {
+	public ODocument findById(String entityType, String uuid) throws DaasEntityNotFoundException {
 		OrientGraph db = getDataBase();
 
 		String sql = "SELECT * FROM " + entityType + "  WHERE " + DaasDefaultFields.FIELD_UUID + " = " + "'" + uuid
@@ -520,7 +520,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		List<ODocument> result = db.getRawGraph().query(synchQuery);
 
 		if (result == null || result.size() == 0)
-			throw new BaasEntityNotFoundException();
+			throw new DaasEntityNotFoundException();
 
 		return result.get(0);
 
@@ -535,7 +535,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Override
 	@Transactional
 	public List<ODocument> findByProperty(String entityType, String propertyName, String propertyValue)
-			throws BaasEntityNotFoundException {
+			throws DaasEntityNotFoundException {
 
 		OrientGraph db = getDataBase();
 
@@ -557,7 +557,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Override
 	@Transactional
 	public List<ODocument> findByProperty(String applicationName, String entityType, String propertyName,
-			String propertyValue) throws BaasEntityNotFoundException {
+			String propertyValue) throws DaasEntityNotFoundException {
 		OrientGraph db = getDataBase();
 
 		String sql = "SELECT * FROM " + entityType + "  WHERE " + propertyName + " = " + "'" + propertyValue + "'"
@@ -581,7 +581,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	@Override
 	@Transactional
 	public List<ODocument> findByPropertyRange(String applicationName, String entityType, String propertyName,
-			DataType propertyDataType, String startRange, String endRange) throws BaasEntityNotFoundException {
+			DataType propertyDataType, String startRange, String endRange) throws DaasEntityNotFoundException {
 		if (startRange == null && endRange == null) {
 			throw new IllegalArgumentException("Start range and End range cannot be null");
 		}
@@ -639,7 +639,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 	 */
 	@Override
 	@Transactional
-	public List<ODocument> list(String entityType, String appName) throws BaasPersistentException {
+	public List<ODocument> list(String entityType, String appName) throws DaasPersistentException {
 		OrientGraph db = getDataBase();
 
 		String sql = "SELECT * FROM " + entityType + "  WHERE " + DaasDefaultFields.FIELD_APPLICATION_NAME + " = "
@@ -692,7 +692,7 @@ public class DocumentDaoImpl extends OrientDbDaoSupport implements DocumentDao {
 		ODocument doc = null;
 		try {
 			doc = find(rid);
-		} catch (BaasEntityNotFoundException e) {
+		} catch (DaasEntityNotFoundException e) {
 			return false;
 		}
 		return (doc != null);

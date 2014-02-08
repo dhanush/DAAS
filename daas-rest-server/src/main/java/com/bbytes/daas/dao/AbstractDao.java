@@ -27,10 +27,9 @@ import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bbytes.daas.db.orientDb.OrientDbConnectionManager;
 import com.bbytes.daas.domain.Entity;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasPersistentException;
 import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -61,7 +60,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	}
 	
 	@Override
-	public E save(E entity) throws BaasPersistentException {
+	public E save(E entity) throws DaasPersistentException {
 		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
 		entity.setUuid(UUID.randomUUID().toString());
 		entity.setCreationDate(new Date());
@@ -71,7 +70,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	}
 
 	@Override
-	public E update(E entity) throws BaasPersistentException {
+	public E update(E entity) throws DaasPersistentException {
 		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
 		entity.setModificationDate(new Date());
 		E e = dbTx.save(entity);
@@ -80,25 +79,25 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	}
 
 	@Override
-	public void remove(E entity) throws BaasPersistentException {
+	public void remove(E entity) throws DaasPersistentException {
 		ODatabaseObject db = getObjectDatabase();
 		db.delete(entity);
 	}
 
 	@Override
-	public E find(ORID id) throws BaasPersistentException, BaasEntityNotFoundException {
+	public E find(ORID id) throws DaasPersistentException, DaasEntityNotFoundException {
 		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
 		E e = dbTx.load(id);
 		return detach(e, dbTx);
 	}
 
 	@Override
-	public List<E> findAll() throws BaasPersistentException, BaasEntityNotFoundException {
+	public List<E> findAll() throws DaasPersistentException, DaasEntityNotFoundException {
 		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
 		try {
 			List<E> result = dbTx.query(new OSQLSynchQuery<E>("select * from " + this.entityType.getSimpleName()));
 			if (result == null || result.size() == 0)
-				throw new BaasEntityNotFoundException();
+				throw new DaasEntityNotFoundException();
 
 			return detach(result, dbTx);
 		} catch (Exception e) {
@@ -114,7 +113,7 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 * @see com.bbytes.daas.rest.dao.DaasDAO#count()
 	 */
 	@Override
-	public long count() throws BaasPersistentException {
+	public long count() throws DaasPersistentException {
 		ODatabaseObject db = getObjectDatabase();
 		long count = db.countClass(this.entityType.getSimpleName());
 		return count;
@@ -126,19 +125,19 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 * @see com.bbytes.daas.rest.dao.DaasDAO#find(java.lang.String)
 	 */
 	@Override
-	public E find(String uuid) throws BaasPersistentException, BaasEntityNotFoundException {
+	public E find(String uuid) throws DaasPersistentException, DaasEntityNotFoundException {
 		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
 		try {
 			List<E> result = dbTx.query(new OSQLSynchQuery<E>("select * from " + this.entityType.getSimpleName()
 					+ " where uuid = '" + uuid + "'"));
 
 			if (result == null || result.size() == 0)
-				throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
+				throw new DaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 
 			return detach(result.get(0), dbTx);
 
 		} catch (Exception e) {
-			throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
+			throw new DaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 		}
 
 	}
@@ -204,14 +203,14 @@ public class AbstractDao<E extends Entity> extends OrientDbDaoSupport implements
 	 * @see com.bbytes.daas.rest.dao.DaasDAO#find(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public List<E> find(String property, String value) throws BaasEntityNotFoundException {
+	public List<E> find(String property, String value) throws DaasEntityNotFoundException {
 		OObjectDatabaseTx dbTx = (OObjectDatabaseTx) getObjectDatabase();
 		try {
 			List<E> result = dbTx.query(new OSQLSynchQuery<E>("select * from " + this.entityType.getSimpleName()
 					+ " where " + property + " = " + "'" + value + "'"));
 
 			if (result == null || result.size() == 0)
-				throw new BaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
+				throw new DaasEntityNotFoundException("Entity not found " + this.entityType.getSimpleName());
 
 			return detach(result, dbTx);
 

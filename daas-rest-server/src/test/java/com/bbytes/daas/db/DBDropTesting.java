@@ -13,7 +13,7 @@ import com.bbytes.daas.db.orientDb.OrientDbConnectionManager;
 import com.bbytes.daas.db.orientDb.OrientDbTemplate;
 import com.bbytes.daas.db.orientDb.TenantRouter;
 import com.bbytes.daas.domain.Account;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasPersistentException;
 
 /**
  * 
@@ -39,7 +39,7 @@ public class DBDropTesting extends BaseDBTest {
 	}
 
 	@Before
-	public void setup() throws BaasPersistentException {
+	public void setup() throws DaasPersistentException {
 		if (!accountDao.findAny("name", DB_NAME)) {
 			Account acc = new Account();
 			acc.setName(DB_NAME);

@@ -19,8 +19,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.bbytes.daas.domain.Account;
 import com.bbytes.daas.domain.Application;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasPersistentException;
 
 /**
  * 
@@ -32,32 +32,32 @@ import com.bbytes.daas.rest.BaasPersistentException;
 public interface ManagementService {
 
 	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")
-	public List<Account> getAllAccounts() throws BaasPersistentException, BaasEntityNotFoundException;
+	public List<Account> getAllAccounts() throws DaasPersistentException, DaasEntityNotFoundException;
 	
 	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")
-	public long getAccountCount() throws BaasPersistentException;
+	public long getAccountCount() throws DaasPersistentException;
 	
 	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")
-	public Account getAccount(String accountName) throws BaasPersistentException, BaasEntityNotFoundException;
+	public Account getAccount(String accountName) throws DaasPersistentException, DaasEntityNotFoundException;
 
 	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")
-	public Account createAccount(String accountName) throws BaasPersistentException;
+	public Account createAccount(String accountName) throws DaasPersistentException;
 	
 	@PreAuthorize("hasRole('ROLE_TENENT_ADMIN')")
-	public boolean deleteAccount(String accountName) throws BaasPersistentException,BaasEntityNotFoundException;
+	public boolean deleteAccount(String accountName) throws DaasPersistentException,DaasEntityNotFoundException;
 
 	@PreAuthorize("hasAnyRole('ROLE_TENENT_ADMIN','ROLE_ACCOUNT_ADMIN')")
-	public List<Application> getAllApplications(String accountName) throws BaasPersistentException, BaasEntityNotFoundException;
+	public List<Application> getAllApplications(String accountName) throws DaasPersistentException, DaasEntityNotFoundException;
 	
 	@PreAuthorize("hasAnyRole('ROLE_TENENT_ADMIN','ROLE_ACCOUNT_ADMIN')")
-	public Application getApplication(String accountName,String applicationName) throws BaasPersistentException, BaasEntityNotFoundException;
+	public Application getApplication(String accountName,String applicationName) throws DaasPersistentException, DaasEntityNotFoundException;
 
 	@PreAuthorize("hasAnyRole('ROLE_TENENT_ADMIN','ROLE_ACCOUNT_ADMIN')")
-	public Application createApplication(String accountName, String applicationName, String applicationType, String applicationSubType, String applicationFullName) throws BaasPersistentException;
+	public Application createApplication(String accountName, String applicationName, String applicationType, String applicationSubType, String applicationFullName) throws DaasPersistentException;
 	
 	@PreAuthorize("hasAnyRole('ROLE_TENENT_ADMIN','ROLE_ACCOUNT_ADMIN')")
-	public Application editApplication(String accountName, String applicationName, String applicationType, String applicationSubType, String applicationFullName) throws BaasPersistentException;
+	public Application editApplication(String accountName, String applicationName, String applicationType, String applicationSubType, String applicationFullName) throws DaasPersistentException;
 	
 	@PreAuthorize("hasAnyRole('ROLE_TENENT_ADMIN','ROLE_ACCOUNT_ADMIN')")
-	public boolean deleteApplication(String accountName, String applicationName) throws BaasPersistentException,BaasEntityNotFoundException;
+	public boolean deleteApplication(String accountName, String applicationName) throws DaasPersistentException,DaasEntityNotFoundException;
 }

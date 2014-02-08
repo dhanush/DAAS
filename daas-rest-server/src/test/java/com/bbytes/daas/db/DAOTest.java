@@ -29,8 +29,8 @@ import com.bbytes.daas.dao.AccountDao;
 import com.bbytes.daas.dao.ApplicationDao;
 import com.bbytes.daas.domain.Account;
 import com.bbytes.daas.domain.Application;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasPersistentException;
 
 /**
  * 
@@ -54,7 +54,7 @@ public class DAOTest extends BaseDBTest {
 		
 
 	@Before
-	public void setUp() throws BaasPersistentException {
+	public void setUp() throws DaasPersistentException {
 
 		Account org = new Account();
 		org.setName(UUID.randomUUID().toString());
@@ -87,7 +87,7 @@ public class DAOTest extends BaseDBTest {
 	
 
 	@Test
-	public void testDaoQueryAll() throws BaasPersistentException, BaasEntityNotFoundException {
+	public void testDaoQueryAll() throws DaasPersistentException, DaasEntityNotFoundException {
 		long start = Calendar.getInstance().getTimeInMillis();
 		int size = applicationDao.findAll().size();
 		System.out.println("application object size in DB " + size);
@@ -99,7 +99,7 @@ public class DAOTest extends BaseDBTest {
 	}
 
 	@Test
-	public void testDaoCount() throws BaasPersistentException {
+	public void testDaoCount() throws DaasPersistentException {
 		long start = Calendar.getInstance().getTimeInMillis();
 		long size = applicationDao.count();
 		LOG.debug("app object size " + size);
@@ -111,7 +111,7 @@ public class DAOTest extends BaseDBTest {
 	}
 
 	@Test
-	public void testDaoFindByID() throws BaasPersistentException, BaasEntityNotFoundException {
+	public void testDaoFindByID() throws DaasPersistentException, DaasEntityNotFoundException {
 		LOG.debug("testDaoFindByID started...");
 		long start = Calendar.getInstance().getTimeInMillis();
 		Application app = applicationDao.find(uuid);
@@ -123,7 +123,7 @@ public class DAOTest extends BaseDBTest {
 	}
 
 	@Test
-	public void testDaoIsAvailable() throws BaasPersistentException, BaasEntityNotFoundException {
+	public void testDaoIsAvailable() throws DaasPersistentException, DaasEntityNotFoundException {
 		LOG.debug("isAvailable test...");
 
 		Application app = applicationDao.find(uuid);
@@ -143,8 +143,8 @@ public class DAOTest extends BaseDBTest {
 	
 
 	
-	@Test(expected=BaasPersistentException.class)
-	public void testDuplicateAccount() throws BaasPersistentException {
+	@Test(expected=DaasPersistentException.class)
+	public void testDuplicateAccount() throws DaasPersistentException {
 
 		String accName = UUID.randomUUID().toString();
 		
@@ -159,8 +159,8 @@ public class DAOTest extends BaseDBTest {
 		accountDao.save(org2);
 	}
 	
-	@Test(expected=BaasPersistentException.class)
-	public void testDuplicateApp() throws BaasPersistentException {
+	@Test(expected=DaasPersistentException.class)
+	public void testDuplicateApp() throws DaasPersistentException {
 
 		String orgName = UUID.randomUUID().toString();
 		String appName = UUID.randomUUID().toString();

@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.bbytes.daas.domain.Entity;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasPersistentException;
 import com.orientechnologies.orient.core.id.ORID;
 
 /**
@@ -30,21 +30,21 @@ import com.orientechnologies.orient.core.id.ORID;
  */
 public interface DaasDAO<E extends Entity> {
 
-	public E save(E entity) throws BaasPersistentException;
+	public E save(E entity) throws DaasPersistentException;
 
-	public E update(E entity) throws BaasPersistentException;
+	public E update(E entity) throws DaasPersistentException;
 
-	public void remove(E entity) throws BaasPersistentException;
+	public void remove(E entity) throws DaasPersistentException;
 
-	public E find(ORID id) throws BaasPersistentException, BaasEntityNotFoundException;
+	public E find(ORID id) throws DaasPersistentException, DaasEntityNotFoundException;
 
-	public E find(String uuid) throws BaasPersistentException, BaasEntityNotFoundException;
+	public E find(String uuid) throws DaasPersistentException, DaasEntityNotFoundException;
 
-	public List<E> findAll() throws BaasPersistentException, BaasEntityNotFoundException;
+	public List<E> findAll() throws DaasPersistentException, DaasEntityNotFoundException;
 
-	public long count() throws BaasPersistentException;
+	public long count() throws DaasPersistentException;
 
-	public List<E> find(String property, String value) throws BaasEntityNotFoundException;
+	public List<E> find(String property, String value) throws DaasEntityNotFoundException;
 
 	public boolean findAny(String property, String value);
 
