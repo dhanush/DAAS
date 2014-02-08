@@ -25,8 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bbytes.daas.dao.DaasDefaultFields;
 import com.bbytes.daas.dao.DocumentDao;
 import com.bbytes.daas.db.orientDb.OrientDbTemplate;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasPersistentException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
@@ -56,7 +56,7 @@ public class DocumentDaoTest extends BaseDBTest {
 	private ODocument doc3;
 
 	@Before
-	public void setup() throws BaasPersistentException, BaasEntityNotFoundException {
+	public void setup() throws DaasPersistentException, DaasEntityNotFoundException {
 		
 		setAuthObjectForTest("ROLE_TENENT_ADMIN");
 		
@@ -72,14 +72,14 @@ public class DocumentDaoTest extends BaseDBTest {
 
 	@Test
 	@Transactional
-	public void testCreate() throws BaasPersistentException {
+	public void testCreate() throws DaasPersistentException {
 		String nullString = null;
 		ODocument doc = documentDao.create("test4", nullString, "accnName", "appName");
 		assertNotNull(doc);
 	}
 
 	@Test
-	public void testRelateEntity() throws BaasPersistentException {
+	public void testRelateEntity() throws DaasPersistentException {
 
 		ODocument relateDoc = documentDao.relate("doc1",
 				doc1.field(DaasDefaultFields.FIELD_UUID.toString()).toString(), "doc2",
@@ -89,7 +89,7 @@ public class DocumentDaoTest extends BaseDBTest {
 	}
 	
 	@Test
-	public void testRelateEntityReverseQuery() throws BaasPersistentException, BaasEntityNotFoundException {
+	public void testRelateEntityReverseQuery() throws DaasPersistentException, DaasEntityNotFoundException {
 
 		ODocument relateDoc = documentDao.relate("doc1",
 				doc1.field(DaasDefaultFields.FIELD_UUID.toString()).toString(), "doc2",
@@ -101,7 +101,7 @@ public class DocumentDaoTest extends BaseDBTest {
 	}
 
 	@Test
-	public void testGraphQueryAndUpdateRelation() throws BaasPersistentException {
+	public void testGraphQueryAndUpdateRelation() throws DaasPersistentException {
 
 		ODocument relateDoc = documentDao.relate("doc1",
 				doc1.field(DaasDefaultFields.FIELD_UUID.toString()).toString(), "doc2",
@@ -146,8 +146,8 @@ public class DocumentDaoTest extends BaseDBTest {
 	}
 
 	
-	@Test(expected=BaasEntityNotFoundException.class)
-	public void testFindByID() throws BaasPersistentException, BaasEntityNotFoundException {
+	@Test(expected=DaasEntityNotFoundException.class)
+	public void testFindByID() throws DaasPersistentException, DaasEntityNotFoundException {
 		ODocument document = documentDao.findById("doc1", doc1.field(DaasDefaultFields.FIELD_UUID.toString()).toString());
 		assertNotNull(document);
 		
@@ -157,7 +157,7 @@ public class DocumentDaoTest extends BaseDBTest {
 	
 	
 	@Test
-	public void testRemoveRelation() throws BaasPersistentException {
+	public void testRemoveRelation() throws DaasPersistentException {
 
 		ODocument relateDoc = documentDao.relate("doc1",
 				doc1.field(DaasDefaultFields.FIELD_UUID.toString()).toString(), "doc2",

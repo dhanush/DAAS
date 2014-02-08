@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.provider.NoSuchClientException;
 
 import com.bbytes.daas.dao.UserDao;
 import com.bbytes.daas.domain.DaasUser;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
 
 /**
  * 
@@ -66,7 +66,7 @@ public class DaasClientDetailsService implements ClientDetailsService {
 			baseClientDetails.setClientId(user.getUserName());
 			baseClientDetails.setClientSecret(user.getPassword());
 			return baseClientDetails;
-		} catch (BaasEntityNotFoundException e) {
+		} catch (DaasEntityNotFoundException e) {
 			throw new UsernameNotFoundException("Username Not Found", e);
 		}
 		

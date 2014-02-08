@@ -16,8 +16,8 @@ package com.bbytes.daas.dao;
 import java.util.List;
 
 import com.bbytes.daas.domain.DaasUser;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasPersistentException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**
@@ -30,21 +30,21 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 
 public interface UserDao extends DaasDAO<DaasUser> {
 
-	public DaasUser saveAccountUser(DaasUser user) throws BaasPersistentException;
+	public DaasUser saveAccountUser(DaasUser user) throws DaasPersistentException;
 
-	public DaasUser saveAppUser(DaasUser user) throws BaasPersistentException;
+	public DaasUser saveAppUser(DaasUser user) throws DaasPersistentException;
 
-	public DaasUser findUser(String userName) throws BaasEntityNotFoundException;
+	public DaasUser findUser(String userName) throws DaasEntityNotFoundException;
 	
-	public ODocument findUserAsRecord(String userName) throws BaasEntityNotFoundException;
+	public ODocument findUserAsRecord(String userName) throws DaasEntityNotFoundException;
 
-	public DaasUser findUser(String accountName, String userName) throws BaasEntityNotFoundException;
+	public DaasUser findUser(String accountName, String userName) throws DaasEntityNotFoundException;
 
-	public DaasUser findUser(String accountName, String appName, String userName) throws BaasEntityNotFoundException;
+	public DaasUser findUser(String accountName, String appName, String userName) throws DaasEntityNotFoundException;
 
-	public List<DaasUser> findUserByRole(String accountName, String role) throws BaasEntityNotFoundException;
+	public List<DaasUser> findUserByRole(String accountName, String role) throws DaasEntityNotFoundException;
 
 	public List<DaasUser> findUserByRole(String accountName, String applicationName, String role)
-			throws BaasEntityNotFoundException;
+			throws DaasEntityNotFoundException;
 
 }

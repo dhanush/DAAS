@@ -15,30 +15,35 @@
  */
 package com.bbytes.daas.rest;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
 /**
- * Any exception thrown when tenant creation fails
+ * Any exception related to Baas calls will be wrapped in this
  *
  * @author Thanneer
  *
  * @version 1.0.0
  */
-public class BaasTenantCreationException extends RuntimeException {
+
+@ResponseStatus(value=HttpStatus.NOT_FOUND, reason="No Such Entity Found")  // 404
+public class DaasEntityNotFoundException extends RuntimeException  {
 
 	private static final long serialVersionUID = 6289917997937599218L;
 
-	public BaasTenantCreationException() {
+	public DaasEntityNotFoundException() {
 		super();
 	}
 
-	public BaasTenantCreationException(String jsonResponse, String message, Throwable cause) {
+	public DaasEntityNotFoundException(String jsonResponse, String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public BaasTenantCreationException(String message) {
+	public DaasEntityNotFoundException(String message) {
 		super(message);
 	}
 
-	public BaasTenantCreationException(Throwable cause) {
+	public DaasEntityNotFoundException(Throwable cause) {
 		super(cause);
 	}
 

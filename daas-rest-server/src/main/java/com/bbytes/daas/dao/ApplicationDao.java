@@ -18,7 +18,7 @@ package com.bbytes.daas.dao;
 import java.util.List;
 
 import com.bbytes.daas.domain.Application;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasPersistentException;
 
 
 /**
@@ -31,5 +31,5 @@ import com.bbytes.daas.rest.BaasPersistentException;
 
 public interface ApplicationDao extends DaasDAO<Application>{
 
-	public List<Application> findForAccount(String accountName) throws BaasPersistentException;
+	public List<Application> findForAccount(String accountName) throws DaasPersistentException;
 }

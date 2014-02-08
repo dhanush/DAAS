@@ -65,7 +65,7 @@ public class RestControllerTest extends DAASTesting {
 	}
 
 	@Before
-	public void setup() throws BaasException {
+	public void setup() throws DaasException {
 		// appending date to make them unique as retesting will create duplicate entry error
 		long date = DateTime.now().getMillis();
 		password = "admin";

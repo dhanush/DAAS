@@ -31,9 +31,9 @@ import com.bbytes.daas.db.orientDb.TenantRouter;
 import com.bbytes.daas.domain.Account;
 import com.bbytes.daas.domain.Application;
 import com.bbytes.daas.domain.DaasUser;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.BaasException;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasException;
+import com.bbytes.daas.rest.DaasPersistentException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -68,7 +68,7 @@ public class UserServiceTest extends BaseDBTest {
 	}
 
 	@Before
-	public void SetUp() throws BaasPersistentException, BaasEntityNotFoundException, JsonProcessingException {
+	public void SetUp() throws DaasPersistentException, DaasEntityNotFoundException, JsonProcessingException {
 
 		Account org = new Account();
 		org.setName(UUID.randomUUID().toString());
@@ -96,7 +96,7 @@ public class UserServiceTest extends BaseDBTest {
 	}
 
 	@Test
-	public void updatePasswordTest() throws BaasPersistentException, BaasEntityNotFoundException, BaasException {
+	public void updatePasswordTest() throws DaasPersistentException, DaasEntityNotFoundException, DaasException {
 		DaasUser user = userService.updateUserPassword("test123", "newTest123", uuid);
 		Assert.assertTrue(user.getPassword().equals("newTest123"));
 
@@ -113,7 +113,7 @@ public class UserServiceTest extends BaseDBTest {
 			dbUser = userDao.find(uuid);
 			if (dbUser != null)
 				userDao.remove(dbUser);
-		} catch (BaasPersistentException | BaasEntityNotFoundException e) {
+		} catch (DaasPersistentException | DaasEntityNotFoundException e) {
 			e.printStackTrace();
 		}
 		

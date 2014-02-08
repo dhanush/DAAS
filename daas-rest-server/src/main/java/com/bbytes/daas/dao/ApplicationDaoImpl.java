@@ -17,12 +17,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.core.GenericTypeResolver;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bbytes.daas.domain.Application;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasPersistentException;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 
@@ -38,7 +37,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 public class ApplicationDaoImpl extends AbstractDao<Application> implements ApplicationDao {
 
 	@Override
-	public Application save(Application app) throws BaasPersistentException {
+	public Application save(Application app) throws DaasPersistentException {
 		// check if the org name and app name combo is unique
 		Map<String, String> propertyToValue = new HashMap<String, String>();
 		propertyToValue.put("name", app.getName());
@@ -47,7 +46,7 @@ public class ApplicationDaoImpl extends AbstractDao<Application> implements Appl
 		if (!findAny(propertyToValue)) {
 			app = super.save(app);
 		} else {
-			throw new BaasPersistentException("Application name has to be unique,  " + app.getName()
+			throw new DaasPersistentException("Application name has to be unique,  " + app.getName()
 					+ " under account " + app.getAccountName() + " is already taken ");
 		}
 		return app;
@@ -59,7 +58,7 @@ public class ApplicationDaoImpl extends AbstractDao<Application> implements Appl
 	 * @see com.bbytes.daas.rest.dao.ApplicationDao#findForAccount(java.lang.String)
 	 */
 	@Override
-	public List<Application> findForAccount(String accountName) throws BaasPersistentException {
+	public List<Application> findForAccount(String accountName) throws DaasPersistentException {
 
 		OrientGraph db = getDataBase();
 		try {

@@ -21,9 +21,9 @@ import org.springframework.stereotype.Service;
 import com.bbytes.daas.dao.UserDao;
 import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.domain.Role;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.BaasException;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasException;
+import com.bbytes.daas.rest.DaasPersistentException;
 
 /**
  * 
@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
 	 * com.bbytes.daas.service.UserService#createAccountUser(com.bbytes.daas.rest.domain.DaasUser)
 	 */
 	@Override
-	public DaasUser createAccountUser(String accountName, DaasUser user) throws BaasPersistentException {
+	public DaasUser createAccountUser(String accountName, DaasUser user) throws DaasPersistentException {
 		if (user == null)
 			throw new IllegalArgumentException("User object is null");
 		user.setAccountName(accountName);
@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
 	public DaasUser createApplicationUser(String accountName, String applicationName, DaasUser user)
-			throws BaasPersistentException {
+			throws DaasPersistentException {
 		if (user == null)
 			throw new IllegalArgumentException("User object is null");
 
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<DaasUser> getAccountUsers(String accountName) throws BaasEntityNotFoundException {
+	public List<DaasUser> getAccountUsers(String accountName) throws DaasEntityNotFoundException {
 		return userDao.findUserByRole(accountName, Role.ROLE_ACCOUNT_ADMIN);
 	}
 
@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
 	public List<DaasUser> getApplicationUsers(String accountName, String applicationName)
-			throws BaasEntityNotFoundException {
+			throws DaasEntityNotFoundException {
 		return userDao.findUserByRole(accountName, applicationName,Role.ROLE_APPLICATION_USER);
 	}
 
@@ -95,17 +95,17 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
 	public DaasUser updateUserPassword(String oldPassword, String newPassword, String userId)
-			throws BaasPersistentException, BaasEntityNotFoundException, BaasException {
+			throws DaasPersistentException, DaasEntityNotFoundException, DaasException {
 		DaasUser dbUser = userDao.find(userId);
 		if (dbUser != null) {
 			if (dbUser.getPassword()==null || dbUser.getPassword().equals(oldPassword)) {
 				dbUser.setPassword(newPassword);
 				return userDao.update(dbUser);
 			} else {
-				throw new BaasException("Pasword update failed : Old Password incorrect or null");
+				throw new DaasException("Pasword update failed : Old Password incorrect or null");
 			}
 		}else{
-			throw new BaasEntityNotFoundException("User with user id : " + userId + "not found");
+			throw new DaasEntityNotFoundException("User with user id : " + userId + "not found");
 		}
 	}
 

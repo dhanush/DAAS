@@ -23,8 +23,8 @@ import com.bbytes.daas.dao.AccountDao;
 import com.bbytes.daas.dao.ApplicationDao;
 import com.bbytes.daas.domain.Account;
 import com.bbytes.daas.domain.Application;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasPersistentException;
 
 /**
  * 
@@ -48,10 +48,10 @@ public class ManagementServiceImpl implements ManagementService {
 	 * @see com.bbytes.daas.service.ManagementService#getAllAccounts()
 	 */
 	@Override
-	public List<Account> getAllAccounts() throws BaasPersistentException, BaasEntityNotFoundException {
+	public List<Account> getAllAccounts() throws DaasPersistentException, DaasEntityNotFoundException {
 		try {
 			return accountDao.findAll();
-		} catch (BaasEntityNotFoundException e) {
+		} catch (DaasEntityNotFoundException e) {
 			return new ArrayList<Account>();
 		}
 	}
@@ -60,7 +60,7 @@ public class ManagementServiceImpl implements ManagementService {
 	 * @see com.bbytes.daas.service.ManagementService#getAccountCount()
 	 */
 	@Override
-	public long getAccountCount() throws BaasPersistentException {
+	public long getAccountCount() throws DaasPersistentException {
 		return accountDao.count();
 	}
 
@@ -70,7 +70,7 @@ public class ManagementServiceImpl implements ManagementService {
 	 * @see com.bbytes.daas.service.ManagementService#createAccount(java.lang.String)
 	 */
 	@Override
-	public Account createAccount(String accountName) throws BaasPersistentException {
+	public Account createAccount(String accountName) throws DaasPersistentException {
 		Account account = new Account();
 		account.setName(accountName);
 		return accountDao.save(account);
@@ -83,7 +83,7 @@ public class ManagementServiceImpl implements ManagementService {
 	 * java.lang.String)
 	 */
 	@Override
-	public Application createApplication(String accountName, String applicationName, String applicationType, String applicationSubType, String applicationFullName) throws BaasPersistentException {
+	public Application createApplication(String accountName, String applicationName, String applicationType, String applicationSubType, String applicationFullName) throws DaasPersistentException {
 		Application app = new Application();
 		app.setAccountName(accountName);
 		app.setName(applicationName);
@@ -96,7 +96,7 @@ public class ManagementServiceImpl implements ManagementService {
 	
 	@Override
 	public Application editApplication(String accountName, String applicationName, String applicationType,
-			String applicationSubType, String applicationFullName) throws BaasPersistentException {
+			String applicationSubType, String applicationFullName) throws DaasPersistentException {
 		List<Application> apps;
 		try {
 			apps = applicationDao.find("name", applicationName);
@@ -108,8 +108,8 @@ public class ManagementServiceImpl implements ManagementService {
 				app.setFullName(applicationFullName);
 				return applicationDao.update(app);
 			}
-		} catch (BaasEntityNotFoundException e) {
-			throw new BaasPersistentException(e);
+		} catch (DaasEntityNotFoundException e) {
+			throw new DaasPersistentException(e);
 		}
 		return null;
 	}
@@ -122,12 +122,12 @@ public class ManagementServiceImpl implements ManagementService {
 	 * @see com.bbytes.daas.service.ManagementService#getAllApplications(java.lang.String)
 	 */
 	@Override
-	public List<Application> getAllApplications(String accountName) throws BaasPersistentException,
-			BaasEntityNotFoundException {
+	public List<Application> getAllApplications(String accountName) throws DaasPersistentException,
+			DaasEntityNotFoundException {
 		try {
 			// we dont have to filter based on account name as we have separate database per account
 			return applicationDao.findAll();
-		} catch (BaasEntityNotFoundException e) {
+		} catch (DaasEntityNotFoundException e) {
 			return new ArrayList<Application>();
 		}
 	}
@@ -138,7 +138,7 @@ public class ManagementServiceImpl implements ManagementService {
 	 * @see com.bbytes.daas.service.ManagementService#deleteAccount(java.lang.String)
 	 */
 	@Override
-	public boolean deleteAccount(String accountName) throws BaasPersistentException, BaasEntityNotFoundException {
+	public boolean deleteAccount(String accountName) throws DaasPersistentException, DaasEntityNotFoundException {
 		List<Account> accns = accountDao.find("name", accountName);
 		if (accns != null && accns.size() > 0) {
 			// account name is unique so get the only one in the list
@@ -158,8 +158,8 @@ public class ManagementServiceImpl implements ManagementService {
 	 * java.lang.String)
 	 */
 	@Override
-	public boolean deleteApplication(String accountName, String applicationName) throws BaasPersistentException,
-			BaasEntityNotFoundException {
+	public boolean deleteApplication(String accountName, String applicationName) throws DaasPersistentException,
+			DaasEntityNotFoundException {
 		List<Application> apps = applicationDao.find("name", applicationName);
 		if (apps != null && apps.size() > 0) {
 			// account name is unique so get the only one in the list
@@ -177,7 +177,7 @@ public class ManagementServiceImpl implements ManagementService {
 	 * @see com.bbytes.daas.service.ManagementService#getAccount(java.lang.String)
 	 */
 	@Override
-	public Account getAccount(String accountName) throws BaasPersistentException, BaasEntityNotFoundException {
+	public Account getAccount(String accountName) throws DaasPersistentException, DaasEntityNotFoundException {
 		List<Account> accns = accountDao.find("name", accountName);
 		if (accns != null && accns.size() > 0) {
 			// account name is unique so get the only one in the list
@@ -193,8 +193,8 @@ public class ManagementServiceImpl implements ManagementService {
 	 * java.lang.String)
 	 */
 	@Override
-	public Application getApplication(String accountName, String applicationName) throws BaasPersistentException,
-			BaasEntityNotFoundException {
+	public Application getApplication(String accountName, String applicationName) throws DaasPersistentException,
+			DaasEntityNotFoundException {
 		List<Application> apps = applicationDao.find("name", applicationName);
 		if (apps != null && apps.size() > 0) {
 			// app name is unique so get the only one in the list

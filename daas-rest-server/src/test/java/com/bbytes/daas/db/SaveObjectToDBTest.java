@@ -30,8 +30,8 @@ import com.bbytes.daas.dao.ApplicationDao;
 import com.bbytes.daas.db.orientDb.OrientDbTemplate;
 import com.bbytes.daas.domain.Account;
 import com.bbytes.daas.domain.Application;
-import com.bbytes.daas.rest.BaasEntityNotFoundException;
-import com.bbytes.daas.rest.BaasPersistentException;
+import com.bbytes.daas.rest.DaasEntityNotFoundException;
+import com.bbytes.daas.rest.DaasPersistentException;
 
 /**
  * 
@@ -65,7 +65,7 @@ public class SaveObjectToDBTest extends BaseDBTest {
 
 		try {
 			org = accountDao.save(org);
-		} catch (BaasPersistentException e) {
+		} catch (DaasPersistentException e) {
 			e.printStackTrace();
 		}
 
@@ -83,7 +83,7 @@ public class SaveObjectToDBTest extends BaseDBTest {
 	}
 
 	@Test
-	public void getSavedObjects() throws BaasPersistentException, BaasEntityNotFoundException {
+	public void getSavedObjects() throws DaasPersistentException, DaasEntityNotFoundException {
 		
 		long start = Calendar.getInstance().getTimeInMillis();
 		List<Account> result = accountDao.findAll();
