@@ -2,24 +2,12 @@
 <html>
 <head>
 <title>Daas JS Client App</title>
-<script src="js/require.js"></script>
-<script>
-	require.config({
-		baseUrl: ".",
-		paths : {
-			daas : "daas-1.0.0"
-		}
-	});
-	
-	function pingStatus(){
-		alert(daas)
-	}
-	
+<script data-main="daas-1.0.0.js" src="js/require.js">
 </script>
 </head>
-<body onload="pingStatus()">
+<body>
 	<h1>Daas JS Client</h1>
 	<p>
-	<div id="pingStatus"></div>
+		<button id="ping">Ping</button>
 </body>
 </html>

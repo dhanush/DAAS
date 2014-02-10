@@ -14,6 +14,11 @@ require.config({
 	}
 });
 
-require([ "module/ping" ], function(ping) {
-	ping: ping;
+require([ "jquery", "module/ping" ], function($, ping) {
+
+	$('#ping').click(function() {
+		ping.ping(function(data) {
+			alert(data);
+		});
+	});
 });

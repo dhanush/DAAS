@@ -10803,7 +10803,7 @@ define('module/http',[ "jquery" ], function($) {
 	};
 });
 define('module/config',[],function() {
-	var baseUrl = "localhost:8080/daas-rest-server/";
+	var baseUrl = "http://localhost:8080/daas-rest-server/";
 
 	return {
 		getBaseUrl : function() {
@@ -10814,7 +10814,7 @@ define('module/config',[],function() {
 define('module/ping',[ "module/http","module/config" ], function(http,config) {
 	return {
 		ping : function(callback) {
-			var url = config.getBaseUrl()+"/ping";
+			var url = config.getBaseUrl()+"ping";
 			http.get(url, callback, "text");
 		}
 	};
@@ -10835,8 +10835,13 @@ require.config({
 	}
 });
 
-require([ "module/ping" ], function(ping) {
-	ping: ping;
+require([ "jquery", "module/ping" ], function($, ping) {
+
+	$('#ping').click(function() {
+		ping.ping(function(data) {
+			alert(data);
+		});
+	});
 });
 define("daas", function(){});
 
