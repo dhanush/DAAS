@@ -1736,7 +1736,7 @@ public class DaasClient implements IDaasClient {
 	 * @return String 'success'
 	 * @throws DaasClientException
 	 */
-	public <T extends Entity> String deleteEntity(T entity) throws DaasClientException {
+	public <T extends Entity> boolean deleteEntity(T entity) throws DaasClientException {
 		if (entity == null) {
 			throw new IllegalArgumentException("Entity cannot be null");
 		}
@@ -1750,19 +1750,19 @@ public class DaasClient implements IDaasClient {
 	 * com.bbytes.daas.client.AsyncResultHandler)
 	 */
 	@Override
-	public <T extends Entity> void deleteEntity(final T entity, AsyncResultHandler<String> asyncResultHandler) {
+	public <T extends Entity> void deleteEntity(final T entity, AsyncResultHandler<Boolean> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 
-		Callable<String> deleteEntity= new Callable<String>() {
+		Callable<Boolean> deleteEntity= new Callable<Boolean>() {
 			@Override
-			public String call() throws Exception {
-				String result = deleteEntity(entity);
+			public Boolean call() throws Exception {
+				Boolean result = deleteEntity(entity);
 				return result;
 			}
 		};
 		
-		DaasClientCallAsyncTask<String> asyncTask = new DaasClientCallAsyncTask<String>(deleteEntity, asyncResultHandler);
+		DaasClientCallAsyncTask<Boolean> asyncTask = new DaasClientCallAsyncTask<Boolean>(deleteEntity, asyncResultHandler);
 		executor.submit(asyncTask);
 
 	}
@@ -1777,7 +1777,7 @@ public class DaasClient implements IDaasClient {
 	 * @return String 'success'
 	 * @throws DaasClientException
 	 */
-	public <T extends Entity> String deleteEntity(T entity, String entityType) throws DaasClientException {
+	public <T extends Entity> boolean deleteEntity(T entity, String entityType) throws DaasClientException {
 		if (entity == null || entityType == null) {
 			throw new IllegalArgumentException("Entity or Type cannot be null");
 		}
@@ -1792,19 +1792,19 @@ public class DaasClient implements IDaasClient {
 	 */
 	@Override
 	public <T extends Entity> void deleteEntity(final T entity, final String entityTypeName,
-			AsyncResultHandler<String> asyncResultHandler) {
+			AsyncResultHandler<Boolean> asyncResultHandler) {
 		if (asyncResultHandler == null)
 			return;
 		
-		Callable<String> deleteEntity= new Callable<String>() {
+		Callable<Boolean> deleteEntity= new Callable<Boolean>() {
 			@Override
-			public String call() throws Exception {
-				String result = deleteEntity(entity,entityTypeName);
+			public Boolean call() throws Exception {
+				Boolean result = deleteEntity(entity,entityTypeName);
 				return result;
 			}
 		};
 		
-		DaasClientCallAsyncTask<String> asyncTask = new DaasClientCallAsyncTask<String>(deleteEntity, asyncResultHandler);
+		DaasClientCallAsyncTask<Boolean> asyncTask = new DaasClientCallAsyncTask<Boolean>(deleteEntity, asyncResultHandler);
 		executor.submit(asyncTask);
 
 	}
@@ -1817,7 +1817,7 @@ public class DaasClient implements IDaasClient {
 	 * @return String 'success'
 	 * @throws DaasClientException
 	 */
-	private <T extends Entity> String deleteSingleEntity(T entity) throws DaasClientException {
+	private <T extends Entity> Boolean deleteSingleEntity(T entity) throws DaasClientException {
 		return deleteSingleEntity(entity, entity.getClass().getSimpleName());
 	}
 
@@ -1831,7 +1831,7 @@ public class DaasClient implements IDaasClient {
 	 * @return String 'success'
 	 * @throws DaasClientException
 	 */
-	private <T extends Entity> String deleteSingleEntity(T entity, String entityType) throws DaasClientException {
+	private <T extends Entity> Boolean deleteSingleEntity(T entity, String entityType) throws DaasClientException {
 		if (entity == null) {
 			throw new IllegalArgumentException("Entity cannot be null");
 		}
@@ -1850,7 +1850,7 @@ public class DaasClient implements IDaasClient {
 
 			DaasClientUtil.checkResponse(r);
 
-			return r.getResponseBody();
+			return gson.fromJson(r.getResponseBody(), Boolean.class);
 
 		} catch (Exception e) {
 			throw new DaasClientException(e);
@@ -1865,7 +1865,7 @@ public class DaasClient implements IDaasClient {
 	 * @return
 	 * @throws DaasClientException
 	 */
-	private <T extends Entity> String deleteEntityFullGraph(T entity) throws DaasClientException {
+	private <T extends Entity> Boolean deleteEntityFullGraph(T entity) throws DaasClientException {
 		return deleteEntityFullGraph(entity, entity.getClass().getSimpleName());
 
 	}
@@ -1880,7 +1880,7 @@ public class DaasClient implements IDaasClient {
 	 * @return
 	 * @throws DaasClientException
 	 */
-	private <T extends Entity> String deleteEntityFullGraph(T entity, String entityType) throws DaasClientException {
+	private <T extends Entity> Boolean deleteEntityFullGraph(T entity, String entityType) throws DaasClientException {
 		if (entity == null) {
 			throw new IllegalArgumentException("Entity cannot be null");
 		}
@@ -1914,7 +1914,7 @@ public class DaasClient implements IDaasClient {
 								+ " and " + toBeDeletedEntity.getUuid() + " respectively");
 
 					// after removing the relation , delete the entity.
-					String result = deleteSingleEntity(toBeDeletedEntity);
+					Boolean result = deleteSingleEntity(toBeDeletedEntity);
 
 					if (!result.equals("success"))
 						throw new DaasClientException("Failed while deleting entity of type "

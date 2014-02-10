@@ -159,7 +159,7 @@ public interface IDaasClient {
 	 * @return String 'success'
 	 * @throws DaasClientException
 	 */
-	public <T extends Entity> String deleteEntity(T entity) throws DaasClientException;
+	public <T extends Entity> boolean deleteEntity(T entity) throws DaasClientException;
 
 	/**
 	 * This will delete the entity with the uuid inside the entity. It return success string if it
@@ -168,7 +168,7 @@ public interface IDaasClient {
 	 * @param entity
 	 * @return String 'success'
 	 */
-	public <T extends Entity> void deleteEntity(T entity, AsyncResultHandler<String> asyncResultHandler);
+	public <T extends Entity> void deleteEntity(T entity, AsyncResultHandler<Boolean> asyncResultHandler);
 
 	/**
 	 * This will delete the entity with the uuid inside the entity. It return success string if it
@@ -180,7 +180,7 @@ public interface IDaasClient {
 	 * @return String 'success'
 	 * @throws DaasClientException
 	 */
-	public <T extends Entity> String deleteEntity(T entity, String entityTypeName) throws DaasClientException;
+	public <T extends Entity> boolean deleteEntity(T entity, String entityTypeName) throws DaasClientException;
 
 	/**
 	 * This will delete the entity with the uuid inside the entity. It return success string if it
@@ -192,7 +192,7 @@ public interface IDaasClient {
 	 * @return String 'success'
 	 */
 	public <T extends Entity> void deleteEntity(T entity, String entityTypeName,
-			AsyncResultHandler<String> asyncResultHandler);
+			AsyncResultHandler<Boolean> asyncResultHandler);
 
 	/**
 	 * This will add relation between entities . The object mapping looks like : entity

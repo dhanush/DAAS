@@ -281,16 +281,16 @@ public class EntityController {
 	 * @param entityType
 	 * @param entityUuid
 	 * @param request
-	 * @return
+	 * @return true or false
 	 * @throws DaasException
 	 */
-	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityUuid}", method = RequestMethod.DELETE, produces = MediaType.TEXT_PLAIN_VALUE)
+	@RequestMapping(value = "/{accountName}/{applicationName}/{entityType}/{entityUuid}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody
-	String deleteEntity(@PathVariable String accountName, @PathVariable String applicationName,
+	Boolean deleteEntity(@PathVariable String accountName, @PathVariable String applicationName,
 			@PathVariable String entityType, @PathVariable String entityUuid, HttpServletRequest request)
 			throws DaasException {
 		documentDao.remove(entityUuid, entityType, accountName, applicationName);
-		return "success";
+		return true;
 
 	}
 

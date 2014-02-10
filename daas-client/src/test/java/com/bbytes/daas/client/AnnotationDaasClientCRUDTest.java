@@ -162,7 +162,7 @@ public class AnnotationDaasClientCRUDTest extends DaasClientBaseTest {
 		String testPojoRelatedUpdateDeleteId = annotationTestPojo.getTestPojoRelatedUpdateDelete().getUuid();
 		String testPojoRelatedUpdateId = annotationTestPojo.getTestPojoRelatedUpdate().getUuid();
 
-		String result = daasClient.deleteEntity(annotationTestPojo);
+		boolean result = daasClient.deleteEntity(annotationTestPojo);
 
 		// Assert.assertNull(daasClient.getEntityById(AnnotationTestPojo.class,
 		// annotationTestPojoId));

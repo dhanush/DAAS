@@ -20,7 +20,7 @@ public class PingController {
 	 * Ping method to test if the rest server is up
 	 * @return
 	 */
-	@RequestMapping(value = "/ping", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/ping", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
 	public @ResponseBody
 	String ping() {
 		return "DAAS Server, it works !!";

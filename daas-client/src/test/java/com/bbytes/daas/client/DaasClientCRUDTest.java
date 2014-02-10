@@ -101,9 +101,9 @@ public class DaasClientCRUDTest extends DaasClientBaseTest {
 		DaasClient daasClient = new DaasClient(host, port);
 		boolean success = daasClient.login("testAccn", "testApp", "accnUser", "accnPassword");
 		Assert.assertTrue(success);
-		String status = daasClient.deleteEntity(test);
+		boolean status = daasClient.deleteEntity(test);
 		System.out.println(status);
-		Assert.assertEquals("success", status);
+		Assert.assertTrue(status);
 
 	}
 
