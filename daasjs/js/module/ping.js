@@ -1,6 +1,7 @@
-define([ "module/http" ], function(http) {
+define([ "module/http","module/config" ], function(http,config) {
 	return {
-		ping : function(url, callback) {
+		ping : function(callback) {
+			var url = config.getBaseUrl()+"/ping";
 			http.get(url, callback, "text");
 		}
 	};

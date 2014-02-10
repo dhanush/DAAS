@@ -10,10 +10,31 @@ require.config({
 		// js/lib/jquery-1.9.0.js, relative to
 		// the HTML page.
 		jquery : 'jquery-1.11.0',
+		QUnit : 'qunit-1.14.0',
 		module : '../module',
+		tests : '../tests'
+
+	},
+	shim : {
+		'QUnit' : {
+			exports : 'QUnit',
+			init : function() {
+				QUnit.config.autoload = false;
+				QUnit.config.autostart = false;
+			}
+		}
+	},
+	config : {
+		'ping' : {
+			
+		}
 	}
 });
 
-require([ "module/ping" ], function(ping) {
-	ping: ping;
+// require the unit tests.
+require([ 'QUnit', 'tests/pingtest' ], function(QUnit, pingtest) {
+	// run the tests.
+	pingtest.run();
+	QUnit.load();
+	QUnit.start();
 });

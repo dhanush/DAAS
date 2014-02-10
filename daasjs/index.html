@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>QUnit Test Suite</title>
-<link rel="stylesheet" href="css/qunit-1.14.0.css">
-<!-- Your project file goes here -->
-<script  data-main="js/daas.js" src="js/require.js"></script>
-<!-- Your tests file goes here -->
+<title>Daas JS Client App</title>
+<script src="js/require.js"></script>
+<script>
+	require.config({
+		baseUrl: ".",
+		paths : {
+			daas : "daas-1.0.0"
+		}
+	});
+	
+	function pingStatus(){
+		alert(daas)
+	}
+	
+</script>
 </head>
-<body>
-	<h1 id="qunit-header">Qunit Test Suite for DAASJS</h1>
-	<h2 id="qunit-banner"></h2>
-	<div id="qunit-testrunner-toolbar">This shows all the test results of DaasJS
-		API's and it requires that your DAAS Rest Server is up and running</div>
-	<h2 id="qunit-userAgent"></h2>
-	<ol id="qunit-tests"></ol>
+<body onload="pingStatus()">
+	<h1>Daas JS Client</h1>
+	<p>
+	<div id="pingStatus"></div>
 </body>
 </html>
