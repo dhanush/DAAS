@@ -1,5 +1,5 @@
 /**
- * A generic module for making the HTTP requests
+ * A module for making the HTTP requests specifically to DAAS Rest Services
  */
 define([ "jquery" ], function($) {
 
@@ -13,10 +13,20 @@ define([ "jquery" ], function($) {
 		 * @param contentType
 		 * @returns
 		 */
-		post :	function(url, data, callback, dataType) {
-			$.post(url, data, function(data) {
-				callback(data);
-			}, dataType);
+		post : function(url, data, callback, dataType) {
+			$.ajax({
+				url : url,
+				type : 'POST',
+				success : function(data) {
+					callback(data);
+				},
+				dataType : dataType,
+				beforeSend : function(xhr) {
+					xhr.setRequestHeader('Authorization', 'Bearer '	+ authToken);
+				},
+				data : data
+			});
+
 		},
 
 		/**
@@ -28,10 +38,19 @@ define([ "jquery" ], function($) {
 		 * @param contentType
 		 * @returns
 		 */
-		get :function(url, callback, dataType) {
-			$.get(url, function(data) {
-				callback(data);
-			}, dataType);
+		get : function(url, callback, dataType, authToken) {
+			$.ajax({
+				url : url,
+				type : 'GET',
+				success : function(data) {
+					callback(data);
+				},
+				dataType : dataType,
+				beforeSend : function(xhr) {
+					xhr.setRequestHeader('Authorization', 'Bearer '
+									+ authToken);
+				}
+			});
 		},
 		/**
 		 * Sends a DELETE request to the Url Specified
@@ -43,13 +62,17 @@ define([ "jquery" ], function($) {
 		 */
 		deleteRequest : function(url, callback, dataType) {
 			$.ajax({
-			    url: url,
-			    type: 'DELETE',
-			    success: function(data) {
-			       callback(data);
-			    }
+				url : url,
+				type : 'DELETE',
+				success : function(data) {
+					callback(data);
+				},
+				dataType : dataType,
+				beforeSend : function(xhr) {
+					xhr.setRequestHeader('Authorization', 'Bearer '	+ authToken);
+				}
 			});
 		}
-		
+
 	};
 });
