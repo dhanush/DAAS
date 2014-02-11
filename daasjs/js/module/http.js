@@ -13,7 +13,7 @@ define([ "jquery" ], function($) {
 		 * @param contentType
 		 * @returns
 		 */
-		post : function(url, data, callback, dataType) {
+		post : function(url, data, callback, dataType, authToken) {
 			$.ajax({
 				url : url,
 				type : 'POST',
@@ -22,7 +22,9 @@ define([ "jquery" ], function($) {
 				},
 				dataType : dataType,
 				beforeSend : function(xhr) {
-					xhr.setRequestHeader('Authorization', 'Bearer '	+ authToken);
+					if(authToken) {
+						xhr.setRequestHeader('Authorization', 'Bearer '	+ authToken);
+					}
 				},
 				data : data
 			});
@@ -47,8 +49,9 @@ define([ "jquery" ], function($) {
 				},
 				dataType : dataType,
 				beforeSend : function(xhr) {
-					xhr.setRequestHeader('Authorization', 'Bearer '
-									+ authToken);
+					if(authToken) {
+						xhr.setRequestHeader('Authorization', 'Bearer '	+ authToken);
+					}
 				}
 			});
 		},
@@ -60,7 +63,7 @@ define([ "jquery" ], function($) {
 		 * @param dataType
 		 * @returns
 		 */
-		deleteRequest : function(url, callback, dataType) {
+		deleteRequest : function(url, callback, dataType, authToken) {
 			$.ajax({
 				url : url,
 				type : 'DELETE',
@@ -69,7 +72,9 @@ define([ "jquery" ], function($) {
 				},
 				dataType : dataType,
 				beforeSend : function(xhr) {
-					xhr.setRequestHeader('Authorization', 'Bearer '	+ authToken);
+					if(authToken) {
+						xhr.setRequestHeader('Authorization', 'Bearer '	+ authToken);
+					}
 				}
 			});
 		}

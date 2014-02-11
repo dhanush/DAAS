@@ -6,7 +6,7 @@ define([ "module/http", "module/config" ], function(http, config) {
 
 	var _mgmtBaseUrl = config.getBaseUrl() + "management/";
 	var _outhBaseUrl = config.getBaseUrl()
-			+ "/oauth/token?grant_type=client_credentials";
+			+ "oauth/token?grant_type=client_credentials";
 
 	return {
 		/**
@@ -38,14 +38,14 @@ define([ "module/http", "module/config" ], function(http, config) {
 		 * @param callback
 		 * @returns
 		 */
-		createAccount : function(accountName, callback) {
+		createAccount : function(accountName, callback, authToken) {
 			var url = _mgmtBaseUrl + "accounts/" + accountName;
-			http.post(url, callback, "json");
+			http.post(url, null, callback, "json", authToken);
 		},
 
-		getAccount : function(accountName, callback) {
+		getAccount : function(accountName, callback, authToken) {
 			var url = _mgmtBaseUrl + "accounts/" + accountName;
-			http.get(url, callback, "json");
+			http.get(url, callback, "json", authToken);
 		}
 
 	};
