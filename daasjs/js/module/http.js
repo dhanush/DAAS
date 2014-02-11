@@ -4,7 +4,6 @@
 define([ "jquery" ], function($) {
 
 	return {
-		post :
 		/**
 		 * Sends a POST request to the URL specified
 		 * 
@@ -14,13 +13,12 @@ define([ "jquery" ], function($) {
 		 * @param contentType
 		 * @returns
 		 */
-		function(url, data, callback, dataType) {
+		post :	function(url, data, callback, dataType) {
 			$.post(url, data, function(data) {
 				callback(data);
 			}, dataType);
 		},
 
-		get :
 		/**
 		 * Sends a GET request to the url specified
 		 * 
@@ -30,10 +28,28 @@ define([ "jquery" ], function($) {
 		 * @param contentType
 		 * @returns
 		 */
-		function(url, callback, dataType) {
+		get :function(url, callback, dataType) {
 			$.get(url, function(data) {
 				callback(data);
 			}, dataType);
+		},
+		/**
+		 * Sends a DELETE request to the Url Specified
+		 * 
+		 * @param url
+		 * @param callback
+		 * @param dataType
+		 * @returns
+		 */
+		deleteRequest : function(url, callback, dataType) {
+			$.ajax({
+			    url: url,
+			    type: 'DELETE',
+			    success: function(data) {
+			       callback(data);
+			    }
+			});
 		}
+		
 	};
 });
