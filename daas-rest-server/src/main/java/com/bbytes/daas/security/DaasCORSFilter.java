@@ -1,6 +1,7 @@
 package com.bbytes.daas.security;
 
 import java.io.IOException;
+import java.util.Enumeration;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -8,6 +9,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -31,7 +33,14 @@ public class DaasCORSFilter implements Filter {
 		httpResp.setHeader("Access-Control-Allow-Origin", "*");
 		httpResp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
 		httpResp.setHeader("Access-Control-Max-Age", "3600");
-		httpResp.setHeader("Access-Control-Allow-Headers", "x-requested-with");
+		Enumeration<String> headersEnum = ((HttpServletRequest) request).getHeaders("Access-Control-Request-Headers");
+		StringBuilder headers = new StringBuilder();
+		String delim = "";
+		while (headersEnum.hasMoreElements()) {
+			headers.append(delim).append(headersEnum.nextElement());
+			delim = ", ";
+		}
+		httpResp.setHeader("Access-Control-Allow-Headers", headers.toString());
 		chain.doFilter(request, response);
 	}
 

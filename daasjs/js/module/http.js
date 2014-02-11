@@ -1,26 +1,45 @@
 /**
- * A generic module for making the HTTP requests
+ * A module for making the HTTP requests specifically to DAAS Rest Services
  */
 define([ "jquery" ], function($) {
-
 	return {
-		post :
+
 		/**
 		 * Sends a POST request to the URL specified
 		 * 
 		 * @param url
-		 * @param data
+		 * @param data  
 		 * @param callback
+		 * @param dataType
 		 * @param contentType
+		 * @param authToken
 		 * @returns
 		 */
-		function(url, data, callback, dataType) {
-			$.post(url, data, function(data) {
-				callback(data);
-			}, dataType);
+		post : function(url, data, callback, dataType,contentType, authToken) {
+			//stringiyf the data to json
+			if(dataType =="json") {
+				data = JSON.stringify(data);
+			}
+			
+			$.ajax({
+				url : url,
+				type : 'POST',
+				success : function(data) {
+					callback(data);
+				},
+				contentType: contentType,
+				dataType : dataType,
+				beforeSend : function(xhr) {
+					if (authToken) {
+						xhr.setRequestHeader('Authorization', 'Bearer '
+								+ authToken);
+					}
+				},
+				data : data
+			});
+
 		},
 
-		get :
 		/**
 		 * Sends a GET request to the url specified
 		 * 
@@ -30,10 +49,77 @@ define([ "jquery" ], function($) {
 		 * @param contentType
 		 * @returns
 		 */
-		function(url, callback, dataType) {
-			$.get(url, function(data) {
-				callback(data);
-			}, dataType);
+		get : function(url, callback, dataType, authToken) {
+			$.ajax({
+				url : url,
+				type : 'GET',
+				success : function(data) {
+					callback(data);
+				},
+				dataType : dataType,
+				beforeSend : function(xhr) {
+					if (authToken) {
+						xhr.setRequestHeader('Authorization', 'Bearer '
+								+ authToken);
+					}
+				}
+			});
+		},
+		/**
+		 * Sends a DELETE request to the Url Specified
+		 * 
+		 * @param url
+		 * @param callback
+		 * @param dataType
+		 * @returns
+		 */
+		deleteRequest : function(url, callback, dataType, authToken) {
+			$.ajax({
+				url : url,
+				type : 'DELETE',
+				success : function(data) {
+					callback(data);
+				},
+				dataType : dataType,
+				beforeSend : function(xhr) {
+					if (authToken) {
+						xhr.setRequestHeader('Authorization', 'Bearer '
+								+ authToken);
+					}
+				}
+			});
+		},
+		/**
+		 * Sends a PUT request to the URL Specifed
+		 * 
+		 * @param url
+		 * @param callback
+		 * @param dataType
+		 * @param authToken
+		 * @returns
+		 */
+		put : function(url, data, callback, dataType, contentType, authToken) {
+			//stringiyf the data to json
+			if(dataType =="json") {
+				data = JSON.stringify(data);
+			}
+			$.ajax({
+				url : url,
+				type : 'PUT',
+				data : data,
+				contentType : contentType,
+				success : function(data) {
+					callback(data);
+				},
+				dataType : dataType,
+				beforeSend : function(xhr) {
+					if (authToken) {
+						xhr.setRequestHeader('Authorization', 'Bearer '
+								+ authToken);
+					}
+				}
+			});
 		}
+
 	};
 });
