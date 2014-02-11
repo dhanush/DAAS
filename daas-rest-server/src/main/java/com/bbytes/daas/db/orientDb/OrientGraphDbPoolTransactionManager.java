@@ -82,7 +82,7 @@ public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransac
 	protected void closeDatabaseConnectionAfterFailedBegin(OrientTransactionObject txObject) {
 		OrientGraph graphDb = txObject.getDatabaseHolder().getGraphDatabase();
 
-		if (graphDb == null || graphDb.isClosed() || graphDb.getRawGraph().getURL()==null)
+		if (graphDb == null || graphDb.getRawGraph().getURL()==null  || graphDb.isClosed())
 			return;
 
 		ODatabaseRecord db = graphDb.getRawGraph();
@@ -108,7 +108,7 @@ public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransac
 		try {
 			OrientGraph graphDb = txObject.getDatabaseHolder().getGraphDatabase();
 
-			if (graphDb == null || graphDb.isClosed() || graphDb.getRawGraph().getURL()==null)
+			if (graphDb == null || graphDb.getRawGraph().getURL()==null  || graphDb.isClosed())
 				return;
 
 			ODatabaseRecord db = graphDb.getRawGraph();
@@ -132,7 +132,7 @@ public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransac
 		try {
 			OrientGraph graphDb = txObject.getDatabaseHolder().getGraphDatabase();
 
-			if (graphDb == null || graphDb.isClosed() || graphDb.getRawGraph().getURL()==null)
+			if (graphDb == null || graphDb.getRawGraph().getURL()==null  || graphDb.isClosed())
 				return;
 
 			ODatabaseRecord db = graphDb.getRawGraph();
