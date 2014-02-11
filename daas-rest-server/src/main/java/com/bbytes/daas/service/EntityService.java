@@ -15,11 +15,11 @@ package com.bbytes.daas.service;
 
 
 /**
- * 
+ * Entity Service interface
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 1.0.0
  */
 public interface EntityService {
 

@@ -35,6 +35,10 @@ public class OrientDbTemplate {
 	public OrientDbTemplate() {
 	}
 
+	/**
+	 * Get the default db i.e graph db
+	 * @return
+	 */
 	public OrientGraph getDatabase() {
 		OrientGraph db = getThreadLocalGraphDB();
 		// The database is valid and is open if its not null, so just return it
@@ -48,10 +52,18 @@ public class OrientDbTemplate {
 		return db;
 	}
 
+	/**
+	 * Get object db 
+	 * @return
+	 */
 	public ODatabaseRecord getDocumentDatabase() {
 		return getDatabase().getRawGraph();
 	}
 
+	/**
+	 * Get the main tenant mgmt db
+	 * @return
+	 */
 	public ODatabaseObject getTenantManagementDatabase() {
 
 		ODatabaseObject db = getThreadLocalTenantManagementDB();
@@ -94,11 +106,18 @@ public class OrientDbTemplate {
 		return null;
 	}
 
+	/**
+	 * drop the db 
+	 * @param databaseName
+	 * @return
+	 */
 	public boolean dropDatabase(String databaseName) {
 		return connectionManager.dropDatabase(databaseName);
 	}
 
+	
 	/**
+	 * Get the object db
 	 * @return
 	 */
 	public ODatabaseObject getObjectDatabase() {

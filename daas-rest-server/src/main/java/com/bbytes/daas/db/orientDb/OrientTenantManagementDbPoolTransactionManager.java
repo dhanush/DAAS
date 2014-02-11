@@ -24,11 +24,11 @@ import com.orientechnologies.orient.core.db.object.ODatabaseObject;
 import com.orientechnologies.orient.core.exception.OTransactionException;
 
 /**
- * 
+ * Spring Transaction Manager impl for Orient Graph Db 
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 1.0.0
  */
 public class OrientTenantManagementDbPoolTransactionManager extends OrientGraphDbPoolTransactionManager {
 

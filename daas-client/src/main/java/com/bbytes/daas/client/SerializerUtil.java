@@ -27,11 +27,11 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 /**
- * 
+ * JSON serialization utils for GSON
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 0.0.1
  */
 public class SerializerUtil {
 

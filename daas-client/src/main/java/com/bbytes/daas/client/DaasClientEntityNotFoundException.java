@@ -18,7 +18,7 @@ package com.bbytes.daas.client;
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 0.0.1
  */
 public class DaasClientEntityNotFoundException extends DaasClientException {
 

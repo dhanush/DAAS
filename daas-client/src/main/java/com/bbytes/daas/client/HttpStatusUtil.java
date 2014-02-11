@@ -16,11 +16,11 @@ package com.bbytes.daas.client;
 import com.ning.http.client.Response;
 
 /**
- * 
+ * Http status utils
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 0.0.1
  */
 public class HttpStatusUtil {
 

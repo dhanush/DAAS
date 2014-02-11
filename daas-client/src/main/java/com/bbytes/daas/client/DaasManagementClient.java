@@ -29,7 +29,7 @@ import com.ning.http.client.Response;
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 0.0.1
  */
 public class DaasManagementClient extends DaasClient {
 

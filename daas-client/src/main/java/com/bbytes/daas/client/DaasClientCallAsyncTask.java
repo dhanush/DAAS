@@ -16,11 +16,11 @@ package com.bbytes.daas.client;
 import java.util.concurrent.Callable;
 
 /**
- * 
+ * Daas client async call back methos impl
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 0.0.1
  */
 public class DaasClientCallAsyncTask<T> implements Runnable {
 

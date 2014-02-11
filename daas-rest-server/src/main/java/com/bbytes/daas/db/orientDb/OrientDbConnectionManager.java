@@ -44,7 +44,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraph;
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 1.0.0
  */
 public class OrientDbConnectionManager implements InitializingBean, DisposableBean {
 
@@ -111,6 +111,9 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 	}
 
 	@Override
+	/**
+	 * Init all the DB pools both graph and object dbs
+	 */
 	public void afterPropertiesSet() throws Exception {
 		if (!StringUtils.hasText(databaseURL)) {
 			throw new IllegalArgumentException("'databaseURL' is required");
@@ -214,6 +217,12 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		return graphDatabase;
 	}
 
+	/**
+	 * Method that does the DB creation if not available . Does both types : graph or object db
+	 * @param databaseName
+	 * @param dbType
+	 * @return  db pool
+	 */
 	public ODatabasePoolBase<?> createDatabase(String databaseName, String dbType) {
 		OServerAdmin serverAdmin;
 		try {
@@ -246,6 +255,11 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 
 	}
 
+	/**
+	 * Register the class as tables in db when the db is created. POJO to tables conversion 
+	 * @param graphDatabase
+	 * @param classPackage
+	 */
 	private void registerClassUnderPackageToDb(ODatabaseRecord graphDatabase, final String classPackage) {
 		List<Class<?>> classes = null;
 		try {
@@ -263,6 +277,11 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		graphDatabase.close();
 	}
 	
+	/**
+	 * Register the class as tables in db when the db is created. POJO to tables conversion for object db
+	 * @param graphDatabase
+	 * @param classPackage
+	 */
 	private void registerClassUnderPackageToDb(ODatabaseObject objectDatabase, final String classPackage) {
 		List<Class<?>> classes = null;
 		try {
@@ -280,6 +299,11 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		objectDatabase.close();
 	}
 
+	/**
+	 * Method to drop the DB 
+	 * @param databaseName
+	 * @return
+	 */
 	public boolean dropDatabase(String databaseName) {
 		if (databaseName == null || databaseName.equals(tenantManagementDBName))
 			return false;
@@ -301,6 +325,11 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 		return false;
 	}
 
+	/**
+	 * Check if DB exists
+	 * @param databaseName
+	 * @return
+	 */
 	public boolean databaseExist(String databaseName) {
 		OServerAdmin serverAdmin = null;
 		try {

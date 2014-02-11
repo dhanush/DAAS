@@ -34,7 +34,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraph;
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 1.0.0
  */
 public class OrientGraphDbPoolTransactionManager extends AbstractPlatformTransactionManager implements
 		ResourceTransactionManager, DisposableBean {

@@ -25,11 +25,11 @@ import com.bbytes.daas.rest.DaasException;
 import com.bbytes.daas.rest.DaasPersistentException;
 
 /**
- * 
+ * User Service interface
  *
  * @author Thanneer
  *
- * @version 
+ * @version 1.0.0
  */
 public interface UserService {
 

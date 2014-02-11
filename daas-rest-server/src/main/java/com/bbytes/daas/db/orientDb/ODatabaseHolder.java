@@ -6,7 +6,7 @@ package com.bbytes.daas.db.orientDb;
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 1.0.0
  */
 
 import org.springframework.transaction.support.ResourceHolderSupport;
