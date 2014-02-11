@@ -1,25 +1,44 @@
 define([ "module/mgmt" ], function(mgmt) {
 	return {
 		run : function() {
-			var currentdate = new Date(); 
-			
-			var _today = currentdate.getHours() +  currentdate.getMinutes() + currentdate.getSeconds();
+			var currentdate = new Date();
+			var _today = currentdate.getHours() + currentdate.getMinutes()
+					+ currentdate.getSeconds();
 			var _accName = "AC1" + _today;
 			var _authToken = "";
-			
+
+			module("Management Module - Set 1", {
+				setup : function() {
+					// setup code
+				},
+				teardown : function() {
+					mgmt.deleteAccount(_accName, function(data) {
+					}, _authToken);
+
+				}
+			});
+
+			asyncTest('Delete Account', function() {
+				mgmt.deleteAccount(_accName, function(data) {
+					ok(data, "Deleted account");
+					start();
+				}, _authToken);
+			});
+
 			asyncTest('Get Account', function() {
 				mgmt.getAccount(_accName, function(data) {
 					equal(data.name, _accName, "Get Account is Successful");
 					start();
 				}, _authToken);
 			});
-			
+
 			asyncTest('Create Account', function() {
 				mgmt.createAccount(_accName, function(data) {
 					equal(data.name, _accName, "Create Acc is Successful");
 					start();
 				}, _authToken);
 			});
+			
 			asyncTest('Logs in', function() {
 				mgmt.login("admin", "password", null, function(data) {
 					_authToken = data.value;
@@ -27,7 +46,6 @@ define([ "module/mgmt" ], function(mgmt) {
 					start();
 				});
 			});
-
 		}
 	};
 });

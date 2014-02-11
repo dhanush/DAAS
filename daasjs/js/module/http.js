@@ -22,8 +22,9 @@ define([ "jquery" ], function($) {
 				},
 				dataType : dataType,
 				beforeSend : function(xhr) {
-					if(authToken) {
-						xhr.setRequestHeader('Authorization', 'Bearer '	+ authToken);
+					if (authToken) {
+						xhr.setRequestHeader('Authorization', 'Bearer '
+								+ authToken);
 					}
 				},
 				data : data
@@ -49,8 +50,9 @@ define([ "jquery" ], function($) {
 				},
 				dataType : dataType,
 				beforeSend : function(xhr) {
-					if(authToken) {
-						xhr.setRequestHeader('Authorization', 'Bearer '	+ authToken);
+					if (authToken) {
+						xhr.setRequestHeader('Authorization', 'Bearer '
+								+ authToken);
 					}
 				}
 			});
@@ -72,8 +74,35 @@ define([ "jquery" ], function($) {
 				},
 				dataType : dataType,
 				beforeSend : function(xhr) {
-					if(authToken) {
-						xhr.setRequestHeader('Authorization', 'Bearer '	+ authToken);
+					if (authToken) {
+						xhr.setRequestHeader('Authorization', 'Bearer '
+								+ authToken);
+					}
+				}
+			});
+		},
+		/**
+		 * Sends a PUT request to the URL Specifed
+		 * 
+		 * @param url
+		 * @param callback
+		 * @param dataType
+		 * @param authToken
+		 * @returns
+		 */
+		put : function(url, data, callback, dataType, authToken) {
+			$.ajax({
+				url : url,
+				type : 'PUT',
+				data : data,
+				success : function(data) {
+					callback(data);
+				},
+				dataType : dataType,
+				beforeSend : function(xhr) {
+					if (authToken) {
+						xhr.setRequestHeader('Authorization', 'Bearer '
+								+ authToken);
 					}
 				}
 			});

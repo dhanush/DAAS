@@ -42,11 +42,63 @@ define([ "module/http", "module/config" ], function(http, config) {
 			var url = _mgmtBaseUrl + "accounts/" + accountName;
 			http.post(url, null, callback, "json", authToken);
 		},
-
+		/**
+		 * Sends a request to get a created account
+		 * 
+		 * @param accountName
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
 		getAccount : function(accountName, callback, authToken) {
 			var url = _mgmtBaseUrl + "accounts/" + accountName;
 			http.get(url, callback, "json", authToken);
-		}
+		},
+		/**
+		 * Sends request to delete the account
+		 * @param accountName
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
+		deleteAccount : function(accountName, callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName;
+			http.deleteRequest(url, callback, "json", authToken);
+		},
+		
+		createAccountUser : function(accountName, user, callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName+"/user";
+			http.post(url, user, callback, "json", authToken);
+		},
 
+		getAccountUsers : function(accountName, callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName+"/user";
+			http.get(url, callback, "json", authToken);
+		},
+		
+		createApplication : function(accountName, applicationName, application, callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName+"/applications/"+applicationName;
+			http.post(url, application, callback, "json", authToken);
+		},
+		
+		editApplication : function(accountName, applicationName, application, callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName+"/applications/"+applicationName+"/edit";
+			http.put(url, application, callback, "json", authToken);
+		},
+		
+		getApplication : function(accountName, applicationName, callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName+"/applications/"+applicationName;
+			http.get(url, callback, "json", authToken);
+		},
+		
+		deleteApplication : function(accountName, applicationName, callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName+"/applications/"+applicationName;
+			http.deleteRequest(url, callback, "json", authToken);
+		},
+		
+		createApplicationUser : function(accountName, applicationName, user, callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName+"/applications/"+applicationName+"/user";
+			http.post(url, application, callback, "json", authToken);
+		},
 	};
 });
