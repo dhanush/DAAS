@@ -1,4 +1,4 @@
-define([ "module/mgmt" ], function(mgmt) {
+define([ "daas/mgmt" ], function(mgmt) {
 	return {
 		crudAccount : function() {
 			var currentdate = new Date();

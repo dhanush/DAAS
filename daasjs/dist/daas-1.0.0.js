@@ -1,17 +1,6 @@
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        //Allow using this built library as an AMD module
-        //in another project. That other project will only
-        //see this AMD call, not the internal modules in
-        //the closure below.
-        define([], factory);
-    } else {
-        //Browser globals case. Just assign the
-        //result to a property on the global.
-        root.libGlobalName = factory();
-    }
-}(this, function () {
-    //almond, and your modules will be inlined here
+(function(global, define) {
+  var globalDefine = global.define;
+
 /**
  * almond 0.2.6 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
@@ -423,8 +412,15 @@ var requirejs, require, define;
     };
 }());
 
-define("build/almond", function(){});
+define("../vendor/almond", function(){});
 
+define('daas/core',[],function() {
+	var daas = {
+		VERSION : '1.0.0'
+	};
+
+	return daas;
+});
 /*!
  * jQuery JavaScript Library v1.11.0
  * http://jquery.com/
@@ -10766,7 +10762,7 @@ return jQuery;
 /**
  * A module for making the HTTP requests specifically to DAAS Rest Services
  */
-define('module/http',[ "jquery" ], function($) {
+define('daas/http',[ "jquery" ], function($) {
 	return {
 
 		/**
@@ -10888,7 +10884,7 @@ define('module/http',[ "jquery" ], function($) {
 
 	};
 });
-define('module/config',[],function() {
+define('daas/config',[],function() {
 	var baseUrl = "http://localhost:8080/daas-rest-server/";
 
 	return {
@@ -10901,9 +10897,188 @@ define('module/config',[],function() {
 	};
 });
 /**
+ * This module is used to access the Management operations of DAAS.
+ * 
+ */
+define('daas/mgmt',[ "daas/http", "daas/config" ], function(http, config) {
+
+	var _mgmtBaseUrl = config.getBaseUrl() + "management/";
+	var _outhBaseUrl = config.getBaseUrl()
+			+ "oauth/token?grant_type=client_credentials";
+
+	return {
+		/**
+		 * Login for super admin or account admin user
+		 * 
+		 * @param userName
+		 * @param password
+		 * @param accountName -
+		 *            if accountName is null, checks if the user is super admin
+		 * @param callback
+		 * @returns
+		 */
+		login : function(userName, password, accountName, callback) {
+			var url;
+			if (accountName) {
+				url = _outhBaseUrl + "&client_id=" + userName
+						+ "&client_secret=" + password + "&account="
+						+ accountName;
+			} else {
+				url = _outhBaseUrl + "&client_id=" + userName
+						+ "&client_secret=" + password;
+			}
+			http.get(url, callback, "json");
+		},
+
+		/**
+		 * Sends a request to create a new account
+		 * 
+		 * @param accountName
+		 * @param callback
+		 * @returns
+		 */
+		createAccount : function(accountName, callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName;
+			http.post(url, null, callback, "json", config.CONTENT_TYPE_JSON,
+					authToken);
+		},
+		/**
+		 * Sends a request to get a created account
+		 * 
+		 * @param accountName
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
+		getAccount : function(accountName, callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName;
+			http.get(url, callback, "json", authToken);
+		},
+		/**
+		 * Sends request to delete the account
+		 * 
+		 * @param accountName
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
+		deleteAccount : function(accountName, callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName;
+			http.deleteRequest(url, callback, "json", authToken);
+		},
+		/**
+		 * Creates an Account User
+		 * 
+		 * @param accountName
+		 * @param user
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
+		createAccountUser : function(accountName, user, callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName + "/user";
+			http.post(url, user, callback, "json", config.CONTENT_TYPE_JSON,
+					authToken);
+		},
+		/**
+		 * Returns all the account users
+		 * 
+		 * @param accountName
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
+		getAccountUsers : function(accountName, callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName + "/user";
+			http.get(url, callback, "json", authToken);
+		},
+		/**
+		 * Creates an Application
+		 * 
+		 * @param accountName
+		 * @param applicationName
+		 * @param application
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
+		createApplication : function(accountName, applicationName, application,
+				callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName
+					+ "/applications/" + applicationName;
+			http.post(url, application, callback, "json",
+					config.CONTENT_TYPE_JSON, authToken);
+		},
+		/**
+		 * Edits an Application
+		 * 
+		 * @param accountName
+		 * @param applicationName
+		 * @param application
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
+		editApplication : function(accountName, applicationName, application,
+				callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName
+					+ "/applications/" + applicationName + "/edit";
+			http.put(url, application, callback, "json",
+					config.CONTENT_TYPE_JSON, authToken);
+		},
+		/**
+		 * Gets an application with the name 
+		 * 
+		 * @param accountName
+		 * @param applicationName
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
+		getApplication : function(accountName, applicationName, callback,
+				authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName
+					+ "/applications/" + applicationName;
+			http.get(url, callback, "json", authToken);
+		},
+		/**
+		 * Deletes an application 
+		 * 
+		 * @param accountName
+		 * @param applicationName
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
+		deleteApplication : function(accountName, applicationName, callback,
+				authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName
+					+ "/applications/" + applicationName;
+			http.deleteRequest(url, callback, "json", authToken);
+		},
+		/**
+		 * Creates an Application User
+		 * 
+		 * @param accountName
+		 * @param applicationName
+		 * @param user
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
+		createApplicationUser : function(accountName, applicationName, user,
+				callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName
+					+ "/applications/" + applicationName + "/user";
+			http.post(url, application, callback, "json",
+					config.CONTENT_TYPE_JSON, authToken);
+		},
+	};
+});
+/**
  * A module to test the ping status of DAAs
  */
-define('module/ping',[ "module/http","module/config" ], function(http,config) {
+define('daas/ping',[ "daas/http","daas/config" ], function(http,config) {
 	return {
 		ping : function(callback) {
 			var url = config.getBaseUrl()+"ping";
@@ -10911,36 +11086,23 @@ define('module/ping',[ "module/http","module/config" ], function(http,config) {
 		}
 	};
 });
-require.config({
-	baseUrl : 'js/lib',
-	paths : {
-		// the left side is the module ID,
-		// the right side is the path to
-		// the jQuery file, relative to baseUrl.
-		// Also, the path should NOT include
-		// the '.js' file extension. This example
-		// is using jQuery 1.9.0 located at
-		// js/lib/jquery-1.9.0.js, relative to
-		// the HTML page.
-		jquery : 'jquery-1.11.0',
-		module : '../module',
-	}
-});
 
-require([ "jquery", "module/ping" ], function($, ping) {
-
-	$('#ping').click(function() {
-		ping.ping(function(data) {
-			alert(data);
-		});
-	});
-});
-define("daas", function(){});
-
-require(["daas"]);
-    //The modules for your project will be inlined above
-    //this snippet. Ask almond to synchronously require the
-    //module value for 'main' here and return it as the
-    //value to use for the public API for the built file.
-    return require('daas');
-}));
+/**
+ * Main daas module 
+ */
+define('daas',['require','daas/core','daas/mgmt','daas/ping'],function(require) {
+	var daas = require('daas/core');
+	daas.mgmt = require('daas/mgmt');
+	daas.ping = require('daas/ping');
+	return daas;
+});  var library = require('daas');
+  if(typeof module !== 'undefined' && module.exports) {
+    module.exports = library;
+  } else if(globalDefine) {
+    (function (define) {
+      define(function () { return library; });
+    }(globalDefine));
+  } else {
+    global['daas'] = library;
+  }
+}(this));

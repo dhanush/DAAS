@@ -1,5 +1,5 @@
 require.config({
-	baseUrl : 'js/lib',
+	baseUrl : 'lib',
 	paths : {
 		// the left side is the module ID,
 		// the right side is the path to
@@ -9,12 +9,11 @@ require.config({
 		// is using jQuery 1.9.0 located at
 		// js/lib/jquery-1.9.0.js, relative to
 		// the HTML page.
-		jquery : 'jquery-1.11.0',
-		module : '../module',
+		jquery : '../vendor/jquery-1.11.0',
 	}
 });
 
-require([ "jquery", "module/ping" ], function($, ping) {
+require([ "jquery", "daas/ping", "daas/mgmt" ], function($, ping, mgmt) {
 
 	$('#ping').click(function() {
 		ping.ping(function(data) {

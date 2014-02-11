@@ -31,7 +31,7 @@ public class DaasCORSFilter implements Filter {
 			ServletException {
 		HttpServletResponse httpResp = (HttpServletResponse) response;
 		httpResp.setHeader("Access-Control-Allow-Origin", "*");
-		httpResp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+		httpResp.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
 		httpResp.setHeader("Access-Control-Max-Age", "3600");
 		Enumeration<String> headersEnum = ((HttpServletRequest) request).getHeaders("Access-Control-Request-Headers");
 		StringBuilder headers = new StringBuilder();

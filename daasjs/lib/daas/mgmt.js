@@ -2,7 +2,7 @@
  * This module is used to access the Management operations of DAAS.
  * 
  */
-define([ "module/http", "module/config" ], function(http, config) {
+define([ "daas/http", "daas/config" ], function(http, config) {
 
 	var _mgmtBaseUrl = config.getBaseUrl() + "management/";
 	var _outhBaseUrl = config.getBaseUrl()
@@ -68,18 +68,42 @@ define([ "module/http", "module/config" ], function(http, config) {
 			var url = _mgmtBaseUrl + "accounts/" + accountName;
 			http.deleteRequest(url, callback, "json", authToken);
 		},
-
+		/**
+		 * Creates an Account User
+		 * 
+		 * @param accountName
+		 * @param user
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
 		createAccountUser : function(accountName, user, callback, authToken) {
 			var url = _mgmtBaseUrl + "accounts/" + accountName + "/user";
 			http.post(url, user, callback, "json", config.CONTENT_TYPE_JSON,
 					authToken);
 		},
-
+		/**
+		 * Returns all the account users
+		 * 
+		 * @param accountName
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
 		getAccountUsers : function(accountName, callback, authToken) {
 			var url = _mgmtBaseUrl + "accounts/" + accountName + "/user";
 			http.get(url, callback, "json", authToken);
 		},
-
+		/**
+		 * Creates an Application
+		 * 
+		 * @param accountName
+		 * @param applicationName
+		 * @param application
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
 		createApplication : function(accountName, applicationName, application,
 				callback, authToken) {
 			var url = _mgmtBaseUrl + "accounts/" + accountName
@@ -87,7 +111,16 @@ define([ "module/http", "module/config" ], function(http, config) {
 			http.post(url, application, callback, "json",
 					config.CONTENT_TYPE_JSON, authToken);
 		},
-
+		/**
+		 * Edits an Application
+		 * 
+		 * @param accountName
+		 * @param applicationName
+		 * @param application
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
 		editApplication : function(accountName, applicationName, application,
 				callback, authToken) {
 			var url = _mgmtBaseUrl + "accounts/" + accountName
@@ -95,21 +128,46 @@ define([ "module/http", "module/config" ], function(http, config) {
 			http.put(url, application, callback, "json",
 					config.CONTENT_TYPE_JSON, authToken);
 		},
-
+		/**
+		 * Gets an application with the name 
+		 * 
+		 * @param accountName
+		 * @param applicationName
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
 		getApplication : function(accountName, applicationName, callback,
 				authToken) {
 			var url = _mgmtBaseUrl + "accounts/" + accountName
 					+ "/applications/" + applicationName;
 			http.get(url, callback, "json", authToken);
 		},
-
+		/**
+		 * Deletes an application 
+		 * 
+		 * @param accountName
+		 * @param applicationName
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
 		deleteApplication : function(accountName, applicationName, callback,
 				authToken) {
 			var url = _mgmtBaseUrl + "accounts/" + accountName
 					+ "/applications/" + applicationName;
 			http.deleteRequest(url, callback, "json", authToken);
 		},
-
+		/**
+		 * Creates an Application User
+		 * 
+		 * @param accountName
+		 * @param applicationName
+		 * @param user
+		 * @param callback
+		 * @param authToken
+		 * @returns
+		 */
 		createApplicationUser : function(accountName, applicationName, user,
 				callback, authToken) {
 			var url = _mgmtBaseUrl + "accounts/" + accountName

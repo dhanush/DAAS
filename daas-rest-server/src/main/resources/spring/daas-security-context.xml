@@ -26,7 +26,10 @@
 	<http pattern="/management/**" create-session="never" entry-point-ref="oauthAuthenticationEntryPoint"
 		access-decision-manager-ref="accessDecisionManager" xmlns="http://www.springframework.org/schema/security">
 		<anonymous enabled="false" />
-		<intercept-url pattern="/management/**" access="ROLE_ACCOUNT_ADMIN,ROLE_TENENT_ADMIN" />
+		<intercept-url pattern="/management/**" access="ROLE_ACCOUNT_ADMIN,ROLE_TENENT_ADMIN" method="GET"/>
+		<intercept-url pattern="/management/**" access="ROLE_ACCOUNT_ADMIN,ROLE_TENENT_ADMIN" method="POST"/>
+		<intercept-url pattern="/management/**" access="ROLE_ACCOUNT_ADMIN,ROLE_TENENT_ADMIN" method="DELETE"/>
+		<intercept-url pattern="/management/**" access="ROLE_ACCOUNT_ADMIN,ROLE_TENENT_ADMIN" method="PUT"/>
 		<custom-filter ref="resourceServerFilter" before="PRE_AUTH_FILTER" />
 		<access-denied-handler ref="oauthAccessDeniedHandler" />
 	</http>
@@ -37,7 +40,11 @@
 	<http pattern="/**" create-session="never" entry-point-ref="oauthAuthenticationEntryPoint"
 		access-decision-manager-ref="accessDecisionManager" xmlns="http://www.springframework.org/schema/security">
 		<anonymous enabled="false" />
-		<intercept-url pattern="/**" access="ROLE_APPLICATION_USER,ROLE_ACCOUNT_ADMIN,ROLE_TENENT_ADMIN" />
+		<intercept-url pattern="/**" access="ROLE_APPLICATION_USER,ROLE_ACCOUNT_ADMIN,ROLE_TENENT_ADMIN" method="GET"/>
+		<intercept-url pattern="/**" access="ROLE_APPLICATION_USER,ROLE_ACCOUNT_ADMIN,ROLE_TENENT_ADMIN" method="POST"/>
+		<intercept-url pattern="/**" access="ROLE_APPLICATION_USER,ROLE_ACCOUNT_ADMIN,ROLE_TENENT_ADMIN" method="DELETE"/>
+		<intercept-url pattern="/**" access="ROLE_APPLICATION_USER,ROLE_ACCOUNT_ADMIN,ROLE_TENENT_ADMIN" method="PUT"/>
+		
 		<custom-filter ref="resourceServerFilter" before="PRE_AUTH_FILTER" />
 		<access-denied-handler ref="oauthAccessDeniedHandler" />
 	</http>
