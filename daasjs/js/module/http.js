@@ -2,24 +2,32 @@
  * A module for making the HTTP requests specifically to DAAS Rest Services
  */
 define([ "jquery" ], function($) {
-
 	return {
+
 		/**
 		 * Sends a POST request to the URL specified
 		 * 
 		 * @param url
-		 * @param data
+		 * @param data  
 		 * @param callback
+		 * @param dataType
 		 * @param contentType
+		 * @param authToken
 		 * @returns
 		 */
-		post : function(url, data, callback, dataType, authToken) {
+		post : function(url, data, callback, dataType,contentType, authToken) {
+			//stringiyf the data to json
+			if(dataType =="json") {
+				data = JSON.stringify(data);
+			}
+			
 			$.ajax({
 				url : url,
 				type : 'POST',
 				success : function(data) {
 					callback(data);
 				},
+				contentType: contentType,
 				dataType : dataType,
 				beforeSend : function(xhr) {
 					if (authToken) {
@@ -90,11 +98,16 @@ define([ "jquery" ], function($) {
 		 * @param authToken
 		 * @returns
 		 */
-		put : function(url, data, callback, dataType, authToken) {
+		put : function(url, data, callback, dataType, contentType, authToken) {
+			//stringiyf the data to json
+			if(dataType =="json") {
+				data = JSON.stringify(data);
+			}
 			$.ajax({
 				url : url,
 				type : 'PUT',
 				data : data,
+				contentType : contentType,
 				success : function(data) {
 					callback(data);
 				},

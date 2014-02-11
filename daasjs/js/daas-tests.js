@@ -30,8 +30,9 @@ require.config({
 // require the unit tests.
 require([ 'QUnit', 'tests/pingtest', 'tests/mgmttest' ], function(QUnit, pingtest,mgmttest) {
 	// run the tests.
-//	pingtest.run();
-	mgmttest.run();
+	pingtest.run();
+	mgmttest.crudAccount();
+	mgmttest.crudApplication();
 	QUnit.load();
 	QUnit.start();
 });

@@ -14,7 +14,8 @@ define([ "module/http", "module/config" ], function(http, config) {
 		 * 
 		 * @param userName
 		 * @param password
-		 * @param accountName - if accountName is null, checks if the user is super admin
+		 * @param accountName -
+		 *            if accountName is null, checks if the user is super admin
 		 * @param callback
 		 * @returns
 		 */
@@ -40,7 +41,8 @@ define([ "module/http", "module/config" ], function(http, config) {
 		 */
 		createAccount : function(accountName, callback, authToken) {
 			var url = _mgmtBaseUrl + "accounts/" + accountName;
-			http.post(url, null, callback, "json", authToken);
+			http.post(url, null, callback, "json", config.CONTENT_TYPE_JSON,
+					authToken);
 		},
 		/**
 		 * Sends a request to get a created account
@@ -56,6 +58,7 @@ define([ "module/http", "module/config" ], function(http, config) {
 		},
 		/**
 		 * Sends request to delete the account
+		 * 
 		 * @param accountName
 		 * @param callback
 		 * @param authToken
@@ -65,40 +68,54 @@ define([ "module/http", "module/config" ], function(http, config) {
 			var url = _mgmtBaseUrl + "accounts/" + accountName;
 			http.deleteRequest(url, callback, "json", authToken);
 		},
-		
+
 		createAccountUser : function(accountName, user, callback, authToken) {
-			var url = _mgmtBaseUrl + "accounts/" + accountName+"/user";
-			http.post(url, user, callback, "json", authToken);
+			var url = _mgmtBaseUrl + "accounts/" + accountName + "/user";
+			http.post(url, user, callback, "json", config.CONTENT_TYPE_JSON,
+					authToken);
 		},
 
 		getAccountUsers : function(accountName, callback, authToken) {
-			var url = _mgmtBaseUrl + "accounts/" + accountName+"/user";
+			var url = _mgmtBaseUrl + "accounts/" + accountName + "/user";
 			http.get(url, callback, "json", authToken);
 		},
-		
-		createApplication : function(accountName, applicationName, application, callback, authToken) {
-			var url = _mgmtBaseUrl + "accounts/" + accountName+"/applications/"+applicationName;
-			http.post(url, application, callback, "json", authToken);
+
+		createApplication : function(accountName, applicationName, application,
+				callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName
+					+ "/applications/" + applicationName;
+			http.post(url, application, callback, "json",
+					config.CONTENT_TYPE_JSON, authToken);
 		},
-		
-		editApplication : function(accountName, applicationName, application, callback, authToken) {
-			var url = _mgmtBaseUrl + "accounts/" + accountName+"/applications/"+applicationName+"/edit";
-			http.put(url, application, callback, "json", authToken);
+
+		editApplication : function(accountName, applicationName, application,
+				callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName
+					+ "/applications/" + applicationName + "/edit";
+			http.put(url, application, callback, "json",
+					config.CONTENT_TYPE_JSON, authToken);
 		},
-		
-		getApplication : function(accountName, applicationName, callback, authToken) {
-			var url = _mgmtBaseUrl + "accounts/" + accountName+"/applications/"+applicationName;
+
+		getApplication : function(accountName, applicationName, callback,
+				authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName
+					+ "/applications/" + applicationName;
 			http.get(url, callback, "json", authToken);
 		},
-		
-		deleteApplication : function(accountName, applicationName, callback, authToken) {
-			var url = _mgmtBaseUrl + "accounts/" + accountName+"/applications/"+applicationName;
+
+		deleteApplication : function(accountName, applicationName, callback,
+				authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName
+					+ "/applications/" + applicationName;
 			http.deleteRequest(url, callback, "json", authToken);
 		},
-		
-		createApplicationUser : function(accountName, applicationName, user, callback, authToken) {
-			var url = _mgmtBaseUrl + "accounts/" + accountName+"/applications/"+applicationName+"/user";
-			http.post(url, application, callback, "json", authToken);
+
+		createApplicationUser : function(accountName, applicationName, user,
+				callback, authToken) {
+			var url = _mgmtBaseUrl + "accounts/" + accountName
+					+ "/applications/" + applicationName + "/user";
+			http.post(url, application, callback, "json",
+					config.CONTENT_TYPE_JSON, authToken);
 		},
 	};
 });
