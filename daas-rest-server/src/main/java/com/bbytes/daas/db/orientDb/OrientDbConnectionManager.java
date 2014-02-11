@@ -114,7 +114,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 	/**
 	 * Init all the DB pools both graph and object dbs
 	 */
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		if (!StringUtils.hasText(databaseURL)) {
 			throw new IllegalArgumentException("'databaseURL' is required");
 		}
@@ -139,22 +139,23 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 
 	/**
 	 * Check if Database is there if not create one in orientdb for tenant management
-	 * 
-	 * @throws IOException
-	 * 
 	 */
-	private void initTenantManagementDB() throws IOException {
-		OServerAdmin serverAdmin = new OServerAdmin(databaseURL).connect(username, password);
-		if (!serverAdmin.listDatabases().keySet().contains(tenantManagementDBName)) {
-			serverAdmin.createDatabase(tenantManagementDBName, "document", "plocal");
-		}
+	private void initTenantManagementDB() {
+		try {
+			OServerAdmin serverAdmin = new OServerAdmin(databaseURL).connect(username, password);
+			if (!serverAdmin.listDatabases().keySet().contains(tenantManagementDBName)) {
+				serverAdmin.createDatabase(tenantManagementDBName, "document", "plocal");
+			}
 
-		ODatabaseObject database = defaultTenantManageDbPool.acquire();
-		// Before to use persistent POJOs OrientDB needs to know which classes are persistent
-		// (between thousands in your classpath) by registering the persistent packages and/or
-		// classes.
-		database.getEntityManager().registerEntityClasses(this.domainClassBasePackage);
-		database.close();
+			ODatabaseObject database = defaultTenantManageDbPool.acquire();
+			// Before to use persistent POJOs OrientDB needs to know which classes are persistent
+			// (between thousands in your classpath) by registering the persistent packages and/or
+			// classes.
+			database.getEntityManager().registerEntityClasses(this.domainClassBasePackage);
+			database.close();
+		} catch (Exception e) {
+			logger.error(e);
+		}
 	}
 
 	public ODatabaseObject getTenantManagementDatabase() {
@@ -219,9 +220,10 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 
 	/**
 	 * Method that does the DB creation if not available . Does both types : graph or object db
+	 * 
 	 * @param databaseName
 	 * @param dbType
-	 * @return  db pool
+	 * @return db pool
 	 */
 	public ODatabasePoolBase<?> createDatabase(String databaseName, String dbType) {
 		OServerAdmin serverAdmin;
@@ -239,7 +241,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 					username, password);
 			tenantGraphDatabasePool.setup(minConnections, maxConnections);
 			tenantToGraphDbConnPoolMap.put(databaseName, tenantGraphDatabasePool);
-			ODatabaseDocumentTx  graphDatabase = tenantGraphDatabasePool.acquire();
+			ODatabaseDocumentTx graphDatabase = tenantGraphDatabasePool.acquire();
 			registerClassUnderPackageToDb(graphDatabase, domainClassBasePackage);
 			return tenantGraphDatabasePool;
 		} else {
@@ -256,7 +258,8 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 	}
 
 	/**
-	 * Register the class as tables in db when the db is created. POJO to tables conversion 
+	 * Register the class as tables in db when the db is created. POJO to tables conversion
+	 * 
 	 * @param graphDatabase
 	 * @param classPackage
 	 */
@@ -273,12 +276,14 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 				graphDatabase.getMetadata().getSchema().createClass(c);
 			}
 		}
-		
+
 		graphDatabase.close();
 	}
-	
+
 	/**
-	 * Register the class as tables in db when the db is created. POJO to tables conversion for object db
+	 * Register the class as tables in db when the db is created. POJO to tables conversion for
+	 * object db
+	 * 
 	 * @param graphDatabase
 	 * @param classPackage
 	 */
@@ -295,12 +300,13 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 				objectDatabase.getMetadata().getSchema().createClass(c);
 			}
 		}
-		
+
 		objectDatabase.close();
 	}
 
 	/**
-	 * Method to drop the DB 
+	 * Method to drop the DB
+	 * 
 	 * @param databaseName
 	 * @return
 	 */
@@ -327,6 +333,7 @@ public class OrientDbConnectionManager implements InitializingBean, DisposableBe
 
 	/**
 	 * Check if DB exists
+	 * 
 	 * @param databaseName
 	 * @return
 	 */
