@@ -27,11 +27,11 @@ import com.bbytes.daas.rest.DaasEntityNotFoundException;
 import com.bbytes.daas.rest.DaasPersistentException;
 
 /**
- * 
+ * Mgmt service impl
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 1.0.0
  */
 @Service("ManagementService")
 public class ManagementServiceImpl implements ManagementService {

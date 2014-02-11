@@ -19,11 +19,11 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.oauth2.provider.BaseClientDetails;
 
 /**
- * 
+ * Daas Client Details impl for spring security
  *
  * @author Thanneer
  *
- * @version 
+ * @version 1.0.0
  */
 public class DaasBaseClientDetails extends BaseClientDetails implements InitializingBean{
 

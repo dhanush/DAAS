@@ -18,11 +18,11 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 
+ * The oauth token object representation of the json sent from server during authorization
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 0.0.1
  */
 public class OAuthToken {
 

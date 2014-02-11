@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.db.object.ODatabaseObject;
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 1.0.0
  */
 
 public class ObjectDBTransactionHolder extends ODatabaseHolder {

@@ -19,11 +19,11 @@ import java.util.Map;
 import com.bbytes.daas.domain.Entity;
 
 /**
- * 
+ * The daas client interface
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 0.0.1
  */
 public interface IDaasClient {
 

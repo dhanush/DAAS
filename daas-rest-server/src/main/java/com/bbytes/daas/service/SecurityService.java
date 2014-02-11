@@ -4,11 +4,11 @@ import com.bbytes.daas.domain.DaasUser;
 
 
 /**
- * 
+ * Security Service interface
  *
  * @author Dhanush Gopinath
  *
- * @version 
+ * @version 1.0.0
  */
 public interface SecurityService {
 

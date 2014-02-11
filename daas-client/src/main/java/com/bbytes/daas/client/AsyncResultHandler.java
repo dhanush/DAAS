@@ -16,11 +16,11 @@
 package com.bbytes.daas.client;
 
 /**
- * 
+ * The asyc call back method interface used in daas client 
  *
  * @author Thanneer
  *
- * @version 
+ * @version  0.0.1
  */
 public interface AsyncResultHandler<T> {
 

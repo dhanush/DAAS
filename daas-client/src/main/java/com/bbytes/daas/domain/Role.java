@@ -16,11 +16,11 @@
 package com.bbytes.daas.domain;
 
 /**
- * 
+ * The user role object
  *
  * @author Thanneer
  *
- * @version 
+ * @version 1.0.0
  */
 public class Role extends Entity{
 

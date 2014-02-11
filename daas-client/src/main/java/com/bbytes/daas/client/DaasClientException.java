@@ -17,8 +17,8 @@ package com.bbytes.daas.client;
  * Daas client exception
  * 
  * @author Thanneer
- * 
- * @version
+ *  
+ * @version 0.0.1
  */
 public class DaasClientException extends Exception {
 

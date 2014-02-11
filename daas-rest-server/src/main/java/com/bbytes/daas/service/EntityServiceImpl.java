@@ -15,11 +15,11 @@ package com.bbytes.daas.service;
 
 
 /**
- * 
+ * Entity Service Impl 
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 1.0.0
  */
 public class EntityServiceImpl implements EntityService{
 

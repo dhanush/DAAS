@@ -26,11 +26,11 @@ import com.bbytes.daas.rest.DaasException;
 import com.bbytes.daas.rest.DaasPersistentException;
 
 /**
- * 
+ * User service impl
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 1.0.0
  */
 @Service("UserService")
 public class UserServiceImpl implements UserService {

@@ -5,11 +5,11 @@ import org.springframework.transaction.support.SmartTransactionObject;
 
 
 /**
- * 
+ * Orient Transaction Object that holds the db and does roolback or commits
  *
  * @author Thanneer
  *
- * @version 
+ * @version 1.0.0
  */
 public abstract class  OrientTransactionObject implements SmartTransactionObject {
 

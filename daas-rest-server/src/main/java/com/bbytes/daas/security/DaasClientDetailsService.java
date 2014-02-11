@@ -28,11 +28,11 @@ import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.rest.DaasEntityNotFoundException;
 
 /**
- * 
+ * Client Details Service fro spring security
  * 
  * @author Thanneer
  * 
- * @version
+ * @version 1.0.0
  */
 public class DaasClientDetailsService implements ClientDetailsService {
 

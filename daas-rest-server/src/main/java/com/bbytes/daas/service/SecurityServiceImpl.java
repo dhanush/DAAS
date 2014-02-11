@@ -11,7 +11,7 @@ import com.bbytes.daas.domain.DaasUser;
 import com.bbytes.daas.rest.DaasEntityNotFoundException;
 
 /**
- * 
+ * Security Service Impl
  * 
  * @author Dhanush Gopinath
  * 
